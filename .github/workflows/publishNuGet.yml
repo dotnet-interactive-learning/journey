@@ -13,6 +13,8 @@ jobs:
     runs-on: windows-latest
     name: Generate and Publish NuGet Package
     steps:
+    - run: echo "🛠️ The job was automatically triggered by a ${{ github.event_name }} event."
+    
     - uses: actions/checkout@v2
     
     - name: Setup .NET
@@ -27,14 +29,16 @@ jobs:
       run: dotnet restore ./src
       
     - name: Build
-      run: dotnet build --no-restore ./src
+      run: dotnet build --no-restore --configuration Release ./src/Extension
       
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./src
+      run: dotnet test --verbosity normal ./src
       
     - name: Pack
-      run: dotnet pack --no-build --configuration Release ./src/Extension
+      run: dotnet pack --configuration Release ./src/Extension
       
     - name: Publish NuGet package to GitHub Package Registry
       run: dotnet nuget push .\src\Extension\bin\Release\*.nupkg
+      
+    - run: echo "🍏 This job's status is ${{ job.status }}."
       
