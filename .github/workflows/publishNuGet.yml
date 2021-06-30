@@ -38,7 +38,7 @@ jobs:
       run: dotnet pack --configuration Release ./src/Extension
       
     - name: Publish NuGet package to GitHub Package Registry
-      run: dotnet nuget push .\src\Extension\bin\Release\*.nupkg
+      run: dotnet nuget push .\src\Extension\bin\Release\*.nupkg --skip-duplicate
       
     - run: echo "🍏 This job's status is ${{ job.status }}."
       
