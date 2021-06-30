@@ -1,0 +1,44 @@
+name: Generate and Publish NuGet Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    types: [ closed ]
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+    name: Generate and Publish NuGet Package
+    steps:
+    - run: echo "🛠️ The job was automatically triggered by a ${{ github.event_name }} event."
+    
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+        source-url: https://nuget.pkg.github.com/dotnet-interactive-learning/index.json
+      env:
+        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Restore dependencies
+      run: dotnet restore ./src
+      
+    - name: Build
+      run: dotnet build --no-restore --configuration Release ./src/Extension
+      
+    - name: Test
+      run: dotnet test --verbosity normal ./src
+      
+    - name: Pack
+      run: dotnet pack --configuration Release ./src/Extension
+      
+    - name: Publish NuGet package to GitHub Package Registry
+      run: dotnet nuget push .\src\Extension\bin\Release\*.nupkg
+      
+    - run: echo "🍏 This job's status is ${{ job.status }}."
+      
