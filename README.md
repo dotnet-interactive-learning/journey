@@ -1,2 +1,4 @@
 # intern2021
-Super project ExplorePod Interns
+
+
+Package source: https://nuget.pkg.github.com/dotnet-interactive-learning/index.json
