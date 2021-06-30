@@ -2,14 +2,28 @@
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
-	  <OutputType>Library</OutputType>
-	  <Version>0.0.0.2</Version>
-	<RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<PackageId>EducationExtension</PackageId>
-	<Authors />
-	<ApplicationIcon />
-	<StartupObject />
+    <OutputType>Library</OutputType>
+    <Version>0.0.1</Version>
+    <IsPackable>true</IsPackable>
+    <RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>EducationExtension</PackageId>
+    <Authors />
+    <ApplicationIcon />
+    <StartupObject />
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>.\Extension.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>.\Extension.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(OutputPath)/Extension.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+  </ItemGroup>
 
 </Project>
