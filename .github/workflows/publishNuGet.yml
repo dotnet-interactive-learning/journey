@@ -32,13 +32,13 @@ jobs:
       run: dotnet build --no-restore --configuration Release ./src/Extension
       
     - name: Test
-      run: dotnet test --verbosity normal ./src
+      run: dotnet test --configuration Release --no-build --verbosity normal ./src
       
     - name: Pack
-      run: dotnet pack --configuration Release ./src/Extension
+      run: dotnet pack --configuration Release --no-build ./src/Extension -o ./packages
       
     - name: Publish NuGet package to GitHub Package Registry
-      run: dotnet nuget push .\src\Extension\bin\Release\*.nupkg --skip-duplicate
+      run: dotnet nuget push .\packages\*.nupkg --skip-duplicate
       
     - run: echo "🍏 This job's status is ${{ job.status }}."
       
