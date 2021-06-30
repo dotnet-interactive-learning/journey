@@ -20,6 +20,14 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore ./src
     - name: Build
-      run: dotnet build --no-restore ./src
+      run: dotnet build --configuration Release --no-restore ./src
     - name: Test
-      run: dotnet test --no-build --verbosity normal ./src
+      run: dotnet test --configuration Release --no-build --verbosity normal ./src
+    - name: Pack
+      run: dotnet pack --configuration Release --no-build ./src/Extension -o ./package
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: extensionpackage
+        path: ./package
+        
