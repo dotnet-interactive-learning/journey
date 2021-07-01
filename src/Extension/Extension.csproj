@@ -1,29 +1,34 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <OutputType>Library</OutputType>
-    <Version>0.0.1</Version>
-    <IsPackable>true</IsPackable>
-    <RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <PackageId>EducationExtension</PackageId>
-    <Authors />
-    <ApplicationIcon />
-    <StartupObject />
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<OutputType>Library</OutputType>
+		<Version>0.0.1</Version>
+		<IsPackable>true</IsPackable>
+		<RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+		<PackageId>EducationExtension</PackageId>
+		<Authors />
+		<ApplicationIcon />
+		<StartupObject />
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DocumentationFile>.\Extension.xml</DocumentationFile>
-  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.DotNet.Interactive" Version="1.0.0-beta.21309.3" />
+		<PackageReference Include="Microsoft.DotNet.Interactive.CSharp" Version="1.0.0-beta.21309.3" />
+	</ItemGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>.\Extension.xml</DocumentationFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<DocumentationFile>.\Extension.xml</DocumentationFile>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="$(OutputPath)/Extension.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="$(OutputPath)/Extension.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="extension.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
+	</ItemGroup>
 
 </Project>

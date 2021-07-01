@@ -1,0 +1,8 @@
+#!csharp
+
+using Microsoft.DotNet.Interactive;
+
+if (KernelInvocationContext.Current is { } currentContext)
+{
+    currentContext.DisplayAs("Hello world! Extension.dib loaded!", "text/markdown");
+}
