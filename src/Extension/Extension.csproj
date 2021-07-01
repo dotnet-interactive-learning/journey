@@ -6,7 +6,6 @@
 		<Version>0.0.1</Version>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
-		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 		<PackageId>EducationExtension</PackageId>
 		<Authors />
 		<ApplicationIcon />
