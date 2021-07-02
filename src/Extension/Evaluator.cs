@@ -4,7 +4,7 @@ using System.Reactive.Linq;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Events;
 
-namespace Extension.Tests
+namespace Extension
 {
     public class Evaluator
     {
