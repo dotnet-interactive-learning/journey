@@ -24,14 +24,8 @@ namespace Extension.Tests
             //act
             var evaluation = new Evaluator().EvaluateResult(result);
 
-
             //assert
             evaluation.Passed.Should().Be(false);
-
-
-
-            
-
         }
     }
 }
