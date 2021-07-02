@@ -22,7 +22,7 @@ Our GPR source is `https://nuget.pkg.github.com/dotnet-interactive-learning/inde
     
 3. `nuget source add -Name [mysourcename] -Source [GPR source] -Username [Github username] -Password [your PAT]`.
 
-4. Check that the source was added using `nuget source list`.
+4. Check that the source was added using `dotnet nuget source list`.
 
 5. To check that the authentication is correct, run `#r "nuget: [packagename], [version number or *-* if latest]"` in a notebook.
 
