@@ -11,7 +11,7 @@ namespace Extension.Tests
         {
         }
 
-        public bool Passed { get; internal set; }
+        public bool Passed { get; set; }
 
         public string FormatAsHtml()
         {
