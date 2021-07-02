@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Extension.Tests
+namespace Extension
 {
     [TypeFormatterSource(typeof(EvaluationFormatterSource))]
     public class Evaluation
