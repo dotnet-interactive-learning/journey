@@ -1,8 +1,8 @@
 #!csharp
 
+using Extension;
+using System;
+using System.Threading.Tasks;
 using Microsoft.DotNet.Interactive;
 
-if (KernelInvocationContext.Current is { } currentContext)
-{
-    currentContext.DisplayAs("Hello world! Extension.dib loaded!", "text/markdown");
-}
+Task.Run(() => Extension.Main.OnLoadAsync(Kernel.Root)).Wait();
