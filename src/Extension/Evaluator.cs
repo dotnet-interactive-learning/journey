@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using Extension.Criterion;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Events;
 
@@ -9,11 +10,13 @@ namespace Extension
 {
     public class Evaluator
     {
-        SortedDictionary<int, string> executionCriteria;
+        private SortedDictionary<string, List<CodeRunCriterion>> codeRunCriteria;
+        private SortedDictionary<string, List<QuestionTextCriterion>> questionTextCriteria;
 
         public Evaluator()
         {
-            executionCriteria = new SortedDictionary<int, string>();
+            codeRunCriteria = new SortedDictionary<string, List<CodeRunCriterion>>();
+            questionTextCriteria = new SortedDictionary<string, List<QuestionTextCriterion>>();
         }
 
         public Evaluation EvaluateResult(KernelCommandResult result)
@@ -28,34 +31,67 @@ namespace Extension
             return new Evaluation { Passed = true };
         }
 
-        public void AddInputExecutionCriterion(int cellId, string code)
+        public void AddCodeRunCriterion(string questionId, CodeRunCriterion criterion)
         {
-            executionCriteria.Remove(cellId);
-            executionCriteria.Add(cellId, code);
-        }
-
-        public string GetInputExecutionCriterion(int cellId)
-        {
-            if (executionCriteria.ContainsKey(cellId))
+            if (!codeRunCriteria.ContainsKey(questionId))
             {
-                return executionCriteria[cellId];
+                codeRunCriteria.Add(questionId, new List<CodeRunCriterion>());
             }
-            return "";
+            codeRunCriteria[questionId].Add(criterion);
         }
 
-        public Evaluation EvaluateInputExecution(KernelCommandResult result)
+        public IEnumerable<CodeRunCriterion> GetCodeRunCriteria(string questionId)
         {
-            var events = result.KernelEvents.ToEnumerable();
-            var foundEvent = events.FirstOrDefault(e => e is ReturnValueProduced);
-            if (foundEvent is ReturnValueProduced returnValueProduced
-                && returnValueProduced.Value is bool criteriaResult)
+            if (codeRunCriteria.ContainsKey(questionId))
             {
-                if (!criteriaResult)
+                return codeRunCriteria[questionId];
+            }
+            return Enumerable.Empty<CodeRunCriterion>();
+        }
+
+        public Evaluation EvaluateCodeRunResults(IEnumerable<KernelCommandResult> results)
+        {
+            var events = results.Select(result => result.KernelEvents.ToEnumerable());
+
+            var foundReturnValueProducedEvents = events
+                .Select(evts => evts.FirstOrDefault(e => e is ReturnValueProduced))
+                .Where(e => e is { })
+                .Select(e => (ReturnValueProduced)e);
+                
+            var evaluationVerdict = foundReturnValueProducedEvents.All(
+                (returnValueProduced) =>
                 {
-                    return new Evaluation { Passed = false };
+                    var value = returnValueProduced.Value;
+                    return !(value is bool) || (bool)value;
                 }
+            );
+
+            return new Evaluation { Passed = evaluationVerdict };
+        }
+
+        public void AddQuestionTextCriterion(string questionId, Predicate<string> criterion)
+        {
+            if (!questionTextCriteria.ContainsKey(questionId))
+            {
+                questionTextCriteria.Add(questionId, new List<QuestionTextCriterion>());
             }
-            return new Evaluation { Passed = true };
+            questionTextCriteria[questionId].Add(QuestionTextCriterion.FromPredicate(criterion));
+        }
+
+        public Evaluation EvaluateQuestionAsText(string questionId, string questionText)
+        {
+            if (!questionTextCriteria.ContainsKey(questionId))
+            {
+                return new Evaluation { Passed = true };
+            }
+
+            var predicateResults = questionTextCriteria[questionId]
+                .Select(criterion => criterion.ToPredicate()(questionText));
+
+            var evaluationVerdict = predicateResults
+                .All(result => result);
+
+            return new Evaluation { Passed = evaluationVerdict };
         }
     }
 }

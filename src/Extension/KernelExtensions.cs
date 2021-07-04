@@ -1,4 +1,6 @@
-﻿using Microsoft.DotNet.Interactive;
+﻿using Extension.Criterion;
+using Extension.Events;
+using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
@@ -13,29 +15,45 @@ namespace Extension
 {
     public static class KernelExtensions
     {
+        public static Task<KernelCommandResult[]> SubmitEvaluationCriteriaAsync<T>(
+            this T kernel, 
+            IEnumerable<CodeRunCriterion> evaluationCriteria)
+            where T : Kernel
+        {
+            return Task.WhenAll(
+                evaluationCriteria
+                    .Select(criterion => kernel.SubmitCodeAsync(criterion.ToCodeString()))
+            );
+        }
+
         public static T UseQuestionMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         {
-            var cellIdArg = new Argument<int>("Question number");
-
             var questionCommand = new Command("#!question", "This cell will be evaluated")
             {
-                cellIdArg
+                new Argument<string>("questionId", "Question number")
             };
 
-            questionCommand.Handler = CommandHandler.Create<int, KernelInvocationContext>((id, context) =>
+            questionCommand.Handler = CommandHandler.Create<string, KernelInvocationContext>((questionId, context) =>
             {
+                if (context.Command is SubmitCode submitCode)
+                {
+                    var evaluation = evaluator.EvaluateQuestionAsText(questionId, submitCode.Code);
+                    context.Publish(
+                        new QuestionTextEvaluationProduced(submitCode, evaluation));
+                }
+
                 context.OnComplete(async (invocationContext) =>
                 {
                     if (invocationContext.Command is SubmitCode submitCode)
                     {
-                        var evaluationCriteria = evaluator.GetInputExecutionCriterion(id);
-                        if (evaluationCriteria != "")
-                        {
-                            var result = await invocationContext.HandlingKernel.SubmitCodeAsync(evaluationCriteria);
-                            var evaluation = evaluator.EvaluateInputExecution(result);
-                            invocationContext.Publish(
-                                new ExecutionEvaluationProduced(submitCode, evaluation));
-                        }
+                        var evaluationCriteria = evaluator.GetCodeRunCriteria(questionId);
+
+                        var results = await invocationContext.HandlingKernel.SubmitEvaluationCriteriaAsync(evaluationCriteria);
+
+                        var evaluation = evaluator.EvaluateCodeRunResults(results);
+
+                        invocationContext.Publish(
+                            new CodeRunEvaluationProduced(submitCode, evaluation));
                     }
                 });
             });
@@ -47,14 +65,13 @@ namespace Extension
 
         public static T UseAnswerMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         {
-            var cellIdArg = new Argument<int>("Question number");
             var commandName = "#!answer";
             var answerCommand = new Command(commandName, "This cell contains code that evaluates a question")
             {
-                cellIdArg
+                new Argument<string>("questionid", "Question number")
             };
 
-            answerCommand.Handler = CommandHandler.Create<int, KernelInvocationContext>((id, context) =>
+            answerCommand.Handler = CommandHandler.Create<string, KernelInvocationContext>((questionId, context) =>
             {
                 if (context.Command is SubmitCode submitCode)
                 {
@@ -63,7 +80,7 @@ namespace Extension
                     var filteredLines = lines.Where(line => !line.TrimStart().StartsWith(commandName));
                     newCode = string.Join(Environment.NewLine, filteredLines);
 
-                    evaluator.AddInputExecutionCriterion(id, newCode);
+                    evaluator.AddCodeRunCriterion(questionId, CodeRunCriterion.FromCodeString(newCode));
                 }
             });
 
