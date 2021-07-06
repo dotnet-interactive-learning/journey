@@ -30,6 +30,7 @@ var revealedVar = 10;
 
             var commands = controller.GetAddCellCommands("1");
 
+            // will fix to use ContainSingle<KernelCommand>()
             commands.Should().HaveCount(1);
             commands.First().Should().Match(cmd => ((AddCell)cmd).Contents.Contains("var revealedVar = 10;"));
         }
