@@ -22,6 +22,10 @@
 		<DocumentationFile>.\Extension.xml</DocumentationFile>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <NoWarn>1591</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup>
 		<None Include="$(OutputPath)/Extension.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
