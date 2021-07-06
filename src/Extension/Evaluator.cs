@@ -11,12 +11,10 @@ namespace Extension
     public class Evaluator
     {
         private SortedDictionary<string, List<CodeEvaluationCriterion>> codeEvaluationCriteria;
-        private SortedDictionary<string, List<QuestionTextCriterion>> questionTextCriteria;
 
         public Evaluator()
         {
             codeEvaluationCriteria = new SortedDictionary<string, List<CodeEvaluationCriterion>>();
-            questionTextCriteria = new SortedDictionary<string, List<QuestionTextCriterion>>();
         }
 
         public Evaluation EvaluateResult(KernelCommandResult result)
@@ -65,31 +63,6 @@ namespace Extension
                     return !(value is bool) || (bool)value;
                 }
             );
-
-            return new Evaluation { Passed = evaluationVerdict };
-        }
-
-        public void AddQuestionTextCriterion(string questionId, Predicate<string> criterion)
-        {
-            if (!questionTextCriteria.ContainsKey(questionId))
-            {
-                questionTextCriteria.Add(questionId, new List<QuestionTextCriterion>());
-            }
-            questionTextCriteria[questionId].Add(QuestionTextCriterion.FromPredicate(criterion));
-        }
-
-        public Evaluation EvaluateQuestionAsText(string questionId, string questionText)
-        {
-            if (!questionTextCriteria.ContainsKey(questionId))
-            {
-                return new Evaluation { Passed = true };
-            }
-
-            var predicateResults = questionTextCriteria[questionId]
-                .Select(criterion => criterion.ToPredicate()(questionText));
-
-            var evaluationVerdict = predicateResults
-                .All(result => result);
 
             return new Evaluation { Passed = evaluationVerdict };
         }
