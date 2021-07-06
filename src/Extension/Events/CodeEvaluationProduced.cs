@@ -1,23 +1,17 @@
 ﻿using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Extension.Events
 {
-    public class EvaluationProduced : KernelEvent
+    public class CodeEvaluationProduced : KernelEvent
     {
         public Evaluation Evaluation { get; }
 
-        public EvaluationProduced(
-            KernelCommand command,
+        public CodeEvaluationProduced(
+            SubmitCode command,
             Evaluation evaluation) : base(command)
         {
             Evaluation = evaluation;
         }
     }
 }
-

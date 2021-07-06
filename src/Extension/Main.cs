@@ -17,7 +17,7 @@ namespace Extension
             var evaluator = new Evaluator();
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             if (KernelInvocationContext.Current is { } context)
             {

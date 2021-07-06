@@ -20,7 +20,7 @@ namespace Extension.Tests
             using var kernel = new CompositeKernel { csharpKernel };
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             using var events = kernel.KernelEvents.ToSubscribedList();
 
@@ -43,7 +43,7 @@ namespace Extension.Tests
             using var kernel = new CompositeKernel { csharpKernel };
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             using var events = kernel.KernelEvents.ToSubscribedList();
 
@@ -67,7 +67,7 @@ namespace Extension.Tests
             using var kernel = new CompositeKernel { csharpKernel };
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             using var events = kernel.KernelEvents.ToSubscribedList();
 
@@ -90,7 +90,7 @@ namespace Extension.Tests
             using var kernel = new CompositeKernel { csharpKernel };
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             evaluator.AddQuestionTextCriterion("1", s => s.Contains("3.14"));
             evaluator.AddQuestionTextCriterion("2", s => s.Contains("2.72"));
@@ -125,7 +125,7 @@ namespace Extension.Tests
             using var kernel = new CompositeKernel { csharpKernel };
             kernel
                 .UseQuestionMagicCommand(evaluator)
-                .UseAnswerMagicCommand(evaluator);
+                .UseEvaluateMagicCommand(evaluator);
 
             using var events = kernel.KernelEvents.ToSubscribedList();
 
