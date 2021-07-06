@@ -39,13 +39,6 @@ namespace Extension
 
             questionCommand.Handler = CommandHandler.Create<string, KernelInvocationContext>((questionId, context) =>
             {
-                if (context.Command is SubmitCode submitCode)
-                {
-                    var evaluation = evaluator.EvaluateQuestionAsText(questionId, submitCode.Code);
-                    context.Publish(
-                        new QuestionTextEvaluationProduced(submitCode, evaluation));
-                }
-
                 context.OnComplete(async (invocationContext) =>
                 {
                     if (invocationContext.Command is SubmitCode submitCode)
