@@ -10,12 +10,12 @@ namespace Extension
 {
     public class Evaluator
     {
-        private SortedDictionary<string, List<CodeRunCriterion>> codeRunCriteria;
+        private SortedDictionary<string, List<CodeEvaluationCriterion>> codeEvaluationCriteria;
         private SortedDictionary<string, List<QuestionTextCriterion>> questionTextCriteria;
 
         public Evaluator()
         {
-            codeRunCriteria = new SortedDictionary<string, List<CodeRunCriterion>>();
+            codeEvaluationCriteria = new SortedDictionary<string, List<CodeEvaluationCriterion>>();
             questionTextCriteria = new SortedDictionary<string, List<QuestionTextCriterion>>();
         }
 
@@ -31,25 +31,25 @@ namespace Extension
             return new Evaluation { Passed = true };
         }
 
-        public void AddCodeRunCriterion(string questionId, CodeRunCriterion criterion)
+        public void AddCodeEvaluationCriterion(string questionId, CodeEvaluationCriterion criterion)
         {
-            if (!codeRunCriteria.ContainsKey(questionId))
+            if (!codeEvaluationCriteria.ContainsKey(questionId))
             {
-                codeRunCriteria.Add(questionId, new List<CodeRunCriterion>());
+                codeEvaluationCriteria.Add(questionId, new List<CodeEvaluationCriterion>());
             }
-            codeRunCriteria[questionId].Add(criterion);
+            codeEvaluationCriteria[questionId].Add(criterion);
         }
 
-        public IEnumerable<CodeRunCriterion> GetCodeRunCriteria(string questionId)
+        public IEnumerable<CodeEvaluationCriterion> GetCodeEvaluationCriteria(string questionId)
         {
-            if (codeRunCriteria.ContainsKey(questionId))
+            if (codeEvaluationCriteria.ContainsKey(questionId))
             {
-                return codeRunCriteria[questionId];
+                return codeEvaluationCriteria[questionId];
             }
-            return Enumerable.Empty<CodeRunCriterion>();
+            return Enumerable.Empty<CodeEvaluationCriterion>();
         }
 
-        public Evaluation EvaluateCodeRunResults(IEnumerable<KernelCommandResult> results)
+        public Evaluation EvaluateCodeEvaluationResults(IEnumerable<KernelCommandResult> results)
         {
             var events = results.Select(result => result.KernelEvents.ToEnumerable());
 

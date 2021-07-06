@@ -9,6 +9,7 @@ using System.CommandLine.Invocation;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Extension
@@ -17,18 +18,21 @@ namespace Extension
     {
         public static Task<KernelCommandResult[]> SubmitEvaluationCriteriaAsync<T>(
             this T kernel, 
-            IEnumerable<CodeRunCriterion> evaluationCriteria)
+            IEnumerable<CodeEvaluationCriterion> evaluationCriteria,
+            CancellationToken? cancellationToken = null)
             where T : Kernel
         {
+            var cancelToken = cancellationToken ?? CancellationToken.None;
+
             return Task.WhenAll(
                 evaluationCriteria
-                    .Select(criterion => kernel.SubmitCodeAsync(criterion.ToCodeString()))
+                    .Select(criterion => kernel.SendAsync(new SubmitCode(criterion.ToCodeString()), cancelToken))
             );
         }
 
         public static T UseQuestionMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         {
-            var questionCommand = new Command("#!question", "This cell will be evaluated")
+            var questionCommand = new Command("#!question", "This question will be evaluated")
             {
                 new Argument<string>("questionId", "Question number")
             };
@@ -46,14 +50,14 @@ namespace Extension
                 {
                     if (invocationContext.Command is SubmitCode submitCode)
                     {
-                        var evaluationCriteria = evaluator.GetCodeRunCriteria(questionId);
+                        var evaluationCriteria = evaluator.GetCodeEvaluationCriteria(questionId);
 
                         var results = await invocationContext.HandlingKernel.SubmitEvaluationCriteriaAsync(evaluationCriteria);
 
-                        var evaluation = evaluator.EvaluateCodeRunResults(results);
+                        var evaluation = evaluator.EvaluateCodeEvaluationResults(results);
 
                         invocationContext.Publish(
-                            new CodeRunEvaluationProduced(submitCode, evaluation));
+                            new CodeEvaluationProduced(submitCode, evaluation));
                     }
                 });
             });
@@ -63,15 +67,15 @@ namespace Extension
             return kernel;
         }
 
-        public static T UseAnswerMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
+        public static T UseEvaluateMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         {
-            var commandName = "#!answer";
-            var answerCommand = new Command(commandName, "This cell contains code that evaluates a question")
+            var commandName = "#!evaluate";
+            var evaluateCommand = new Command(commandName, "The following code will evaluate a question")
             {
                 new Argument<string>("questionid", "Question number")
             };
 
-            answerCommand.Handler = CommandHandler.Create<string, KernelInvocationContext>((questionId, context) =>
+            evaluateCommand.Handler = CommandHandler.Create<string, KernelInvocationContext>((questionId, context) =>
             {
                 if (context.Command is SubmitCode submitCode)
                 {
@@ -80,11 +84,11 @@ namespace Extension
                     var filteredLines = lines.Where(line => !line.TrimStart().StartsWith(commandName));
                     newCode = string.Join(Environment.NewLine, filteredLines);
 
-                    evaluator.AddCodeRunCriterion(questionId, CodeRunCriterion.FromCodeString(newCode));
+                    evaluator.AddCodeEvaluationCriterion(questionId, CodeEvaluationCriterion.FromCodeString(newCode));
                 }
             });
 
-            kernel.AddDirective(answerCommand);
+            kernel.AddDirective(evaluateCommand);
 
             return kernel;
         }

@@ -1,15 +1,15 @@
 ﻿namespace Extension.Criterion
 {
-    public class CodeRunCriterion
+    public class CodeEvaluationCriterion
     {
         string criterion;
 
-        public static CodeRunCriterion FromCodeString(string codeString)
+        public static CodeEvaluationCriterion FromCodeString(string codeString)
         {
-            return new CodeRunCriterion(codeString);
+            return new CodeEvaluationCriterion(codeString);
         }
 
-        private CodeRunCriterion(string codeString)
+        private CodeEvaluationCriterion(string codeString)
         {
             criterion = codeString;
         }
