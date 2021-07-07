@@ -51,7 +51,7 @@ namespace Extension.Tests
 
             //act
             var evaluator = new Evaluator();
-            ev
+            evaluator.AddRule(new Criterion());
             evaluator.EvaluateResult(result);
 
 
