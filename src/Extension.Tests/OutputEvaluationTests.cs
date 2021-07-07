@@ -14,7 +14,7 @@ namespace Extension.Tests
     public class OutputEvaluationTests
     {
         [Fact]
-        public async Task output_with_error_event_produces_failed_evaluationAsync()
+        public async Task output_with_error_event_produces_failed_evaluation()
         {
             //arrange
             using var csharpkernel = new CSharpKernel();
@@ -41,12 +41,24 @@ namespace Extension.Tests
             //set var for submission code output
             //set var for expected criteria
             //if they are the same then this test passes
+
             //arrange
+            using var csharpkernel = new CSharpKernel();
+            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            var result = await csharpkernel.SubmitCodeAsync(
+@"//return 1+1
+1+1");
 
             //act
+            var evaluator = new Evaluator();
+            ev
+            evaluator.EvaluateResult(result);
 
 
             //assert
+            evaluator.Passed.Should().Be(true);
+
+
             throw new Exception();
 
         }
