@@ -7,18 +7,19 @@ namespace Extension
     [TypeFormatterSource(typeof(EvaluationFormatterSource))]
     public class Evaluation
     {
-        public Evaluation()
+        public Evaluation(bool passed, string headline = null)
         {
+            Passed = passed;
+            Headline = headline;
         }
 
-        public bool Passed { get; internal set; }
+        public bool Passed { get; }
+        public string Headline { get; }
 
         public string FormatAsHtml()
         {
-            if (Passed)
-                return "Success";
-
-            return "Fail";
+            var headlineMessage = Headline ?? (Passed ? "Success" : "Fail");
+            return headlineMessage;
         }
     }
 
