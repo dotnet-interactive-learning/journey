@@ -20,6 +20,15 @@ Lesson.NextEvaluation.AddRule(
 
         context.ResultEvents.ContainSingle<CommandSucceeded>();
     }
+);
+
+#!csharp
+
+Lesson.Evaluation.AddCustomMessaging(
+    (context, evaluation) => {
+        // some thing like 
+        Formatter.Register<Evaluation>(_ => "you should be doing dfs, not bfs. read notes again!");
+    }
 )
 
 #!markdown
@@ -95,7 +104,7 @@ Finding the bridges of a graph.
 
 #!markdown
 
-## [ExampleAnswers]
+## [Scratchpad]
 
 #!csharp
 

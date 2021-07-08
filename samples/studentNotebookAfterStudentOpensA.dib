@@ -1,10 +1,10 @@
 #!csharp
 
-Import("teacher.dib")
+EnableProgressiveLearning("teacher.dib")
 
 #!markdown
 
-## Question 1: DFS
+### Question 1: DFS
 
 #!markdown
 
