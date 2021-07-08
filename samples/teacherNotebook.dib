@@ -12,7 +12,7 @@ double GetConstant() => 1.0;
 
 #!markdown
 
-## [Frontstage] (Stuff that comes AFTER THIS is what the student sees, everything else is BACKSTAGE, not student facing) (students wont see this line)
+## [Frontstage] (Stuff that comes after this is what the student sees, everything else is backstage, not student facing) (students wont see this line)
 
 #!markdown
 
