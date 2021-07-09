@@ -29,7 +29,7 @@ namespace Extension.StageControl
             }
         }
 
-        public void NextStage()
+        public void PassStage()
         {
             CurrentStage.Pass();
         }
@@ -57,6 +57,10 @@ namespace Extension.StageControl
         public void Commit()
         {
             InitializeStartingStages();
+            foreach (var stage in Stages.Values)
+            {
+                stage.AddOnRevealListener(stage => CurrentStage = stage);
+            }
         }
 
         private void InitializeStartingStages()
