@@ -24,12 +24,12 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, "1", Enumerable.Empty<string>());
+            stageController.AddStage(1, Enumerable.Empty<string>());
             stageController.AddOnRevealListener(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
             });
-            stageController.CommitProgressionStructure();
+            stageController.Commit();
 
             revealedStageIds.Should().BeEquivalentTo(1);
         }
@@ -40,9 +40,9 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, "1", Enumerable.Empty<string>());
-            stageController.AddStage(2, "2", Enumerable.Empty<string>());
-            stageController.AddStage(3, "3", Enumerable.Empty<string>());
+            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.AddStage(3, Enumerable.Empty<string>());
             stageController.AddOnRevealListener(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -58,9 +58,9 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, "1", Enumerable.Empty<string>());
-            stageController.AddStage(2, "2", Enumerable.Empty<string>());
-            stageController.AddStage(3, "3", Enumerable.Empty<string>());
+            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.AddStage(3, Enumerable.Empty<string>());
             stageController.AddOnRevealListener(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -69,13 +69,13 @@ namespace Extension.Tests
 
             revealedStageIds.Should().BeEquivalentTo(1);
 
-            stageController.PassStage("1");
+            stageController.PassStage();
             revealedStageIds.Should().BeEquivalentTo(1, 2);
 
-            stageController.PassStage("2");
+            stageController.PassStage();
             revealedStageIds.Should().BeEquivalentTo(1, 2, 3);
 
-            stageController.PassStage("3");
+            stageController.PassStage();
             revealedStageIds.Should().BeEquivalentTo(1, 2, 3);
         }
 
@@ -119,7 +119,6 @@ namespace Extension.Tests
 
             revealAgain.Should().Throw<InvalidOperationException>();
         }
-
 
         [Fact]
         public void revealing_a_stage_that_is_already_revealed_does_not_call_listener()

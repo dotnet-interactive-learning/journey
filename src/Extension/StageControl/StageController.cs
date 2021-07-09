@@ -8,18 +8,17 @@ namespace Extension.StageControl
 {
     public class StageController
     {
-        private SortedDictionary<int, Stage> Stages = new SortedDictionary<int, Stage>();
-        private Dictionary<string, int> questionIdToStageIdMap = new Dictionary<string, int>();
+        public SortedDictionary<int, Stage> Stages { get; private set; } = new SortedDictionary<int, Stage>();
+        public Stage CurrentStage { get; private set; }
 
         public StageController()
         {
 
         }
 
-        public void AddStage(int stageId, string questionId, IEnumerable<string> content)
+        public void AddStage(int stageId, IEnumerable<string> content)
         {
             Stages.Add(stageId, new Stage(stageId, content));
-            questionIdToStageIdMap.Add(questionId, stageId);
         }
 
         public void AddOnRevealListener(Action<Stage> listener)
@@ -30,10 +29,9 @@ namespace Extension.StageControl
             }
         }
 
-        public void PassStage(string questionId)
+        public void NextStage()
         {
-            var stage = Stages[questionIdToStageIdMap[questionId]];
-            stage.Pass();
+            CurrentStage.Pass();
         }
 
         public void UseLinearProgressionStructure()
@@ -53,18 +51,18 @@ namespace Extension.StageControl
                 }
             }
 
-            CommitProgressionStructure();
+            Commit();
         }
 
-        public void CommitProgressionStructure()
+        public void Commit()
         {
-            // check on dependency graph validity
-            RevealStartingStages();
+            InitializeStartingStages();
         }
 
-        private void RevealStartingStages()
+        private void InitializeStartingStages()
         {
             var stagesWithNoDependencies = Stages.Values.Where(stage => stage.Dependencies.Count == 0);
+            CurrentStage = stagesWithNoDependencies.First();
             foreach (var stage in stagesWithNoDependencies)
             {
                 if (!stage.Revealed)
