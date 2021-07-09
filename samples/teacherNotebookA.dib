@@ -10,9 +10,9 @@
 
 double GetConstant() => 1.0;
 
-public class DAG { } 
+public class LinkedList { } 
 
-Formatter.Register<DAG>( ... );
+Formatter.Register<LinkedList>( ... );
 
 #!csharp
 
@@ -22,7 +22,7 @@ Lesson.Current.AddRule(
         context.Info("Info about this rule shown to the student");
         if (context.Code.Contains(4))
         {
-            context.Succeed("Your answer contains 4.");
+            context.Succeed("Good job. Your answer contains 4.");
         }
         else
         {
@@ -36,12 +36,13 @@ Lesson.Current.AddRule(
 // using exceptions
 Lesson.Current.AddRule(
     (context) => {
-        DAG testDAG = DAG.GetRandomDAG();
-        if (!testDAG.IsTopologicalSortValid(context.ReturnValue))
+        LinkedList testlist = LinkedList.GetRandomList();
+        if (!LinkedList.IsValid(context.ReturnValue))
         {
-            throw new Exception($"The result you returned does not correspond to a valid topological sorting for the following DAG \r\n${testDAG.ToDisplayString()}");
+            LinkedList.Display();
+            throw new Exception($"The result you returned does not correspond to a valid linked list. See above");
         }
-        context.Success("The result you returned is a valid topological sort for a test DAG");
+        context.Success("Good job. The result you returned is a valid linked list");
     }
 );
 
@@ -51,7 +52,7 @@ Lesson.Current.AddRule(
 Lesson.Current.AddRule(
     (context) => {
         context.ReturnValue.Should().Contain(3.14, "Your answer is not correct");
-        context.Success("Your answer is correct.");
+        context.Success("Good job. Your answer is correct.");
     }
 );
 
