@@ -18,6 +18,7 @@ namespace Extension.StageControl
         public List<Stage> Dependents { get; private set; } = new List<Stage>();
 
         public List<Action<Stage>> OnRevealListeners { get; private set; } = new List<Action<Stage>>();
+        public List<Action<Stage>> OnFocusListeners { get; private set; } = new List<Action<Stage>>();
 
         public Stage(int stageId, IEnumerable<string> content)
         {
@@ -40,13 +41,30 @@ namespace Extension.StageControl
             OnRevealListeners.Add(listener);
         }
 
+        public void AddOnFocusListener(Action<Stage> listener)
+        {
+            OnFocusListeners.Add(listener);
+        }
+
         public void Pass()
         {
             Passed = true;
             foreach (var dependent in Dependents)
             {
-                dependent.TryReveal();
+                if (dependent.Revealed || dependent.CanReveal())
+                {
+                    dependent.Focus();
+                }
             }
+        }
+
+        public void Focus()
+        {
+            foreach (var listener in OnFocusListeners)
+            {
+                listener(this);
+            }
+            Reveal();
         }
 
         public bool CanReveal()
@@ -65,14 +83,6 @@ namespace Extension.StageControl
                     listener(this);
                 }
                 Revealed = true; 
-            }
-        }
-
-        public void TryReveal()
-        {
-            if (CanReveal())
-            {
-                Reveal();
             }
         }
 

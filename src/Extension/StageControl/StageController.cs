@@ -21,7 +21,7 @@ namespace Extension.StageControl
             Stages.Add(stageId, new Stage(stageId, content));
         }
 
-        public void AddOnRevealListener(Action<Stage> listener)
+        public void AddOnRevealListeners(Action<Stage> listener)
         {
             foreach (var stage in Stages.Values)
             {
@@ -29,9 +29,22 @@ namespace Extension.StageControl
             }
         }
 
+        public void AddOnFocusListeners(Action<Stage> listener)
+        {
+            foreach (var stage in Stages.Values)
+            {
+                stage.AddOnFocusListener(listener);
+            }
+        }
+
         public void PassStage()
         {
             CurrentStage.Pass();
+        }
+
+        public void GoToStage(int stageId)
+        {
+            Stages[stageId].Focus();
         }
 
         public void UseLinearProgressionStructure()
@@ -50,17 +63,12 @@ namespace Extension.StageControl
                     prevStage = currStage;
                 }
             }
-
-            Commit();
         }
 
         public void Commit()
         {
             InitializeStartingStages();
-            foreach (var stage in Stages.Values)
-            {
-                stage.AddOnRevealListener(stage => CurrentStage = stage);
-            }
+            AddOnFocusListeners(stage => CurrentStage = stage);
         }
 
         private void InitializeStartingStages()

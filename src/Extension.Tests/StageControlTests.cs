@@ -25,12 +25,13 @@ namespace Extension.Tests
 
             var stageController = new StageController();
             stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddOnRevealListener(stage =>
+            stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
             });
             stageController.Commit();
 
+            stageController.CurrentStage.StageId.Should().Be(1);
             revealedStageIds.Should().BeEquivalentTo(1);
         }
 
@@ -43,12 +44,14 @@ namespace Extension.Tests
             stageController.AddStage(1, Enumerable.Empty<string>());
             stageController.AddStage(2, Enumerable.Empty<string>());
             stageController.AddStage(3, Enumerable.Empty<string>());
-            stageController.AddOnRevealListener(stage =>
+            stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
             });
             stageController.UseLinearProgressionStructure();
+            stageController.Commit();
 
+            stageController.CurrentStage.StageId.Should().Be(1);
             revealedStageIds.Should().BeEquivalentTo(1);
         }
 
@@ -61,26 +64,24 @@ namespace Extension.Tests
             stageController.AddStage(1, Enumerable.Empty<string>());
             stageController.AddStage(2, Enumerable.Empty<string>());
             stageController.AddStage(3, Enumerable.Empty<string>());
-            stageController.AddOnRevealListener(stage =>
+            stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
             });
             stageController.UseLinearProgressionStructure();
-
-            revealedStageIds.Should().BeEquivalentTo(1);
+            stageController.Commit();
 
             stageController.PassStage();
+            stageController.CurrentStage.StageId.Should().Be(2);
             revealedStageIds.Should().BeEquivalentTo(1, 2);
 
             stageController.PassStage();
-            revealedStageIds.Should().BeEquivalentTo(1, 2, 3);
-
-            stageController.PassStage();
+            stageController.CurrentStage.StageId.Should().Be(3);
             revealedStageIds.Should().BeEquivalentTo(1, 2, 3);
         }
 
         [Fact]
-        public void revealing_a_stage_exposes_its_contents_through_listener()
+        public void revealing_a_stage_exposes_its_contents_through_onReveal_listener()
         {
             IEnumerable<string> exposedContents = Enumerable.Empty<string>();
 
@@ -97,7 +98,30 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void revealing_a_stage_that_is_already_revealed_does_not_call_listener()
+        public void focusing_on_a_unrevealed_stage_calls_onFocus_and_onReveal_listeners()
+        {
+            bool wasOnFocusCalled = false;
+            bool wasOnRevealCalled = false;
+
+            Stage stage = new Stage(1, sampleStageContent);
+
+            stage.AddOnFocusListener(stage =>
+            {
+                wasOnFocusCalled = true;
+            });
+            stage.AddOnRevealListener(stage =>
+            {
+                wasOnRevealCalled = true;
+            });
+
+            stage.Focus();
+
+            wasOnFocusCalled.Should().BeTrue();
+            wasOnRevealCalled.Should().BeTrue();
+        }
+
+        [Fact]
+        public void calling_reveal_on_a_stage_that_is_already_revealed_does_not_call_listener()
         {
             int numberOfListenerCalls = 0;
 
@@ -107,14 +131,79 @@ namespace Extension.Tests
             stage.Reveal();
             numberOfListenerCalls.Should().Be(1);
 
-            try
-            {
-                stage.Reveal();
-            }
-            catch (Exception)
-            {
-            }
+
+            stage.Reveal();
             numberOfListenerCalls.Should().Be(1);
+        }
+
+
+        [Fact]
+        public void skipping_to_a_unrevealed_stage_reveals_it()
+        {
+            bool didGetRevealed = false;
+
+            var stageController = new StageController();
+            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.UseLinearProgressionStructure();
+            stageController.Commit();
+
+            stageController.Stages[2].AddOnRevealListener(_ => didGetRevealed = true);
+
+            stageController.GoToStage(2);
+
+            stageController.CurrentStage.StageId.Should().Be(2);
+            didGetRevealed.Should().BeTrue();
+        }
+
+
+        [Fact]
+        public void skipping_to_a_unrevealed_stage_allows_progression_to_continue_from_there_linear_case()
+        {
+            List<int> revealedStageIds = new List<int>();
+
+            var stageController = new StageController();
+            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.AddStage(3, Enumerable.Empty<string>());
+            stageController.AddStage(4, Enumerable.Empty<string>());
+            stageController.AddOnRevealListeners(stage =>
+            {
+                revealedStageIds.Add(stage.StageId);
+            });
+            stageController.UseLinearProgressionStructure();
+            stageController.Commit();
+
+            stageController.GoToStage(3);
+            stageController.CurrentStage.StageId.Should().Be(3);
+            revealedStageIds.Should().BeEquivalentTo(1, 3);
+
+            stageController.PassStage();
+            stageController.CurrentStage.StageId.Should().Be(4);
+            revealedStageIds.Should().BeEquivalentTo(1, 3, 4);
+        }
+
+        [Fact]
+        public void going_back_to_a_revealed_stage_allows_CurrentStage_to_continue_to_progress_from_there_linear_case()
+        {
+            var stageController = new StageController();
+            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.AddStage(3, Enumerable.Empty<string>());
+            stageController.AddStage(4, Enumerable.Empty<string>());
+            stageController.UseLinearProgressionStructure();
+            stageController.Commit();
+
+            stageController.PassStage();
+            stageController.PassStage();
+            stageController.PassStage();
+
+            stageController.GoToStage(2);
+            stageController.CurrentStage.StageId.Should().Be(2);
+
+            stageController.PassStage();
+            stageController.CurrentStage.StageId.Should().Be(3);
         }
     }
 }
+  
