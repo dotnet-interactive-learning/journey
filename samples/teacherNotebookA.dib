@@ -19,14 +19,14 @@ Formatter.Register<DAG>( ... );
 // display message directly
 Lesson.Current.AddRule(
     (context) => {
-        context.AddMessage(messageType.Info, "Info about this rule shown to the student");
+        context.Info("Info about this rule shown to the student");
         if (context.Code.Contains(4))
         {
-            context.AddMessage(messageType.Success, "Your answer contains 4.");
+            context.Succeed("Your answer contains 4.");
         }
         else
         {
-            context.AddMessage(messageType.Fail, "Your answer does not contain 4.");
+            context.Fail("Your answer does not contain 4.");
         }
     }
 );
@@ -37,11 +37,11 @@ Lesson.Current.AddRule(
 Lesson.Current.AddRule(
     (context) => {
         DAG testDAG = DAG.GetRandomDAG();
-        if (!IsValidTopologicalSort(context.ReturnValue, testDAG))
+        if (!testDAG.IsTopologicalSortValid(context.ReturnValue))
         {
             throw new Exception($"The result you returned does not correspond to a valid topological sorting for the following DAG \r\n${testDAG.ToDisplayString()}");
         }
-        context.AddMessage(messageType.Success, "The result you returned is a valid topological sort for a test DAG");
+        context.Success("The result you returned is a valid topological sort for a test DAG");
     }
 );
 
@@ -51,7 +51,7 @@ Lesson.Current.AddRule(
 Lesson.Current.AddRule(
     (context) => {
         context.ReturnValue.Should().Contain(3.14, "Your answer is not correct");
-        context.AddMessage(messageType.Success, "Your answer is correct.");
+        context.Success("Your answer is correct.");
     }
 );
 
