@@ -9,7 +9,20 @@ namespace Extension.StageControl
     public class StageController
     {
         public SortedDictionary<int, Stage> Stages { get; private set; } = new SortedDictionary<int, Stage>();
-        public Stage CurrentStage { get; private set; }
+        public Stage CurrentStage
+        {
+            get
+            {
+                return _currentStage;
+            }
+            set
+            {
+                _currentStage = value;
+                _currentStage.Focus();
+            }
+        }
+
+        private Stage _currentStage;
 
         public StageController()
         {
@@ -68,7 +81,7 @@ namespace Extension.StageControl
         public void Commit()
         {
             InitializeStartingStages();
-            AddOnFocusListeners(stage => CurrentStage = stage);
+            AddOnFocusListeners(stage => _currentStage = stage);
         }
 
         private void InitializeStartingStages()

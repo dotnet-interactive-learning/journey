@@ -1,4 +1,5 @@
 ﻿using Extension.StageControl;
+using Extension.Tests.Utilities;
 using FluentAssertions;
 using System;
 using System.Collections.Generic;
@@ -18,13 +19,18 @@ namespace Extension.Tests
                 "contentcell3"
             };
 
+        private Stage GetEmptyStage(int stageId = 1)
+        {
+            return new Stage(stageId, Enumerable.Empty<string>());
+        }
+
         [Fact]
         public void stage_with_no_dependency_is_auto_revealed_single_stage_case()
         {
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1 });
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -41,9 +47,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddStage(2, Enumerable.Empty<string>());
-            stageController.AddStage(3, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1, 2, 3 });
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -61,9 +65,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddStage(2, Enumerable.Empty<string>());
-            stageController.AddStage(3, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1, 2, 3 });
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -125,7 +127,7 @@ namespace Extension.Tests
         {
             int numberOfListenerCalls = 0;
 
-            var stage = new Stage(1, Enumerable.Empty<string>());
+            var stage = GetEmptyStage();
             stage.AddOnRevealListener(_ => numberOfListenerCalls++);
 
             stage.Reveal();
@@ -143,8 +145,7 @@ namespace Extension.Tests
             bool didGetRevealed = false;
 
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddStage(2, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1, 2 });
             stageController.UseLinearProgressionStructure();
             stageController.Commit();
 
@@ -163,10 +164,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddStage(2, Enumerable.Empty<string>());
-            stageController.AddStage(3, Enumerable.Empty<string>());
-            stageController.AddStage(4, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1, 2, 3, 4 });
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -184,13 +182,10 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void going_back_to_a_revealed_stage_allows_CurrentStage_to_continue_to_progress_from_there_linear_case()
+        public void going_back_to_a_revealed_stage_allows_progression_to_continue_to_progress_from_there_linear_case()
         {
             var stageController = new StageController();
-            stageController.AddStage(1, Enumerable.Empty<string>());
-            stageController.AddStage(2, Enumerable.Empty<string>());
-            stageController.AddStage(3, Enumerable.Empty<string>());
-            stageController.AddStage(4, Enumerable.Empty<string>());
+            stageController.AddBlankStages(new[] { 1, 2, 3, 4 });
             stageController.UseLinearProgressionStructure();
             stageController.Commit();
 
@@ -203,7 +198,25 @@ namespace Extension.Tests
 
             stageController.PassStage();
             stageController.CurrentStage.StageId.Should().Be(3);
+
+            stageController.PassStage();
+            stageController.CurrentStage.StageId.Should().Be(4);
+        }
+
+
+        [Fact]
+        public void assigning_a_stage_directly_to_CurrentStage_focuses_on_it()
+        {
+            bool didGetFocus = false;
+
+            var stageController = new StageController();
+
+            var someStage = GetEmptyStage();
+            someStage.AddOnFocusListener(_ => didGetFocus = true);
+
+            stageController.CurrentStage = someStage;
+
+            didGetFocus.Should().BeTrue();
         }
     }
 }
-  
