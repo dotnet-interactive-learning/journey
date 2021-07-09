@@ -97,30 +97,6 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void passing_a_stage_that_is_already_passed_throws_InvalidOperationException()
-        {
-            var stage = new Stage(1, Enumerable.Empty<string>());
-
-            stage.Pass();
-
-            Action passAgain = () => stage.Pass();
-
-            passAgain.Should().Throw<InvalidOperationException>();
-        }
-
-        [Fact]
-        public void revealing_a_stage_that_is_already_revealed_throws_InvalidOperationException()
-        {
-            var stage = new Stage(1, Enumerable.Empty<string>());
-
-            stage.Reveal();
-
-            Action revealAgain = () => stage.Reveal();
-
-            revealAgain.Should().Throw<InvalidOperationException>();
-        }
-
-        [Fact]
         public void revealing_a_stage_that_is_already_revealed_does_not_call_listener()
         {
             int numberOfListenerCalls = 0;

@@ -42,10 +42,6 @@ namespace Extension.StageControl
 
         public void Pass()
         {
-            if (Passed)
-            {
-                throw new InvalidOperationException();
-            }
             Passed = true;
             foreach (var dependent in Dependents)
             {
@@ -62,15 +58,14 @@ namespace Extension.StageControl
 
         public void Reveal()
         {
-            if (Revealed)
+            if (!Revealed)
             {
-                throw new InvalidOperationException();
+                foreach (var listener in OnRevealListeners)
+                {
+                    listener(this);
+                }
+                Revealed = true; 
             }
-            foreach (var listener in OnRevealListeners)
-            {
-                listener(this);
-            }
-            Revealed = true;
         }
 
         public void TryReveal()
