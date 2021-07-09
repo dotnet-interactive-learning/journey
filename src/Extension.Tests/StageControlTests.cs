@@ -30,7 +30,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1 });
+            stageController.AddBlankStages(1);
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -47,7 +47,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1, 2, 3 });
+            stageController.AddBlankStages(1, 2, 3);
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -65,7 +65,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1, 2, 3 });
+            stageController.AddBlankStages(1, 2, 3);
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -145,7 +145,7 @@ namespace Extension.Tests
             bool didGetRevealed = false;
 
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1, 2 });
+            stageController.AddBlankStages(1, 2);
             stageController.UseLinearProgressionStructure();
             stageController.Commit();
 
@@ -164,7 +164,7 @@ namespace Extension.Tests
             List<int> revealedStageIds = new List<int>();
 
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1, 2, 3, 4 });
+            stageController.AddBlankStages(1, 2, 3, 4);
             stageController.AddOnRevealListeners(stage =>
             {
                 revealedStageIds.Add(stage.StageId);
@@ -185,7 +185,7 @@ namespace Extension.Tests
         public void going_back_to_a_revealed_stage_allows_progression_to_continue_to_progress_from_there_linear_case()
         {
             var stageController = new StageController();
-            stageController.AddBlankStages(new[] { 1, 2, 3, 4 });
+            stageController.AddBlankStages(1, 2, 3, 4);
             stageController.UseLinearProgressionStructure();
             stageController.Commit();
 

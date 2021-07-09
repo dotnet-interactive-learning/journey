@@ -9,7 +9,7 @@ namespace Extension.Tests.Utilities
 {
     public static class StageControllerExtensions
     {
-        public static void AddBlankStages(this StageController stageController, IEnumerable<int> stageIds)
+        public static void AddBlankStages(this StageController stageController, params int[] stageIds)
         {
             foreach (var stageId in stageIds)
             {
