@@ -1,5 +1,9 @@
 #!csharp
 
+#r "nuget: EducationExtension, *-*"
+
+#!csharp
+
 EnableProgressiveLearning("teacher.dib")
 
 #!markdown
