@@ -8,7 +8,7 @@ namespace Extension.StageControl
 {
     public class StageController
     {
-        public SortedDictionary<int, Stage> Stages { get; private set; } = new SortedDictionary<int, Stage>();
+        public HashSet<Stage> Stages { get; set; } = new HashSet<Stage>();
         public Stage CurrentStage
         {
             get
@@ -29,14 +29,14 @@ namespace Extension.StageControl
 
         }
 
-        public void AddStage(int stageId, IEnumerable<string> content)
+        public void AddStage(Stage stage)
         {
-            Stages.Add(stageId, new Stage(stageId, content));
+            Stages.Add(stage);
         }
 
         public void AddOnRevealListeners(Action<Stage> listener)
         {
-            foreach (var stage in Stages.Values)
+            foreach (var stage in Stages)
             {
                 stage.AddOnRevealListener(listener);
             }
@@ -44,7 +44,7 @@ namespace Extension.StageControl
 
         public void AddOnFocusListeners(Action<Stage> listener)
         {
-            foreach (var stage in Stages.Values)
+            foreach (var stage in Stages)
             {
                 stage.AddOnFocusListener(listener);
             }
@@ -55,15 +55,15 @@ namespace Extension.StageControl
             CurrentStage.Pass();
         }
 
-        public void GoToStage(int stageId)
+        public void GoToStage(Stage stage)
         {
-            Stages[stageId].Focus();
+            stage.Focus();
         }
 
         public void UseLinearProgressionStructure()
         {
             ClearDependencyRelationships();
-            var stages = new List<Stage>(Stages.Values);
+            var stages = new List<Stage>(Stages);
 
             if (stages.Count >= 2)
             {
@@ -86,18 +86,17 @@ namespace Extension.StageControl
 
         private void InitializeStartingStages()
         {
-            var stagesWithNoDependencies = Stages.Values.Where(stage => stage.Dependencies.Count == 0);
+            var stagesWithNoDependencies = Stages.Where(stage => stage.Dependencies.Count == 0);
             CurrentStage = stagesWithNoDependencies.First();
             foreach (var stage in stagesWithNoDependencies)
             {
-                if (!stage.Revealed)
-                    stage.Reveal();
+                stage.Reveal();
             }
         }
 
         private void ClearDependencyRelationships()
         {
-            foreach (var stage in Stages.Values)
+            foreach (var stage in Stages)
             {
                 stage.ClearDependencyRelationships();
             }

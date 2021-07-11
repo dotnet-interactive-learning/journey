@@ -9,20 +9,18 @@ namespace Extension.StageControl
 {
     public class Stage
     {
-        public int StageId { get; }
         public IEnumerable<string> Contents { get; private set; }
-        public bool Passed { get; private set; } = false;
-        public bool Revealed { get; private set; } = false;
+        public bool Passed { get; set; } = false;
+        public bool Revealed { get; set; } = false;
 
-        public List<Stage> Dependencies { get; private set; } = new List<Stage>();
-        public List<Stage> Dependents { get; private set; } = new List<Stage>();
+        public List<Stage> Dependencies { get; set; } = new List<Stage>();
+        public List<Stage> Dependents { get; set; } = new List<Stage>();
 
-        public List<Action<Stage>> OnRevealListeners { get; private set; } = new List<Action<Stage>>();
-        public List<Action<Stage>> OnFocusListeners { get; private set; } = new List<Action<Stage>>();
+        public List<Action<Stage>> OnRevealListeners { get; set; } = new List<Action<Stage>>();
+        public List<Action<Stage>> OnFocusListeners { get; set; } = new List<Action<Stage>>();
 
-        public Stage(int stageId, IEnumerable<string> content)
+        public Stage(IEnumerable<string> content)
         {
-            StageId = stageId;
             Contents = content;
         }
 
