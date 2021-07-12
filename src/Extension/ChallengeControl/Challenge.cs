@@ -5,41 +5,41 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.StageControl
+namespace Extension.ChallengeControl
 {
-    public class Stage
+    public class Challenge
     {
         public IEnumerable<string> Contents { get; private set; }
         public bool Passed { get; set; } = false;
         public bool Revealed { get; set; } = false;
 
-        public List<Stage> Dependencies { get; set; } = new List<Stage>();
-        public List<Stage> Dependents { get; set; } = new List<Stage>();
+        public List<Challenge> Dependencies { get; set; } = new List<Challenge>();
+        public List<Challenge> Dependents { get; set; } = new List<Challenge>();
 
-        public List<Action<Stage>> OnRevealListeners { get; set; } = new List<Action<Stage>>();
-        public List<Action<Stage>> OnFocusListeners { get; set; } = new List<Action<Stage>>();
+        public List<Action<Challenge>> OnRevealListeners { get; set; } = new List<Action<Challenge>>();
+        public List<Action<Challenge>> OnFocusListeners { get; set; } = new List<Action<Challenge>>();
 
-        public Stage(IEnumerable<string> content)
+        public Challenge(IEnumerable<string> content)
         {
             Contents = content;
         }
 
-        public void AddDependency(Stage stage)
+        public void AddDependency(Challenge challenge)
         {
-            Dependencies.Add(stage);
+            Dependencies.Add(challenge);
         }
 
-        public void AddDependent(Stage stage)
+        public void AddDependent(Challenge challenge)
         {
-            Dependents.Add(stage);
+            Dependents.Add(challenge);
         }
 
-        public void AddOnRevealListener(Action<Stage> listener)
+        public void AddOnRevealListener(Action<Challenge> listener)
         {
             OnRevealListeners.Add(listener);
         }
 
-        public void AddOnFocusListener(Action<Stage> listener)
+        public void AddOnFocusListener(Action<Challenge> listener)
         {
             OnFocusListeners.Add(listener);
         }
