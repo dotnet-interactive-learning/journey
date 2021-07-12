@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class ChallengeControlTests
+    public class ChallengeTests
     {
         private string[] sampleChallengeContent = new string[]
             {
