@@ -10,6 +10,7 @@ namespace Extension
 {
     public class Evaluator
     {
+        private List<Rule> _rules = new();
         private SortedDictionary<string, List<CodeEvaluationCriterion>> codeEvaluationCriteria;
 
         public Evaluator()
@@ -26,7 +27,20 @@ namespace Extension
                 return new Evaluation { Passed = false };
 
             }
+
+            //var ansswer = result.KernelEvents.ToEnumerable.value();
+            //its not that simple, value isn't the correct thing to have
+            //after ToEnumerable. I need to debug it and find where the value is being stored, just like we did with result
+            //Then say if answer = result, test is passed. Else test is failed
+
+            //if(answer = )
+            foreach (var rule in _rules){
+                rule.TestResult(result);
+               
+            }
+
             return new Evaluation { Passed = true };
+
         }
 
         public void AddCodeEvaluationCriterion(string questionId, CodeEvaluationCriterion criterion)
@@ -66,5 +80,12 @@ namespace Extension
 
             return new Evaluation { Passed = evaluationVerdict };
         }
+
+        public void AddRule(Rule rule)
+        {
+            _rules.Add(rule);
+          
+        }
+
     }
 }

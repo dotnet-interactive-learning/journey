@@ -31,7 +31,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task output_that_matches_the_expected_criteria()
+        public async Task when_the_output_passes_all_rules_then_evaluation_passes()
         {
             //in english:
             //If the users output is not the same as the output the teacher(or notebook creater) expects
@@ -51,12 +51,16 @@ namespace Extension.Tests
 
             //act
             var evaluator = new Evaluator();
-            evaluator.AddRule(new Criterion());
-            evaluator.EvaluateResult(result);
+            
+            evaluator.AddRule(new Rule(r =>
+            {
+                return true;
+            } ));
+            var evaluation = evaluator.EvaluateResult(result);
 
 
             //assert
-            evaluator.Passed.Should().Be(true);
+            evaluation.Passed.Should().Be(true);
 
 
             throw new Exception();
@@ -64,7 +68,41 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task no_output_recieved()
+        public async Task when_the_output_fails_any_rule_then_evaluation_failss()
+        {
+            //in english:
+            //If the users output is not the same as the output the teacher(or notebook creater) expects
+            //then there should be an error.
+
+            //possible format:
+            //set var for submission code output
+            //set var for expected criteria
+            //if they are the same then this test passes
+
+            //arrange
+            using var csharpkernel = new CSharpKernel();
+            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            var result = await csharpkernel.SubmitCodeAsync(
+@"//return 2
+1+2");
+
+            //act
+            var evaluator = new Evaluator();
+
+            evaluator.AddRule(new Rule(r => true));
+            var evaluation = evaluator.EvaluateResult(result);
+
+
+            //assert
+            evaluation.Passed.Should().Be(false);
+
+
+           
+
+        }
+
+        [Fact]
+        public async Task no_submission_recieved()
         {
             //ideas in english:
             //-would it be wrong to return an error if the output is empty bc what if the submitted code doesn't
@@ -81,16 +119,25 @@ namespace Extension.Tests
             //^Is this too much to put in one test, should these be seperate test cases
 
 
+           
             //arrange
-
+            using var csharpkernel = new CSharpKernel();
+            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            var result = await csharpkernel.SubmitCodeAsync(
+@"//return 1+1
+1+1");
 
             //act
-
+            if (result == null)
+            {
+                throw new Exception("Submission empty");
+            
+            }
 
             //assert
 
 
-            throw new Exception();
+           
 
 
         }
