@@ -5,15 +5,15 @@ namespace Extension
 {
     public class Rule
     {
-        private readonly Action<Banana> evaluateBanana;
+        private readonly Action<RuleContext> evaluateRuleContextHandler;
 
-        public Rule(Action<Banana> ruleContraints)
+        public Rule(Action<RuleContext> ruleContraints)
         {
-            this.evaluateBanana = ruleContraints;
+            this.evaluateRuleContextHandler = ruleContraints;
         }
-        internal void TestResult(Banana result)
+        internal void TestResult(RuleContext result)
         {
-            evaluateBanana.Invoke(result);
+            evaluateRuleContextHandler.Invoke(result);
 
            
         }

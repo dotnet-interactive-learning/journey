@@ -2,7 +2,7 @@
 
 namespace Extension
 {
-    public class Banana
+    public class RuleContext
     {
         public bool Passed { get;private set; }
 

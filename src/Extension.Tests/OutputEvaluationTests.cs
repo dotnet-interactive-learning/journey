@@ -31,7 +31,7 @@ namespace Extension.Tests
         }
 
         [Fact(Skip = "later")]
-        public async Task when_the_output_passes_all_rules_then_evaluation_passes()
+        public void when_the_output_passes_all_rules_then_evaluation_passes()
         {
             //in english:
             //If the users output is not the same as the output the teacher(or notebook creater) expects
@@ -77,45 +77,25 @@ namespace Extension.Tests
 
 
         [Fact]
-        public async Task when_the_output_fails_any_rule_then_evaluation_fails()
+        public void when_the_output_fails_any_rule_then_evaluation_fails()
         {
-            //in english:
-            //If the users output is not the same as the output the teacher(or notebook creater) expects
-            //then there should be an error.
-
-            //possible format:
-            //set var for submission code output
-            //set var for expected criteria
-            //if they are the same then this test passes
 
             //arrange
-
-            var banana = new Banana();
-            //banana.Passed
-
-            using var csharpkernel = new CSharpKernel();
-            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-            var result = await csharpkernel.SubmitCodeAsync(
-@"//return 2
-1+2");
-
+            var ruleContext = new RuleContext();
+      
             //act
             var evaluator = new Evaluator();
 
             evaluator.AddRule(new Rule(r => r.Fail()));
-            var evaluation = evaluator.EvaluateResult(banana);
-
+            var evaluation = evaluator.EvaluateResult(ruleContext);
 
             //assert
             evaluation.Passed.Should().Be(false);
 
-
-
-
         }
 
         [Fact(Skip = "later")]
-        public async Task no_submission_recieved()
+        public void no_submission_recieved()
         {
             //ideas in english:
             //-would it be wrong to return an error if the output is empty bc what if the submitted code doesn't
@@ -157,22 +137,22 @@ namespace Extension.Tests
 
 
         [Fact]
-        public void when_banana_fail_is_called_then_banana_passed_is_false_()
+        public void when_ruleContext_fail_is_called_then_ruleContext_passed_is_false_()
         {
-            var banana = new Banana();
-            banana.Fail();
+            var ruleContext = new RuleContext();
+            ruleContext.Fail();
             
-            banana.Passed.Should().Be(false);
+            ruleContext.Passed.Should().Be(false);
         }
 
 
         [Fact]
-        public void when_banana_pass_is_called_banana_passed_is_true()
+        public void when_ruleContext_pass_is_called_ruleContext_passed_is_true()
         {
-            var banana = new Banana();
-            banana.Pass();
+            var ruleContext = new RuleContext();
+            ruleContext.Pass();
 
-            banana.Passed.Should().Be(true);
+            ruleContext.Passed.Should().Be(true);
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Extension
             codeEvaluationCriteria = new SortedDictionary<string, List<CodeEvaluationCriterion>>();
         }
 
-        public Evaluation EvaluateResult(Banana result)
+        public Evaluation EvaluateResult(RuleContext result)
         {
             //var events = result.KernelEvents.ToEnumerable();
             //bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
@@ -30,9 +30,9 @@ namespace Extension
 
             var listOfRulePassOrFailOutcomes = new List<bool>();
             foreach (var rule in _rules){
-                var banana = new Banana();
-                rule.TestResult(banana);
-                listOfRulePassOrFailOutcomes.Add(banana.Passed);
+                var ruleContext = new RuleContext();
+                rule.TestResult(ruleContext);
+                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
                 
                    
             }
