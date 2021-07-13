@@ -20,30 +20,24 @@ namespace Extension
 
         public Evaluation EvaluateResult(RuleContext result)
         {
-            //var events = result.KernelEvents.ToEnumerable();
-            //bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
-            //if (errorExists)
-            //{
-            //    return new Evaluation { Passed = false };
-
-            //}
+            var evaluation = new Evaluation();
 
             var listOfRulePassOrFailOutcomes = new List<bool>();
             foreach (var rule in _rules){
                 var ruleContext = new RuleContext();
                 rule.TestResult(ruleContext);
-                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
-                
-                   
+                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed); 
             }
+
             if (listOfRulePassOrFailOutcomes.Contains(false))
             {
-                return new Evaluation { Passed = false };
-
+                evaluation.SetOutcome(Outcome.Failure);
             }
-            else { return new Evaluation { Passed = true }; }
-            
-
+            else
+            {
+                evaluation.SetOutcome(Outcome.Success);
+            }
+            return evaluation;
         }
 
         public void AddCodeEvaluationCriterion(string questionId, CodeEvaluationCriterion criterion)
@@ -81,7 +75,16 @@ namespace Extension
                 }
             );
 
-            return new Evaluation { Passed = evaluationVerdict };
+            var evaluation = new Evaluation();
+            if (evaluationVerdict)
+            {
+                evaluation.SetOutcome(Outcome.Success);
+            }
+            else
+            {
+                evaluation.SetOutcome(Outcome.Failure);
+            }
+            return evaluation;
         }
 
         public void AddRule(Rule rule)

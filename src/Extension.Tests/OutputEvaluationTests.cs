@@ -105,7 +105,7 @@ namespace Extension.Tests
             var evaluation = evaluator.EvaluateResult(ruleContext);
 
             //assert
-            evaluation.Passed.Should().Be(false);
+            evaluation.Outcome.Should().Be(Outcome.Failure);
 
         }
 
