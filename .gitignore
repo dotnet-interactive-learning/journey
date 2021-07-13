@@ -9,6 +9,8 @@
 *.user
 *.userosscache
 *.sln.docstates
+.trydotnet-*
+.dotnet/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -29,7 +31,7 @@ bld/
 [Bb]in/
 [Oo]bj/
 [Ll]og/
-[Ll]ogs/
+.packages
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -43,10 +45,12 @@ Generated\ Files/
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
 
-# NUnit
+# NUNIT
 *.VisualState.xml
 TestResult.xml
-nunit-*.xml
+
+# Assent / ApprovalTests
+*.received.json
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
@@ -127,6 +131,9 @@ _ReSharper*/
 *.[Rr]e[Ss]harper
 *.DotSettings.user
 
+# JustCode is a .NET coding add-in
+.JustCode
+
 # TeamCity is a build add-in
 _TeamCity*
 
@@ -145,6 +152,8 @@ _TeamCity*
 _NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
+*.ncrunch*.user
+*.ncrunch*
 
 # MightyMoose
 *.mm.*
@@ -165,9 +174,6 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
-
-# Click-Once directory
-publish/
 
 # Publish Web Output
 *.[Pp]ublish.xml
@@ -346,5 +352,50 @@ healthchecksdb
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
 
-# Ionide (cross platform F# VS Code tools) working folder
-.ionide/
+wwwroot/api/
+
+wwwroot/client/
+
+*.trx
+Untitled*.ipynb
+NotebookExamples/**/*.csv
+
+Microsoft\.DotNet\.Try\.js/\.rpt2_cache/
+
+Microsoft\.DotNet\.Try\.js/dist/
+
+docs/\.ionide/
+
+\.ionide/
+
+
+.ipynb_checkpoints/
+
+#Backup files
+*.bak
+samples/notebooks/*/Samples/housing.csv
+
+src/Microsoft.DotNet.Interactive.Js/dist/
+
+.fake
+.ionide
+
+src/Microsoft.DotNet.Interactive.nteract.js/dist/
+
+src/Microsoft.DotNet.Interactive.nteract.js/lib/
+
+.DS_Store
+
+# Rider IDE cache files
+.idea/
+src/Microsoft.DotNet.Interactive.SandDance.js/lib/
+
+src/Microsoft.DotNet.Interactive.SandDance.js/dist/
+
+src/Microsoft.DotNet.Interactive.Mermaid.js/dist/
+
+src/Microsoft.DotNet.Interactive.ExtensionLab.Tests/DataFrameKernelExtensionTests.it_registers_formatters.received.json
+
+.vscode/launch.json
+
+.vscode/

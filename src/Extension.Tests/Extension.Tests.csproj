@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 		<TargetFramework>net5.0</TargetFramework>
@@ -6,7 +6,12 @@
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
 
+	<PropertyGroup>
+	  <NoWarn>1591</NoWarn>
+	</PropertyGroup>
+
 	<ItemGroup>
+		<PackageReference Include="HtmlAgilityPack" Version="1.11.34" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
 		<PackageReference Include="xunit" Version="2.4.1" />
 		<PackageReference Include="FluentAssertions" Version="5.10.3" />
