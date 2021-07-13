@@ -153,6 +153,7 @@ _NCrunch_*
 .*crunch*.local.xml
 nCrunchTemp_*
 *.ncrunch*.user
+*.ncrunch*
 
 # MightyMoose
 *.mm.*
