@@ -17,12 +17,13 @@ Formatter.Register<LinkedList>( ... );
 #!csharp
 
 // display message directly
-Lesson.Current.AddRule(
-    (context) => {
+
+Lesson.CurrentChallenge.AddRule(
+    (ruleContext) => {
         context.Info("Info about this rule shown to the student");
         if (context.Code.Contains(4))
         {
-            context.Succeed("Good job. Your answer contains 4.");
+            context.Pass("Good job. Your answer contains 4.");
         }
         else
         {
@@ -34,25 +35,33 @@ Lesson.Current.AddRule(
 #!csharp
 
 // using exceptions
-Lesson.Current.AddRule(
-    (context) => {
+Lesson.CurrentChallenge.AddRule(
+    (ruleContext) => {
         LinkedList testlist = LinkedList.GetRandomList();
         if (!LinkedList.IsValid(context.ReturnValue))
         {
             LinkedList.Display();
             throw new Exception($"The result you returned does not correspond to a valid linked list. See above");
         }
-        context.Success("Good job. The result you returned is a valid linked list");
+        context.Pass("Good job. The result you returned is a valid linked list");
     }
 );
 
 #!csharp
 
 // using FluentAssertions (exceptions)
-Lesson.Current.AddRule(
-    (context) => {
+Lesson.CurrentChallenge.AddRule(
+    (ruleContext) => {
         context.ReturnValue.Should().Contain(3.14, "Your answer is not correct");
-        context.Success("Good job. Your answer is correct.");
+        context.Pass("Good job. Your answer is correct.");
+    }
+);
+
+#!csharp
+
+Lesson.CurrentChallenge.OnCodeSubmitted(
+    (challengeContext) => {
+        challengeContext.GoToStage("3");
     }
 );
 

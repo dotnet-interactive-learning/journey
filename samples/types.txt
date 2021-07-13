@@ -1,0 +1,9 @@
+// Lesson: Lesson
+// CurrentChallenge: Challenge
+
+// AddRule: Action<RuleContext> -> void
+
+// OnCodeSubmitted: Action<ChallengeContext> -> void
+
+
+
