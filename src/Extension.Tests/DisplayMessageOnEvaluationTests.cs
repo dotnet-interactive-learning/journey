@@ -184,33 +184,5 @@ namespace Extension.Tests
                 .Should()
                     .Contain("(2/3)");
         }
-
-        /*        [Fact]
-                public void failing_evaluation_will_produce_a_hint()
-                {
-                    // arrange
-                    var evaluation = new Evaluation();
-                    evaluation.SetOutcome(Outcome.Failure);
-                    evaluation.SetHint("Here is a hint");
-
-                    // act
-                    var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
-
-                    // assert
-                    var htmlDoc = new HtmlDocument();
-                    htmlDoc.LoadHtml(message);
-
-                    var div = htmlDoc.DocumentNode
-                        .SelectSingleNode("//div");
-
-                    div.InnerText
-                        .Should()
-                        .Contain("Here is a hint");
-                }*/
-
-
-
-
-
     }
 }
