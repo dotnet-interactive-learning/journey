@@ -5,17 +5,17 @@ namespace Extension
 {
     public class Rule
     {
-        private readonly Func<KernelCommandResult, bool> ruleContraints;
+        private readonly Action<Banana> evaluateBanana;
 
-        public Rule(Func<KernelCommandResult,bool> ruleContraints)
+        public Rule(Action<Banana> ruleContraints)
         {
-            this.ruleContraints = ruleContraints;
+            this.evaluateBanana = ruleContraints;
         }
-        internal void TestResult(KernelCommandResult result)
+        internal void TestResult(Banana result)
         {
-            ruleContraints.Invoke(result);
+            evaluateBanana.Invoke(result);
 
-            throw new NotImplementedException();
+           
         }
     }
 }

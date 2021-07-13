@@ -18,28 +18,31 @@ namespace Extension
             codeEvaluationCriteria = new SortedDictionary<string, List<CodeEvaluationCriterion>>();
         }
 
-        public Evaluation EvaluateResult(KernelCommandResult result)
+        public Evaluation EvaluateResult(Banana result)
         {
-            var events = result.KernelEvents.ToEnumerable();
-            bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
-            if (errorExists)
+            //var events = result.KernelEvents.ToEnumerable();
+            //bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
+            //if (errorExists)
+            //{
+            //    return new Evaluation { Passed = false };
+
+            //}
+
+            var listOfRulePassOrFailOutcomes = new List<bool>();
+            foreach (var rule in _rules){
+                var banana = new Banana();
+                rule.TestResult(banana);
+                listOfRulePassOrFailOutcomes.Add(banana.Passed);
+                
+                   
+            }
+            if (listOfRulePassOrFailOutcomes.Contains(false))
             {
                 return new Evaluation { Passed = false };
 
             }
-
-            //var ansswer = result.KernelEvents.ToEnumerable.value();
-            //its not that simple, value isn't the correct thing to have
-            //after ToEnumerable. I need to debug it and find where the value is being stored, just like we did with result
-            //Then say if answer = result, test is passed. Else test is failed
-
-            //if(answer = )
-            foreach (var rule in _rules){
-                rule.TestResult(result);
-               
-            }
-
-            return new Evaluation { Passed = true };
+            else { return new Evaluation { Passed = true }; }
+            
 
         }
 
