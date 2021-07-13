@@ -1,4 +1,4 @@
-﻿using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
+using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
 using Microsoft.DotNet.Interactive.Formatting;
 using System;
 using System.Collections.Generic;
