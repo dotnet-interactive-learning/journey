@@ -27,7 +27,7 @@ namespace Extension.Tests
 
             //arrange
 
-            var banana = new Banana();
+            var banana = new RuleContext();
             //banana.Passed
 
             using var csharpkernel = new CSharpKernel();
