@@ -16,10 +16,25 @@ namespace Extension.Tests
         [Fact(Skip = "later")]
         public async Task output_with_error_event_produces_failed_evaluation()
         {
+            //in english:
+            //If the users output is not the same as the output the teacher(or notebook creater) expects
+            //then there should be an error.
+
+            //possible format:
+            //set var for submission code output
+            //set var for expected criteria
+            //if they are the same then this test passes
+
             //arrange
+
+            var banana = new Banana();
+            //banana.Passed
+
             using var csharpkernel = new CSharpKernel();
             using var events = csharpkernel.KernelEvents.ToSubscribedList();
-            var result = await csharpkernel.SubmitCodeAsync("bdobnridf");
+            var result = await csharpkernel.SubmitCodeAsync(
+@"//return 2
+1+2");
 
             //act
             //var evaluation = new Evaluator().EvaluateResult(result);
