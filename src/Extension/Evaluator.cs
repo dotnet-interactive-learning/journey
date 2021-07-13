@@ -10,6 +10,7 @@ namespace Extension
 {
     public class Evaluator
     {
+        private List<Rule> _rules = new();
         private SortedDictionary<string, List<CodeEvaluationCriterion>> codeEvaluationCriteria;
 
         public Evaluator()
@@ -17,16 +18,32 @@ namespace Extension
             codeEvaluationCriteria = new SortedDictionary<string, List<CodeEvaluationCriterion>>();
         }
 
-        public Evaluation EvaluateResult(KernelCommandResult result)
+        public Evaluation EvaluateResult(RuleContext result)
         {
-            var events = result.KernelEvents.ToEnumerable();
-            bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
-            if (errorExists)
+            //var events = result.KernelEvents.ToEnumerable();
+            //bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
+            //if (errorExists)
+            //{
+            //    return new Evaluation { Passed = false };
+
+            //}
+
+            var listOfRulePassOrFailOutcomes = new List<bool>();
+            foreach (var rule in _rules){
+                var ruleContext = new RuleContext();
+                rule.TestResult(ruleContext);
+                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
+                
+                   
+            }
+            if (listOfRulePassOrFailOutcomes.Contains(false))
             {
                 return new Evaluation { Passed = false };
 
             }
-            return new Evaluation { Passed = true };
+            else { return new Evaluation { Passed = true }; }
+            
+
         }
 
         public void AddCodeEvaluationCriterion(string questionId, CodeEvaluationCriterion criterion)
@@ -66,5 +83,12 @@ namespace Extension
 
             return new Evaluation { Passed = evaluationVerdict };
         }
+
+        public void AddRule(Rule rule)
+        {
+            _rules.Add(rule);
+          
+        }
+
     }
 }
