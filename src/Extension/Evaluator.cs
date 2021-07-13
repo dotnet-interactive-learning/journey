@@ -58,7 +58,7 @@ namespace Extension
             return Enumerable.Empty<CodeEvaluationCriterion>();
         }
 
-/*        public Evaluation EvaluateCodeEvaluationResults(IEnumerable<KernelCommandResult> results)
+        public Evaluation EvaluateCodeEvaluationResults(IEnumerable<KernelCommandResult> results)
         {
             var events = results.Select(result => result.KernelEvents.ToEnumerable());
 
@@ -75,8 +75,17 @@ namespace Extension
                 }
             );
 
-            return new Evaluation { Passed = evaluationVerdict };
-        }*/
+            var evaluation = new Evaluation();
+            if (evaluationVerdict)
+            {
+                evaluation.SetOutcome(Outcome.Success);
+            }
+            else
+            {
+                evaluation.SetOutcome(Outcome.Failure);
+            }
+            return evaluation;
+        }
 
         public void AddRule(Rule rule)
         {

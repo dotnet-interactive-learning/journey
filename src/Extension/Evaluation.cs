@@ -27,6 +27,8 @@ namespace Extension
 
         public object Hint { get; private set; }
 
+        public bool Passed { get { return Outcome == Outcome.Success; } }
+
         public Evaluation(string label = null)
         {
             this.label = label;
@@ -42,7 +44,8 @@ namespace Extension
                 {
                     Outcome.Success => "All tests passed.",
                     Outcome.PartialSuccess => "Some tests passed.",
-                    Outcome.Failure => "Incorrect solution."
+                    Outcome.Failure => "Incorrect solution.",
+                    _ => throw new NotImplementedException()
                 };   
             }
             else
@@ -58,14 +61,16 @@ namespace Extension
             {
                 Outcome.Success => "background:green",
                 Outcome.PartialSuccess => "background:#eb6f00",
-                Outcome.Failure => "background:red"
+                Outcome.Failure => "background:red",
+                _ => throw new NotImplementedException()
             };
 
             var outcomeMessage = Outcome switch
             {
                 Outcome.Success => "Success",
                 Outcome.PartialSuccess => "Partial Success",
-                Outcome.Failure => "Failure"
+                Outcome.Failure => "Failure",
+                _ => throw new NotImplementedException()
             };
 
             var elements = new List<PocketView>();
