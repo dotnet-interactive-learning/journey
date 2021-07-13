@@ -9,7 +9,7 @@ namespace Extension.ChallengeControl
 {
     public class ChallengeController
     {
-        public OrderedSet<Challenge> Challenges { get; set; } = new OrderedSet<Challenge>();
+        public OrderedTable<Challenge> Challenges { get; set; } = new OrderedTable<Challenge>();
         public Challenge CurrentChallenge
         {
             get

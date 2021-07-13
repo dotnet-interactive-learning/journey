@@ -7,17 +7,17 @@ using System.Threading.Tasks;
 
 namespace Extension.Utilities
 {
-    public class OrderedSet<T> : ICollection<T>
+    public class OrderedTable<T> : ICollection<T>
     {
         private readonly IDictionary<T, LinkedListNode<T>> m_Dictionary;
         private readonly LinkedList<T> m_LinkedList;
 
-        public OrderedSet()
+        public OrderedTable()
             : this(EqualityComparer<T>.Default)
         {
         }
 
-        public OrderedSet(IEqualityComparer<T> comparer)
+        public OrderedTable(IEqualityComparer<T> comparer)
         {
             m_Dictionary = new Dictionary<T, LinkedListNode<T>>(comparer);
             m_LinkedList = new LinkedList<T>();
