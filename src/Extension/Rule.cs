@@ -14,8 +14,6 @@ namespace Extension
         internal void TestResult(RuleContext result)
         {
             evaluateRuleContextHandler.Invoke(result);
-
-           
         }
     }
 }
