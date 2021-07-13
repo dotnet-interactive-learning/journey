@@ -26,12 +26,7 @@ namespace Extension.Tests
 
 
             //assert
-            evaluation.Passed.Should().Be(false);
-
-
-
-            
-
+            evaluation.Outcome.Should().Be(Outcome.Failure);
         }
     }
 }

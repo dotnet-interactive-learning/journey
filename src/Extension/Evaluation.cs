@@ -1,38 +1,113 @@
-﻿using Microsoft.DotNet.Interactive.Formatting;
+﻿using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
+using Microsoft.DotNet.Interactive.Formatting;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Extension
 {
+    public enum Outcome
+    {
+        Failure,
+        PartialSuccess,
+        Success
+    };
     [TypeFormatterSource(typeof(EvaluationFormatterSource))]
     public class Evaluation
     {
-        public Evaluation(bool passed, string headline = null)
+        private readonly string label;
+
+        private readonly Dictionary<string, Evaluation>ruleEvaluations = new();
+
+        public IEnumerable<Evaluation> Rules => ruleEvaluations.Values;
+
+        public Outcome Outcome { get; private set; }
+
+        public string Reason { get; private set; }
+
+        public object Hint { get; private set; }
+
+        public Evaluation(string label = null)
         {
-            Passed = passed;
-            Headline = headline;
+            this.label = label;
         }
 
-        public bool Passed { get; }
-        public string Headline { get; }
-
-        public string FormatAsHtml()
+        public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
         {
-            var headlineMessage = Headline ?? (Passed ? "Success" : "Fail");
-            return headlineMessage;
-        }
-    }
-
-    internal class EvaluationFormatterSource : ITypeFormatterSource
-    {
-        public IEnumerable<ITypeFormatter> CreateTypeFormatters()
-        {
-            return new ITypeFormatter[] {
-                new HtmlFormatter<Evaluation>((evaluation, context) =>
+            Hint = hint;
+            Outcome = outcome;
+            if (string.IsNullOrWhiteSpace(reason))
+            {
+                Reason = outcome switch
                 {
-                    context.Writer.Write(evaluation.FormatAsHtml());
-                })
+                    Outcome.Success => "All tests passed.",
+                    Outcome.PartialSuccess => "Some tests passed.",
+                    Outcome.Failure => "Incorrect solution."
+                };   
+            }
+            else
+            {
+                Reason = reason;
+            }
+
+        }
+
+        public PocketView FormatAsHtml()
+        {
+            var outcomeDivStyle = Outcome switch
+            {
+                Outcome.Success => "background:green",
+                Outcome.PartialSuccess => "background:#eb6f00",
+                Outcome.Failure => "background:red"
             };
+
+            var outcomeMessage = Outcome switch
+            {
+                Outcome.Success => "Success",
+                Outcome.PartialSuccess => "Partial Success",
+                Outcome.Failure => "Failure"
+            };
+
+            var elements = new List<PocketView>();
+            var succeededRules = ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
+            var totalRules = ruleEvaluations.Count;
+            var countReport = totalRules > 0 ? $"({succeededRules}/{totalRules})" : string.Empty;
+            outcomeMessage = $"{outcomeMessage}{countReport}: ";
+
+            if (string.IsNullOrWhiteSpace(label))
+            {
+                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b(outcomeMessage), (Reason));
+
+                elements.Add(summary);
+
+            }
+            else
+            {
+                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {this.label} ] "), b(outcomeMessage), (Reason));
+
+                elements.Add(summary);
+            }
+            
+            if (Hint is not null)
+            {
+                var hintElement = div[@class: "hint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
+                elements.Add(hintElement);
+            }
+            foreach (var rule in ruleEvaluations.Values.OrderBy(r=>r.Outcome).ThenBy(r=>r.label))
+            {
+                elements.Add(div[@class: "rule"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
+            }
+
+            PocketView report = div(elements);
+
+            return report;
+        }
+
+        public void SetRuleOutcome(string name, Outcome outcome, string reason = null, object hint = null)
+        {
+            var ruleEvaluation = new Evaluation(name);
+            ruleEvaluation.SetOutcome(outcome, reason, hint);
+            ruleEvaluations[name] = ruleEvaluation;
         }
     }
 }

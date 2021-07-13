@@ -1,7 +1,7 @@
 #!csharp
 
 using Microsoft.DotNet.Interactive;
-
+using Extension;
 
 if (KernelInvocationContext.Current is { } currentContext)
 {

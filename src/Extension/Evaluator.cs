@@ -16,12 +16,19 @@ namespace Extension
         {
             var events = result.KernelEvents.ToEnumerable();
             bool errorExists = events.Any(e => e is ErrorProduced || e is CommandFailed);
+            var evaluation = new Evaluation();
+
             if (errorExists)
             {
-                return new Evaluation { Passed = false };
+                evaluation.SetOutcome(Outcome.Failure);
 
             }
-            return new Evaluation { Passed = true };
+            else
+            {
+                evaluation.SetOutcome(Outcome.Success);
+            }
+
+            return evaluation;
         }
     }
 }
