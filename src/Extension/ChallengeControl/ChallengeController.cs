@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Extension.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace Extension.ChallengeControl
 {
     public class ChallengeController
     {
-        public HashSet<Challenge> Challenges { get; set; } = new HashSet<Challenge>();
+        public OrderedSet<Challenge> Challenges { get; set; } = new OrderedSet<Challenge>();
         public Challenge CurrentChallenge
         {
             get
@@ -48,16 +49,6 @@ namespace Extension.ChallengeControl
             {
                 challenge.AddOnFocusListener(listener);
             }
-        }
-
-        public void PassChallenge()
-        {
-            CurrentChallenge.Pass();
-        }
-
-        public void GoToChallenge(Challenge challenge)
-        {
-            challenge.Focus();
         }
 
         public void UseLinearProgressionStructure()

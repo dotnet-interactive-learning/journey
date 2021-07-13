@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class ChallengeTests
+    public class ChallengeControlTests
     {
         private string[] sampleChallengeContent = new string[]
             {
@@ -63,12 +63,12 @@ namespace Extension.Tests
             challengeController.UseLinearProgressionStructure();
             challengeController.Commit();
 
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
 
             challengeController.CurrentChallenge.Should().Be(challenges[1]);
             revealedChallenges.Should().BeEquivalentTo(challenges[0], challenges[1]);
 
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
 
             challengeController.CurrentChallenge.Should().Be(challenges[2]);
             revealedChallenges.Should().BeEquivalentTo(challenges[0], challenges[1], challenges[2]);
@@ -111,6 +111,19 @@ namespace Extension.Tests
         }
 
         [Fact]
+        public void calling_reveal_on_a_challenge_that_is_already_revealed_does_not_call_listener()
+        {
+            int numberOfListenerCalls = 0;
+            var challenge = GetEmptyChallenge();
+            challenge.AddOnRevealListener(_ => numberOfListenerCalls++);
+
+            challenge.Reveal();
+            challenge.Reveal();
+
+            numberOfListenerCalls.Should().Be(1);
+        }
+
+        [Fact]
         public void calling_focus_on_a_unrevealed_challenge_calls_onFocus_and_onReveal_listeners()
         {
             bool wasOnFocusCalled = false;
@@ -124,20 +137,6 @@ namespace Extension.Tests
             wasOnFocusCalled.Should().BeTrue();
             wasOnRevealCalled.Should().BeTrue();
         }
-
-        [Fact]
-        public void calling_reveal_on_a_challenge_that_is_already_revealed_does_not_call_listener()
-        {
-            int numberOfListenerCalls = 0;
-            var challenge = GetEmptyChallenge();
-            challenge.AddOnRevealListener(_ => numberOfListenerCalls++);
-
-            challenge.Reveal();
-            challenge.Reveal();
-
-            numberOfListenerCalls.Should().Be(1);
-        }
-
 
         [Fact]
         public void calling_focus_on_a_revealed_challenge_calls_onFocus_but_not_onReveal_listeners()
@@ -155,23 +154,21 @@ namespace Extension.Tests
             numberOfOnRevealListenerCalls.Should().Be(0);
         }
 
-
         [Fact]
-        public void skipping_to_a_unrevealed_challenge_reveals_it()
+        public void skipping_to_a_challenge_calls_focus_on_it()
         {
-            bool didGetRevealed = false;
+            bool onFocusGetsCalled = false;
             var challengeController = new ChallengeController();
             var challenges = challengeController.AddBlankChallenges(2);
-            challenges[1].AddOnRevealListener(_ => didGetRevealed = true);
+            challenges[1].AddOnFocusListener(_ => onFocusGetsCalled = true);
             challengeController.UseLinearProgressionStructure();
             challengeController.Commit();
 
-            challengeController.GoToChallenge(challenges[1]);
+            challengeController.CurrentChallenge = challenges[1];
 
             challengeController.CurrentChallenge.Should().Be(challenges[1]);
-            didGetRevealed.Should().BeTrue();
+            onFocusGetsCalled.Should().BeTrue();
         }
-
 
         [Fact]
         public void skipping_to_a_unrevealed_challenge_allows_progression_to_continue_from_there_linear_case()
@@ -183,12 +180,12 @@ namespace Extension.Tests
             challengeController.UseLinearProgressionStructure();
             challengeController.Commit();
 
-            challengeController.GoToChallenge(challenges[2]);
+            challengeController.CurrentChallenge = challenges[2];
 
             challengeController.CurrentChallenge.Should().Be(challenges[2]);
             revealedChallenges.Should().BeEquivalentTo(challenges[0], challenges[2]);
 
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
 
             challengeController.CurrentChallenge.Should().Be(challenges[3]);
             revealedChallenges.Should().BeEquivalentTo(challenges[0], challenges[2], challenges[3]);
@@ -201,35 +198,21 @@ namespace Extension.Tests
             var challenges = challengeController.AddBlankChallenges(4);
             challengeController.UseLinearProgressionStructure();
             challengeController.Commit();
-            challengeController.PassChallenge();
-            challengeController.PassChallenge();
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
+            challengeController.CurrentChallenge.Pass();
+            challengeController.CurrentChallenge.Pass();
 
-            challengeController.GoToChallenge(challenges[1]);
+            challengeController.CurrentChallenge = challenges[1];
 
             challengeController.CurrentChallenge.Should().Be(challenges[1]);
 
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
 
             challengeController.CurrentChallenge.Should().Be(challenges[2]);
 
-            challengeController.PassChallenge();
+            challengeController.CurrentChallenge.Pass();
 
             challengeController.CurrentChallenge.Should().Be(challenges[3]);
-        }
-
-
-        [Fact]
-        public void assigning_a_challenge_directly_to_CurrentChallenge_focuses_on_it()
-        {
-            bool didGetFocus = false;
-            var challengeController = new ChallengeController();
-            var someChallenge = GetEmptyChallenge();
-            someChallenge.AddOnFocusListener(_ => didGetFocus = true);
-
-            challengeController.CurrentChallenge = someChallenge;
-
-            didGetFocus.Should().BeTrue();
         }
     }
 }
