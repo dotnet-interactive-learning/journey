@@ -94,19 +94,17 @@ namespace Extension.Tests
         [Fact]
         public void when_the_output_fails_any_rule_then_evaluation_fails()
         {
-
             //arrange
             var ruleContext = new RuleContext();
       
             //act
             var challenge = new Challenge(new EditableCode[] { });
 
-            challenge.AddRule(r => r.Fail());
-            var evaluation = challenge.EvaluateResult(ruleContext);
+            challenge.AddRule(c => c.Fail());
+            var evaluation = challenge.EvaluateByDefault(ruleContext);
 
             //assert
             evaluation.Outcome.Should().Be(Outcome.Failure);
-
         }
 
         [Fact(Skip = "later")]

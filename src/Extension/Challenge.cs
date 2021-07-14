@@ -104,15 +104,19 @@ namespace Extension
             await OnCodeSubmittedHandler(context);
         }
 
-        public Evaluation EvaluateResult(RuleContext result)
+        public Evaluation EvaluateByDefault(RuleContext result)
         {
+            // todo: result unused
+            // prob remove this arg because 
+            // we'll use challenge info in this object to construct rulecontext
+            // to pass them into rule.Evaluate()
             var evaluation = new Evaluation();
 
             var listOfRulePassOrFailOutcomes = new List<bool>();
             foreach (var rule in _rules)
             {
                 var ruleContext = new RuleContext();
-                rule.TestResult(ruleContext);
+                rule.Evaluate(ruleContext);
                 listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
             }
 

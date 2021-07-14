@@ -12,7 +12,7 @@ namespace Extension
         {
             this.evaluateRuleContextHandler = ruleContraints;
         }
-        internal void TestResult(RuleContext result)
+        internal void Evaluate(RuleContext result)
         {
             evaluateRuleContextHandler.Invoke(result);
         }
