@@ -12,12 +12,12 @@ namespace Extension
     { 
         public static Task OnLoadAsync(Kernel kernel)
         {
-            RegisterEvents();
+            //RegisterEvents();
 
-            var evaluator = new Evaluator();
-            kernel
-                .UseQuestionMagicCommand(evaluator)
-                .UseEvaluateMagicCommand(evaluator);
+            //var evaluator = new Evaluator();
+            //kernel
+            //    .UseQuestionMagicCommand(evaluator)
+            //    .UseEvaluateMagicCommand(evaluator);
 
             if (KernelInvocationContext.Current is { } context)
             {

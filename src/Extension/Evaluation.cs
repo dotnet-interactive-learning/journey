@@ -13,6 +13,8 @@ namespace Extension
         Success
     };
     [TypeFormatterSource(typeof(EvaluationFormatterSource))]
+    // make immutable
+    // recursively defined?
     public class Evaluation
     {
         private readonly string label;

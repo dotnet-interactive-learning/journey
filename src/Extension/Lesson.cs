@@ -1,4 +1,4 @@
-﻿using Extension.ChallengeControl;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,31 +22,20 @@ namespace Extension
             }
         }
 
-        private Dictionary<string, Challenge> _challenges = new Dictionary<string, Challenge>();
-
         public Lesson()
         {
 
         }
 
-        public void AddChallenge(string challengeId, Challenge challenge)
+        public void AddChallenge(Challenge challenge)
         {
-            if (_challenges.ContainsKey(challengeId))
-            {
-                throw new ArgumentException($"Challenge already exists with id {challengeId}");
-            }
-            _challenges.Add(challengeId, challenge);
             ChallengeController.AddChallenge(challenge);
             challenge.Lesson = this;
         }
 
-        public void GoToChallenge(string challengeId)
+        public void GoToChallenge(Challenge challenge)
         {
-            if (!_challenges.ContainsKey(challengeId))
-            {
-                throw new ArgumentException($"No challenge exists with id {challengeId}");
-            }
-            CurrentChallenge = _challenges[challengeId];
+            CurrentChallenge = challenge;
         }
     }
 }

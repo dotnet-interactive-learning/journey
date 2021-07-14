@@ -1,4 +1,4 @@
-﻿using Extension.ChallengeControl;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +14,9 @@ namespace Extension.Tests.Utilities
             var challenges = new Dictionary<string, Challenge>();
             foreach (var id in challengeIds)
             {
-                var challenge = new Challenge(Enumerable.Empty<string>());
+                var challenge = new Challenge(new EditableCode[] { });
                 challenges.Add(id, challenge);
-                lesson.AddChallenge(id, challenge);
+                lesson.AddChallenge(challenge);
             }
             return challenges;
         }

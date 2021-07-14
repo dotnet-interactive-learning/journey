@@ -1,4 +1,4 @@
-﻿using Extension.ChallengeControl;
+﻿
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace Extension.Tests.Utilities
 
             for (int i = 0; i < numberOfChallenges; i++)
             {
-                var challenge = new Challenge(Enumerable.Empty<string>());
+                var challenge = new Challenge(new EditableCode[] { });
                 challenges.Add(challenge);
                 challengeController.AddChallenge(challenge);
             }

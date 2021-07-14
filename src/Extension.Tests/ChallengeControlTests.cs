@@ -1,4 +1,4 @@
-﻿using Extension.ChallengeControl;
+﻿
 using Extension.Tests.Utilities;
 using FluentAssertions;
 using System;
@@ -12,16 +12,16 @@ namespace Extension.Tests
 {
     public class ChallengeControlTests
     {
-        private string[] sampleChallengeContent = new string[]
+        private EditableCode[] sampleChallengeContent = new EditableCode[]
             {
-                "contentcell1",
-                "contentcell2",
-                "contentcell3"
+                new EditableCode("csharp", "contentcell1"),
+                new EditableCode("csharp", "contentcell2"),
+                new EditableCode("csharp", "contentcell3")
             };
 
         private Challenge GetEmptyChallenge()
         {
-            return new Challenge(Enumerable.Empty<string>());
+            return new Challenge(new EditableCode[] { });
         }
 
         [Fact]
@@ -78,7 +78,8 @@ namespace Extension.Tests
         public void a_challenge_exposes_itself_and_its_content_through_onReveal_listeners()
         {
             Challenge exposedObject = null;
-            var exposedContent = Enumerable.Empty<string>();
+            IReadOnlyList<EditableCode> exposedContent = null;
+;
             Challenge challenge = new Challenge(sampleChallengeContent);
             challenge.AddOnRevealListener(challenge =>
             {
@@ -96,7 +97,7 @@ namespace Extension.Tests
         public void a_challenge_exposes_itself_and_its_content_through_onFocus_listeners()
         {
             Challenge exposedObject = null;
-            var exposedContent = Enumerable.Empty<string>();
+            IReadOnlyList<EditableCode> exposedContent = null;
             Challenge challenge = new Challenge(sampleChallengeContent);
             challenge.AddOnFocusListener(challenge =>
             {
