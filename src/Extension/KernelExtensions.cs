@@ -1,6 +1,4 @@
-﻿using Extension.Criterion;
-using Extension.Events;
-using Microsoft.DotNet.Interactive;
+﻿using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
@@ -16,20 +14,6 @@ namespace Extension
 {
     public static class KernelExtensions
     {
-        public static Task<KernelCommandResult[]> SubmitEvaluationCriteriaAsync<T>(
-            this T kernel, 
-            IEnumerable<CodeEvaluationCriterion> evaluationCriteria,
-            CancellationToken? cancellationToken = null)
-            where T : Kernel
-        {
-            var cancelToken = cancellationToken ?? CancellationToken.None;
-
-            return Task.WhenAll(
-                evaluationCriteria
-                    .Select(criterion => kernel.SendAsync(new SubmitCode(criterion.ToCodeString()), cancelToken))
-            );
-        }
-
         //public static T UseQuestionMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         //{
         //    var questionCommand = new Command("#!question", "This question will be evaluated")

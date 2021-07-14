@@ -1,5 +1,4 @@
-﻿using Extension.Criterion;
-using Microsoft.DotNet.Interactive;
+﻿using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Events;
 using System;
 using System.Collections.Generic;
@@ -21,7 +20,6 @@ namespace Extension
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
 
         private List<Rule> _rules = new();
-        private SortedDictionary<string, List<CodeEvaluationCriterion>> codeEvaluationCriteria;
 
         private List<Action<Challenge>> _onRevealListeners = new List<Action<Challenge>>();
         private List<Action<Challenge>> _onFocusListeners = new List<Action<Challenge>>();
@@ -127,53 +125,6 @@ namespace Extension
             else
             {
                 evaluation.SetOutcome(Outcome.Success);
-            }
-            return evaluation;
-        }
-
-        public void AddCodeEvaluationCriterion(string questionId, CodeEvaluationCriterion criterion)
-        {
-            if (!codeEvaluationCriteria.ContainsKey(questionId))
-            {
-                codeEvaluationCriteria.Add(questionId, new List<CodeEvaluationCriterion>());
-            }
-            codeEvaluationCriteria[questionId].Add(criterion);
-        }
-
-        public IEnumerable<CodeEvaluationCriterion> GetCodeEvaluationCriteria(string questionId)
-        {
-            if (codeEvaluationCriteria.ContainsKey(questionId))
-            {
-                return codeEvaluationCriteria[questionId];
-            }
-            return Enumerable.Empty<CodeEvaluationCriterion>();
-        }
-
-        public Evaluation EvaluateCodeEvaluationResults(IEnumerable<KernelCommandResult> results)
-        {
-            var events = results.Select(result => result.KernelEvents.ToEnumerable());
-
-            var foundReturnValueProducedEvents = events
-                .Select(evts => evts.FirstOrDefault(e => e is ReturnValueProduced))
-                .Where(e => e is { })
-                .Select(e => (ReturnValueProduced)e);
-
-            var evaluationVerdict = foundReturnValueProducedEvents.All(
-                (returnValueProduced) =>
-                {
-                    var value = returnValueProduced.Value;
-                    return !(value is bool) || (bool)value;
-                }
-            );
-
-            var evaluation = new Evaluation();
-            if (evaluationVerdict)
-            {
-                evaluation.SetOutcome(Outcome.Success);
-            }
-            else
-            {
-                evaluation.SetOutcome(Outcome.Failure);
             }
             return evaluation;
         }
