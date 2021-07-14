@@ -33,9 +33,13 @@ namespace Extension
             challenge.Lesson = this;
         }
 
-        public void GoToChallenge(Challenge challenge)
+// todo: remove pragma
+#pragma warning disable 1998
+        public async Task StartChallengeAsync(Challenge challenge)
+#pragma warning restore 1998
         {
             CurrentChallenge = challenge;
+            // todo: await someexternalendpoint.StartChallenge
         }
     }
 }

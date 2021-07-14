@@ -27,7 +27,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void skipping_to_a_specific_challenge_calls_focus_on_it()
+        public async Task skipping_to_a_specific_challenge_calls_focus_on_itAsync()
         {
             var onFocusGetsCalled = false;
             var lesson = new Lesson();
@@ -35,35 +35,35 @@ namespace Extension.Tests
             lesson.ChallengeController.Commit();
             challenges["3"].AddOnFocusListener(_ => onFocusGetsCalled = true);
 
-            lesson.GoToChallenge(challenges["3"]);
+            await lesson.StartChallengeAsync(challenges["3"]);
 
             onFocusGetsCalled.Should().BeTrue();
         }
 
         [Fact]
-        public void skipping_to_a_specific_challenge_sets_the_current_challenge_to_it()
+        public async Task skipping_to_a_specific_challenge_sets_the_current_challenge_to_itAsync()
         {
             var lesson = new Lesson();
             var challenges = lesson.AddBlankChallenges("1", "2", "3");
             lesson.ChallengeController.Commit();
 
-            lesson.GoToChallenge(challenges["3"]);
+            await lesson.StartChallengeAsync(challenges["3"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["3"]);
         }
 
         [Fact]
-        public void can_use_on_evaluation_complete_handler_to_skip_to_a_specific_challenge()
+        public async Task can_use_on_evaluation_complete_handler_to_skip_to_a_specific_challenge()
         {
             var lesson = new Lesson();
             var challenges = lesson.AddBlankChallenges("1", "2", "3");
             lesson.ChallengeController.Commit();
-            challenges["1"].OnCodeSubmitted((challenge, lesson) =>
+            challenges["1"].OnCodeSubmittedAsync(async (context) =>
             {
-                lesson.GoToChallenge(challenges["3"]);
+                await context.StartChallengeAsync(challenges["3"]);
             });
 
-            challenges["1"].InvokeOnEvaluationComplete();
+            await challenges["1"].InvokeOnEvaluationComplete();
 
             lesson.CurrentChallenge.Should().Be(challenges["3"]);
         }
@@ -89,14 +89,14 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void skipping_to_a_unrevealed_challenge_allows_progression_to_continue_from_there_linear_case()
+        public async Task skipping_to_a_unrevealed_challenge_allows_progression_to_continue_from_there_linear_caseAsync()
         {
             var lesson = new Lesson();
             var challenges = lesson.AddBlankChallenges("1", "2", "3", "4");
             lesson.ChallengeController.UseLinearProgressionStructure();
             lesson.ChallengeController.Commit();
 
-            lesson.GoToChallenge(challenges["3"]);
+            await lesson.StartChallengeAsync(challenges["3"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["3"]);
 
@@ -106,7 +106,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void going_back_to_a_revealed_challenge_allows_progression_to_continue_to_progress_from_there_linear_case()
+        public async Task going_back_to_a_revealed_challenge_allows_progression_to_continue_to_progress_from_there_linear_caseAsync()
         {
             var lesson = new Lesson();
             var challenges = lesson.AddBlankChallenges("1", "2", "3", "4");
@@ -116,7 +116,7 @@ namespace Extension.Tests
             lesson.CurrentChallenge.Pass();
             lesson.CurrentChallenge.Pass();
 
-            lesson.GoToChallenge(challenges["2"]);
+            await lesson.StartChallengeAsync(challenges["2"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["2"]);
 

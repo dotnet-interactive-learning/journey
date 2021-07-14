@@ -26,10 +26,13 @@ namespace Extension
         private List<Action<Challenge>> _onRevealListeners = new List<Action<Challenge>>();
         private List<Action<Challenge>> _onFocusListeners = new List<Action<Challenge>>();
 
+        private ChallengeContext context;
+
         public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null)
         {
             Contents = content;
             Lesson = lesson;
+            context = new ChallengeContext(lesson);
         }
 
         public void AddDependency(Challenge challenge)
@@ -63,7 +66,6 @@ namespace Extension
                 }
             }
         }
-
         public void Focus()
         {
             foreach (var listener in _onFocusListeners)
@@ -97,14 +99,9 @@ namespace Extension
             Dependents.Clear();
         }
 
-        public void OnCodeSubmitted(Func<ChallengeContext, Task> handler)
-        {
-            OnCodeSubmittedHandler = handler;
-        }
-
         public async Task InvokeOnEvaluationComplete()
         {
-            await OnCodeSubmittedHandler();
+            await OnCodeSubmittedHandler(context);
         }
 
         public Evaluation EvaluateResult(RuleContext result)
@@ -177,16 +174,37 @@ namespace Extension
             return evaluation;
         }
 
-        public void AddRule(Rule rule)
-        {
-            _rules.Add(rule);
-
-        }
-
-        public void AddRule(Func<RuleContext, Task> action)
+        public void AddRuleAsync(Func<RuleContext, Task> action)
         {
             AddRule(new Rule(action));
         }
 
+        public void AddRule(Action<RuleContext> action)
+        {
+            AddRuleAsync((context) =>
+            {
+                action(context);
+                return Task.CompletedTask;
+            });
+        }
+
+        public void OnCodeSubmittedAsync(Func<ChallengeContext, Task> action)
+        {
+            OnCodeSubmittedHandler = action;
+        }
+
+        public void OnCodeSubmitted(Action<ChallengeContext> action)
+        {
+            OnCodeSubmittedAsync((context) =>
+            {
+                action(context);
+                return Task.CompletedTask;
+            });
+        }
+
+        private void AddRule(Rule rule)
+        {
+            _rules.Add(rule);
+        }
     }
 }
