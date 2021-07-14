@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.ChallengeControl
+namespace Extension
 {
     public class ChallengeController
     {

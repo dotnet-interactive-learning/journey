@@ -99,10 +99,10 @@ namespace Extension.Tests
             var ruleContext = new RuleContext();
       
             //act
-            var evaluator = new Evaluator();
+            var challenge = new Challenge(new EditableCode[] { });
 
-            evaluator.AddRule(new Rule(r => r.Fail()));
-            var evaluation = evaluator.EvaluateResult(ruleContext);
+            challenge.AddRule(new Rule(r => r.Fail()));
+            var evaluation = challenge.EvaluateResult(ruleContext);
 
             //assert
             evaluation.Outcome.Should().Be(Outcome.Failure);

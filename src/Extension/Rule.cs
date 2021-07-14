@@ -1,13 +1,14 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.DotNet.Interactive;
 
 namespace Extension
 {
     public class Rule
     {
-        private readonly Action<RuleContext> evaluateRuleContextHandler;
+        private readonly Func<RuleContext, Task> evaluateRuleContextHandler;
 
-        public Rule(Action<RuleContext> ruleContraints)
+        public Rule(Func<RuleContext, Task> ruleContraints)
         {
             this.evaluateRuleContextHandler = ruleContraints;
         }

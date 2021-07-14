@@ -1,4 +1,4 @@
-﻿using Extension.ChallengeControl;
+﻿
 using Extension.Tests.Utilities;
 using FluentAssertions;
 using System;
@@ -35,7 +35,7 @@ namespace Extension.Tests
             lesson.ChallengeController.Commit();
             challenges["3"].AddOnFocusListener(_ => onFocusGetsCalled = true);
 
-            lesson.GoToChallenge("3");
+            lesson.GoToChallenge(challenges["3"]);
 
             onFocusGetsCalled.Should().BeTrue();
         }
@@ -47,7 +47,7 @@ namespace Extension.Tests
             var challenges = lesson.AddBlankChallenges("1", "2", "3");
             lesson.ChallengeController.Commit();
 
-            lesson.GoToChallenge("3");
+            lesson.GoToChallenge(challenges["3"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["3"]);
         }
@@ -58,9 +58,9 @@ namespace Extension.Tests
             var lesson = new Lesson();
             var challenges = lesson.AddBlankChallenges("1", "2", "3");
             lesson.ChallengeController.Commit();
-            challenges["1"].OnEvaluationComplete((challenge, lesson) =>
+            challenges["1"].OnCodeSubmitted((challenge, lesson) =>
             {
-                lesson.GoToChallenge("3");
+                lesson.GoToChallenge(challenges["3"]);
             });
 
             challenges["1"].InvokeOnEvaluationComplete();
@@ -96,7 +96,7 @@ namespace Extension.Tests
             lesson.ChallengeController.UseLinearProgressionStructure();
             lesson.ChallengeController.Commit();
 
-            lesson.GoToChallenge("3");
+            lesson.GoToChallenge(challenges["3"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["3"]);
 
@@ -116,7 +116,7 @@ namespace Extension.Tests
             lesson.CurrentChallenge.Pass();
             lesson.CurrentChallenge.Pass();
 
-            lesson.GoToChallenge("2");
+            lesson.GoToChallenge(challenges["2"]);
 
             lesson.CurrentChallenge.Should().Be(challenges["2"]);
 
