@@ -17,7 +17,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task can_use_on_evaluation_complete_handler_to_skip_to_a_specific_challenge()
+        public async Task can_use_on_code_submitted_handler_to_skip_to_a_specific_challenge()
         {
             var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge(lesson);
