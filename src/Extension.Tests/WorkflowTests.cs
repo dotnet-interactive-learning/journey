@@ -4,10 +4,8 @@ using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -60,7 +58,7 @@ namespace Extension.Tests
             {
                 ruleContext.Fail();
             });
-            challenge.OnCodeSubmitted(async (challengeContext) =>
+            challenge.OnCodeSubmittedAsync(async challengeContext =>
             {
                 var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();

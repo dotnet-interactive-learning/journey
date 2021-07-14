@@ -101,7 +101,7 @@ namespace Extension.Tests
             //act
             var challenge = new Challenge(new EditableCode[] { });
 
-            challenge.AddRule(new Rule(r => r.Fail()));
+            challenge.AddRule(r => r.Fail());
             var evaluation = challenge.EvaluateResult(ruleContext);
 
             //assert

@@ -14,7 +14,7 @@ namespace Extension.Tests.Utilities
             var challenges = new Dictionary<string, Challenge>();
             foreach (var id in challengeIds)
             {
-                var challenge = new Challenge(new EditableCode[] { });
+                var challenge = new Challenge(new EditableCode[] { }, lesson);
                 challenges.Add(id, challenge);
                 lesson.AddChallenge(challenge);
             }
