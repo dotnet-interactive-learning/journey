@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Extension
 {
     public class RuleContext
@@ -8,16 +7,13 @@ namespace Extension
 
         public void Fail()
         {
-            this.Passed = false;
+            Passed = false;
 
-            
         }
 
         public void Pass()
         {
-            this.Passed = true;
-
-
+            Passed = true;
         }
     }
 
