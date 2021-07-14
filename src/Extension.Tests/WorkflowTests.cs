@@ -42,7 +42,7 @@ namespace Extension.Tests
 ")
         };
 
-        [Fact]
+        [Fact(Skip = "wip")]
         public async Task Test()
         {
             using var kernel = new CompositeKernel
