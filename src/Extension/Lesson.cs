@@ -23,7 +23,7 @@ namespace Extension
         {
             CurrentChallenge = challenge;
             CurrentChallenge.Focus();
-            // todo: await someexternalendpoint.StartChallenge
+            // todo: await someexternalendpoint.StartChallenge that sends EditableCode
         }
     }
 }

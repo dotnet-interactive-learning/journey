@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Extension.Tests.Utilities
 {
-    public static class ChallengeControllerExtensions
+    public static class ProgressionServiceExtensions
     {
-        public static List<Challenge> AddBlankChallenges(this ChallengeGraphProgressionService challengeController, int numberOfChallenges)
+        public static List<Challenge> AddBlankChallenges(this ChallengeGraphProgressionService service, int numberOfChallenges)
         {
             var challenges = new List<Challenge>();
 
@@ -17,7 +17,7 @@ namespace Extension.Tests.Utilities
             {
                 var challenge = new Challenge(new EditableCode[] { });
                 challenges.Add(challenge);
-                challengeController.AddChallenge(challenge);
+                service.AddChallenge(challenge);
             }
 
             return challenges;
