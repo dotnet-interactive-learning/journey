@@ -9,36 +9,20 @@ namespace Extension
 {
     public class Lesson
     {
-        public ChallengeController ChallengeController { get; private set; } = new ChallengeController();
-        public Challenge CurrentChallenge
-        {
-            get
-            {
-                return ChallengeController.CurrentChallenge;
-            }
-            set
-            {
-                ChallengeController.CurrentChallenge = value;
-            }
-        }
+        public Challenge CurrentChallenge { get; private set; }
 
         public Lesson()
         {
 
         }
 
-        public void AddChallenge(Challenge challenge)
-        {
-            ChallengeController.AddChallenge(challenge);
-            challenge.Lesson = this;
-        }
-
-// todo: remove pragma
+        // todo: remove pragma
 #pragma warning disable 1998
         public async Task StartChallengeAsync(Challenge challenge)
 #pragma warning restore 1998
         {
             CurrentChallenge = challenge;
+            CurrentChallenge.Focus();
             // todo: await someexternalendpoint.StartChallenge
         }
     }

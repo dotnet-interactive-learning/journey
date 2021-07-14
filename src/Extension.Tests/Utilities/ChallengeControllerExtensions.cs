@@ -9,7 +9,7 @@ namespace Extension.Tests.Utilities
 {
     public static class ChallengeControllerExtensions
     {
-        public static List<Challenge> AddBlankChallenges(this ChallengeController challengeController, int numberOfChallenges)
+        public static List<Challenge> AddBlankChallenges(this ChallengeGraphProgressionService challengeController, int numberOfChallenges)
         {
             var challenges = new List<Challenge>();
 

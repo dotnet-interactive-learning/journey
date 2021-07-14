@@ -13,16 +13,10 @@ namespace Extension
     {
         public Lesson Lesson { get; set; }
         public IReadOnlyList<EditableCode> Contents { get; private set; }
-        public bool Passed { get; private set; } = false;
         public bool Revealed { get; private set; } = false;
-        public List<Challenge> Dependencies { get; private set; } = new List<Challenge>();
-        public List<Challenge> Dependents { get; private set; } = new List<Challenge>();
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
 
         private List<Rule> _rules = new();
-
-        private List<Action<Challenge>> _onRevealListeners = new List<Action<Challenge>>();
-        private List<Action<Challenge>> _onFocusListeners = new List<Action<Challenge>>();
 
         private ChallengeContext context;
 
@@ -33,68 +27,15 @@ namespace Extension
             context = new ChallengeContext(lesson);
         }
 
-        public void AddDependency(Challenge challenge)
-        {
-            Dependencies.Add(challenge);
-        }
-
-        public void AddDependent(Challenge challenge)
-        {
-            Dependents.Add(challenge);
-        }
-
-        public void AddOnRevealListener(Action<Challenge> listener)
-        {
-            _onRevealListeners.Add(listener);
-        }
-
-        public void AddOnFocusListener(Action<Challenge> listener)
-        {
-            _onFocusListeners.Add(listener);
-        }
-
-        public void Pass()
-        {
-            Passed = true;
-            foreach (var dependent in Dependents)
-            {
-                if (dependent.Revealed || dependent.CanReveal())
-                {
-                    dependent.Focus();
-                }
-            }
-        }
         public void Focus()
         {
-            foreach (var listener in _onFocusListeners)
-            {
-                listener(this);
-            }
             Reveal();
-        }
-        public bool CanReveal()
-        {
-            return Dependencies
-                .Select(dependency => dependency.Passed)
-                .All(passed => passed);
         }
 
         public void Reveal()
         {
-            if (!Revealed)
-            {
-                foreach (var listener in _onRevealListeners)
-                {
-                    listener(this);
-                }
-                Revealed = true; 
-            }
-        }
-
-        public void ClearDependencyRelationships()
-        {
-            Dependencies.Clear();
-            Dependents.Clear();
+            // todo: if previously not revealed, produce AddEditableCode command
+            Revealed = true; 
         }
 
         public async Task InvokeOnEvaluationComplete()
