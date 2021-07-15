@@ -33,7 +33,8 @@ namespace Extension
                 {
                     case SubmitCode submitCode:
                         await next(command, context);
-                        await lesson.CurrentChallenge.Evaluate();
+                        var events = context.KernelEvents.ToSubscribedList();
+                        await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
                         var view = lesson.CurrentChallenge.CurrentEvaluation.FormatAsHtml();
                         var formattedValues = FormattedValue.FromObject(view);
                         context.Publish(

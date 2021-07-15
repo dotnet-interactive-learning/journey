@@ -8,7 +8,7 @@ namespace Extension
     {
         public Lesson Lesson => _challenge.Lesson;
         public Evaluation Evaluation => _challenge.CurrentEvaluation;
-        public IEnumerable<Evaluation> SubmissionHistory => _challenge.SubmissionHistory;
+        public IEnumerable<ChallengeSubmission> SubmissionHistory => _challenge.SubmissionHistory;
 
         private readonly Challenge _challenge;
 
@@ -26,9 +26,12 @@ namespace Extension
             _challenge = challenge;
         }
 
-        // todo: .info
-        // setoutcome always success
+        public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
+        {
+            Evaluation.SetOutcome(outcome, reason, hint);
+        }
 
+        // todo: get rid of these 
         public void Pass(string reason = null, object hint = null)
         {
             Evaluation.SetOutcome(Outcome.Success, reason, hint);

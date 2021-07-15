@@ -15,11 +15,12 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; private set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public Evaluation CurrentEvaluation => _submissionHistory.Peek();
-        public IEnumerable<Evaluation> SubmissionHistory => _submissionHistory;
+        public Evaluation CurrentEvaluation { get; private set; }
+        public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
+        public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
         private List<Rule> _rules = new();
-        private Stack<Evaluation> _submissionHistory = new();
+        private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
         public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null)
@@ -28,20 +29,21 @@ namespace Extension
             Lesson = lesson;
         }
 
-        public async Task Evaluate()
+        public async Task Evaluate(string submissionCode = null, IEnumerable<KernelEvent> events = null)
         {
-            _submissionHistory.Push(new Evaluation());
+            CurrentEvaluation = new Evaluation();
+            _submissionHistory.Push(new ChallengeSubmission(submissionCode, CurrentEvaluation, events));
             _context = new ChallengeContext(this);
             foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
             {
                 var ruleContext = new RuleContext(this, CurrentEvaluation, $"Rule {index + 1}");
                 rule.Evaluate(ruleContext);
             }
-            await InvokeOnEvaluationComplete();
+            await InvokeOnCodeSubmittedHandler();
         }
 
         // todo: rename
-        public async Task InvokeOnEvaluationComplete()
+        public async Task InvokeOnCodeSubmittedHandler()
         {
             await OnCodeSubmittedHandler(_context);
         }

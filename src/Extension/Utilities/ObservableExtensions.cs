@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.Tests.Utilities
+namespace Extension
 {
     public static class ObservableExtensions
     {
