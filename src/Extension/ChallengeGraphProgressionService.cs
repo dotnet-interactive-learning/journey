@@ -9,11 +9,12 @@ namespace Extension
 {
     public class ChallengeGraphProgressionService
     {
-        public OrderedTable<Challenge> Challenges { get; private set; } = new();
         public Dictionary<Challenge, List<Challenge>> Dependencies { get; private set; } = new();
         public Dictionary<Challenge, List<Challenge>> Dependents { get; private set; } = new();
         public Dictionary<Challenge, bool> HasPassed { get; private set; } = new();
         public Challenge CurrentChallenge => _lesson.CurrentChallenge;
+
+        private OrderedTable<Challenge> _challenges = new();
 
         private Lesson _lesson = new();
 
@@ -22,19 +23,14 @@ namespace Extension
             _lesson = lesson;
         }
 
-        public ChallengeGraphProgressionService(Lesson lesson, IReadOnlyList<Challenge> challenges)
-            : this(lesson)
-        {
-            foreach (var challenge in challenges)
-            {
-                Challenges.Add(challenge);
-            }
-        }
-
         public void AddChallenge(Challenge challenge, bool hasPassed = false)
         {
-            Challenges.Add(challenge);
+            _challenges.Add(challenge);
             HasPassed.Add(challenge, hasPassed);
+            if (!Dependencies.ContainsKey(challenge))
+            {
+                Dependencies.Add(challenge, new List<Challenge>());
+            }
         }
 
         public void Pass()
@@ -49,6 +45,10 @@ namespace Extension
 
         public async Task<bool> TryGoToNextChallengeAsync()
         {
+            if (!_challenges.Contains(CurrentChallenge))
+            {
+                return false;
+            }
             var firstDependentWithResolvedDependencies = Dependents[CurrentChallenge]
                 .FirstOrDefault(dependent => Dependencies[dependent].All(dependency => HasPassed[dependency]));
             if (firstDependentWithResolvedDependencies is null)
@@ -70,11 +70,11 @@ namespace Extension
             // in the transpose of the dependency graph (which is dependent graph)
             // who has all dependency challenges passed
             // use BFS in the dependent graph
-            await Task.Run(() => { });
+            await Task.Yield();
             throw new NotImplementedException();
         }
 
-        public async Task ForceGoToChallengeAsync(Challenge challenge)
+        public async Task GoToChallengeAsync(Challenge challenge)
         {
             await _lesson.StartChallengeAsync(challenge);
         }
@@ -82,7 +82,7 @@ namespace Extension
         public void UseLinearProgressionStructure()
         {
             ClearDependencyRelationships();
-            var challenges = new List<Challenge>(Challenges);
+            var challenges = new List<Challenge>(_challenges);
 
             if (challenges.Count >= 2)
             {
@@ -96,40 +96,20 @@ namespace Extension
             }
         }
 
-        public async Task Commit()
+        public async Task StartProgression()
         {
-            foreach (var challenge in Challenges)
-            {
-                if (!Dependencies.ContainsKey(challenge))
-                {
-                    Dependencies.Add(challenge, new List<Challenge>());
-                }
-                if (!Dependents.ContainsKey(challenge))
-                {
-                    Dependents.Add(challenge, new List<Challenge>());
-                }
-                if (!HasPassed.ContainsKey(challenge))
-                {
-                    HasPassed.Add(challenge, false);
-
-                }
-            }
             await InitializeStartingChallenges();
         }
 
         private async Task InitializeStartingChallenges()
         {
-            var challengesWithNoDependencies = Challenges.
+            var challengesWithNoDependencies = _challenges.
                 Where(c => Dependencies[c].Count() == 0);
             if (challengesWithNoDependencies.Count() == 0)
             {
                 throw new InvalidOperationException("There are no challenges with no dependencies");
             }
             await _lesson.StartChallengeAsync(challengesWithNoDependencies.First());
-            foreach (var challenge in challengesWithNoDependencies)
-            {
-                challenge.Reveal();
-            }
         }
 
         public void AddDependency(Challenge subject, Challenge dependency)
@@ -148,8 +128,14 @@ namespace Extension
 
         private void ClearDependencyRelationships()
         {
-            Dependencies.Clear();
-            Dependents.Clear();
+            foreach (var dependencyList in Dependencies.Values)
+            {
+                dependencyList.Clear();
+            }
+            foreach (var dependentList in Dependents.Values)
+            {
+                dependentList.Clear();
+            }
         }
     }
 }

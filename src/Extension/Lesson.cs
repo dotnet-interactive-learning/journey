@@ -22,7 +22,7 @@ namespace Extension
 #pragma warning restore 1998
         {
             CurrentChallenge = challenge;
-            CurrentChallenge.Focus();
+            CurrentChallenge.Revealed = true;
             // todo: await someexternalendpoint.StartChallenge that sends EditableCode
         }
     }

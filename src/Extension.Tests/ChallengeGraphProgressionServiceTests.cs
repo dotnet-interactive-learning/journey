@@ -18,7 +18,7 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(1);
 
-            await service.Commit();
+            await service.StartProgression();
 
             challenges[0].Revealed.Should().BeTrue();
         }
@@ -30,20 +30,20 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(1);
 
-            await service.Commit();
+            await service.StartProgression();
 
             lesson.CurrentChallenge.Should().Be(challenges[0]);
         }
 
         [Fact]
-        public async Task challenge_without_dependency_is_autorevealed_in_the_linear_caseAsync()
+        public async Task challenge_without_dependency_is_autorevealed_in_the_linear_case()
         {
             var lesson = new Lesson();
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(3);
 
             service.UseLinearProgressionStructure();
-            await service.Commit();
+            await service.StartProgression();
 
             challenges[0].Revealed.Should().BeTrue();
         }
@@ -56,7 +56,7 @@ namespace Extension.Tests
             var challenges = service.AddBlankChallenges(3);
 
             service.UseLinearProgressionStructure();
-            await service.Commit();
+            await service.StartProgression();
 
             lesson.CurrentChallenge.Should().Be(challenges[0]);
         }
@@ -68,7 +68,7 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(3);
             service.UseLinearProgressionStructure();
-            await service .Commit();
+            await service .StartProgression();
 
             service.Pass();
             await service.TryGoToNextChallengeAsync();
@@ -88,9 +88,9 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(2);
             service.UseLinearProgressionStructure();
-            await service .Commit();
+            await service .StartProgression();
 
-            await service.ForceGoToChallengeAsync(challenges[1]);
+            await service.GoToChallengeAsync(challenges[1]);
 
             lesson.CurrentChallenge.Should().Be(challenges[1]);
         }
@@ -102,9 +102,9 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(4);
             service.UseLinearProgressionStructure();
-            await service.Commit();
+            await service.StartProgression();
 
-            await service.ForceGoToChallengeAsync(challenges[2]);
+            await service.GoToChallengeAsync(challenges[2]);
 
             lesson.CurrentChallenge.Should().Be(challenges[2]);
             challenges.GetRevealedStatuses().Should().BeEquivalentTo(true, false, true, false);
@@ -123,13 +123,13 @@ namespace Extension.Tests
             var service = new ChallengeGraphProgressionService(lesson);
             var challenges = service.AddBlankChallenges(4);
             service.UseLinearProgressionStructure();
-            await service.Commit();
+            await service.StartProgression();
             service.Pass();
             await service.TryGoToNextChallengeAsync();
             service.Pass();
             await service.TryGoToNextChallengeAsync();
 
-            await service.ForceGoToChallengeAsync(challenges[1]);
+            await service.GoToChallengeAsync(challenges[1]);
 
             lesson.CurrentChallenge.Should().Be(challenges[1]);
             challenges.GetRevealedStatuses().Should().BeEquivalentTo(true, true, true, false);

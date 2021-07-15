@@ -13,7 +13,7 @@ namespace Extension
     {
         public Lesson Lesson { get; set; }
         public IReadOnlyList<EditableCode> Contents { get; private set; }
-        public bool Revealed { get; private set; } = false;
+        public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
 
         private List<Rule> _rules = new();
@@ -25,17 +25,6 @@ namespace Extension
             Contents = content;
             Lesson = lesson;
             context = new ChallengeContext(lesson);
-        }
-
-        public void Focus()
-        {
-            Reveal();
-        }
-
-        public void Reveal()
-        {
-            // todo: if previously not revealed, produce AddEditableCode command
-            Revealed = true; 
         }
 
         public async Task InvokeOnEvaluationComplete()
