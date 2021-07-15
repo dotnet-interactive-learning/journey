@@ -55,7 +55,7 @@ namespace Extension.Tests
             var challenge = new Challenge(new EditableCode[] { });
 
             challenge.AddRule(c => c.Pass());
-            var evaluation = challenge.EvaluateByDefault(ruleContext);
+            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
 
             //assert
             evaluation.Outcome.Should().Be(Outcome.Success);
@@ -73,7 +73,7 @@ namespace Extension.Tests
             var challenge = new Challenge(new EditableCode[] { });
 
             challenge.AddRule(c => c.Fail());
-            var evaluation = challenge.EvaluateByDefault(ruleContext);
+            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
 
             //assert
             evaluation.Outcome.Should().Be(Outcome.Failure);

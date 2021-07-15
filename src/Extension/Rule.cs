@@ -12,9 +12,9 @@ namespace Extension
         {
             this.evaluateRuleContextHandler = ruleContraints;
         }
-        internal void Evaluate(RuleContext result)
+        internal void Evaluate(RuleContext context)
         {
-            evaluateRuleContextHandler.Invoke(result);
+            evaluateRuleContextHandler.Invoke(context);
         }
     }
 }

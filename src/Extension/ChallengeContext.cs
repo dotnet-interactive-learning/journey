@@ -6,23 +6,42 @@ namespace Extension
 {
     public class ChallengeContext
     {
-        public Lesson Lesson { get; private set; }
+        public Lesson Lesson => _challenge.Lesson;
+        public Evaluation Evaluation => _challenge.CurrentEvaluation;
+        public IEnumerable<Evaluation> SubmissionHistory => _challenge.SubmissionHistory;
 
-        public List<Evaluation> RuleEvaluations { get; private set; }
+        private readonly Challenge _challenge;
 
-        public ChallengeContext(Lesson lesson)
+        public IEnumerable<Evaluation> RuleEvaluations
         {
-            Lesson = lesson;
+            get => Evaluation.RuleEvaluations;
         }
 
-        public void Pass(string message)
+        internal ChallengeContext(Challenge challenge)
         {
-            throw new NotImplementedException();
+            if (challenge is null)
+            {
+                throw new ArgumentNullException(nameof(challenge));
+            }
+            _challenge = challenge;
         }
 
-        public void Fail(string message)
+        // todo: .info
+        // setoutcome always success
+
+        public void Pass(string reason = null, object hint = null)
         {
-            throw new NotImplementedException();
+            Evaluation.SetOutcome(Outcome.Success, reason, hint);
+        }
+
+        public void Fail(string reason = null, object hint = null)
+        {
+            Evaluation.SetOutcome(Outcome.Failure, reason, hint);
+        }
+
+        public void PartialPass(string reason = null, object hint = null)
+        {
+            Evaluation.SetOutcome(Outcome.PartialSuccess, reason, hint);
         }
 
         public async Task StartChallengeAsync(Challenge challenge)

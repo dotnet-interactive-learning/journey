@@ -15,29 +15,46 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; private set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
+        public Evaluation CurrentEvaluation => _submissionHistory.Peek();
+        public IEnumerable<Evaluation> SubmissionHistory => _submissionHistory;
 
         private List<Rule> _rules = new();
-
-        private ChallengeContext context;
+        private Stack<Evaluation> _submissionHistory = new();
+        private ChallengeContext _context;
 
         public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null)
         {
             Contents = content;
             Lesson = lesson;
-            context = new ChallengeContext(lesson);
         }
 
+        public async Task Evaluate()
+        {
+            _submissionHistory.Push(new Evaluation());
+            _context = new ChallengeContext(this);
+            foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
+            {
+                var ruleContext = new RuleContext(this, CurrentEvaluation, $"Rule {index + 1}");
+                rule.Evaluate(ruleContext);
+            }
+            await InvokeOnEvaluationComplete();
+        }
+
+        // todo: rename
         public async Task InvokeOnEvaluationComplete()
         {
-            await OnCodeSubmittedHandler(context);
+            await OnCodeSubmittedHandler(_context);
         }
 
-        public Evaluation EvaluateByDefault(RuleContext result)
+        public Evaluation EvaluateChallengeEvaluationByDefault(RuleContext result)
         {
             // todo: result unused
             // prob remove this arg because 
             // we'll use challenge info in this object to construct rulecontext
             // to pass them into rule.Evaluate()
+
+            // todo: two pathways: teacher sets by using challengeContext.Fail, etc
+            // or default behavior, which is this function
             var evaluation = new Evaluation();
 
             var listOfRulePassOrFailOutcomes = new List<bool>();
