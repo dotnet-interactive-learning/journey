@@ -45,48 +45,20 @@ namespace Extension.Tests
 
         }
 
-        [Fact(Skip = "later")]
+        [Fact]
         public void when_the_output_passes_all_rules_then_evaluation_passes()
         {
-            //in english:
-            //If the users output is not the same as the output the teacher(or notebook creater) expects
-            //then there should be an error.
+            //arrange
+            var ruleContext = new RuleContext();
 
-            //possible format:
-            //set var for submission code output
-            //set var for expected criteria
-            //if they are the same then this test passes
+            //act
+            var challenge = new Challenge(new EditableCode[] { });
 
-//            //arrange
-//            using var csharpkernel = new CSharpKernel();
-//            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-//            var result = await csharpkernel.SubmitCodeAsync(
-//@"//return 1+1
-//1+1");
+            challenge.AddRule(c => c.Pass());
+            var evaluation = challenge.EvaluateByDefault(ruleContext);
 
-//            //act
-//            var evaluator = new Evaluator();
-
-//            evaluator.AddRule(new Rule(r =>
-//            {
-               
-//            }));
-//            var evaluation = evaluator.EvaluateResult(result);
-//            //I think the following code should return the professors feedback based on a pass or fail
-//            //so I have to have a variable containing the message like: var proffessorsPassedFeedback = ... and var proffessorsFailedFeedback = ...
-//            //then I can call them below 
-//            //Question: If I do this should I call an exception or return true/false, something to think about
-//            //if (evaluation.Equals(true))
-//            //{
-//            //    return true;
-//            //}
-//            //else { throw new Exception(professorsFailedFeedback) }
-
-//            //assert
-//            evaluation.Passed.Should().Be(true);
-
-
-            //throw new Exception();
+            //assert
+            evaluation.Outcome.Should().Be(Outcome.Success);
 
         }
 
