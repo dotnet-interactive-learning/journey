@@ -1,0 +1,98 @@
+#!csharp
+
+#r "nuget: Microsoft.DotNet.Interactive.ExtensionLab, *-*"
+
+#!csharp
+
+// user scenario workflow
+
+#!mermaid
+
+sequenceDiagram
+    participant Teacher
+    participant Student
+
+    rect rgba(30,144,255, 0.5)
+    Note left of Teacher: Define Challenge
+    Teacher->>Teacher: AddRules 
+    Teacher->>Teacher: AddOnCodeSubmittedHandler
+    end
+
+    Teacher->>Student: SendChallenge
+
+    Student->>Student: WriteTheirAnswer
+
+    Student->>Teacher: SubmitCode
+
+    Teacher->>Teacher: Run Rule
+    Teacher->>Teacher: Run OnCodeSubmitted
+
+    Teacher->>Student: Display Evaluation
+    Teacher->>Student: (optionally) Display new challenge
+
+    
+
+#!csharp
+
+// defining a challenge
+
+#!mermaid
+
+sequenceDiagram
+    participant Lesson
+    participant Challenge
+    participant Rule
+
+    Lesson->>Challenge: AddChallenge
+
+    Lesson->>Lesson: CurrentChallenge set
+
+
+    Challenge->>Rule: new Rule
+
+    Challenge->>Challenge: OnCodeSubmitted
+
+
+    
+
+#!csharp
+
+// codesubmit
+
+#!mermaid
+
+sequenceDiagram
+    participant Student
+    participant Kernel
+    participant Lesson
+    participant Challenge
+    participant ChallengeContext
+    participant Rule
+    participant RuleContext
+    participant ChallengeEvaluation
+    participant RuleEvaluation
+
+    
+    Student->>Kernel: SubmitCode
+    Kernel->>Challenge: finish running student code
+
+    rect rgba(30,144,255, 0.5)
+    Challenge->>ChallengeEvaluation: new
+    ChallengeEvaluation->>RuleEvaluation: new
+    Challenge->>ChallengeContext: new
+    Challenge->>RuleContext: new
+    end
+
+    rect rgba(30,144,255, 0.5)
+    Challenge->>Challenge: EvaluateChallenge(ChallengeContext, RuleContext)
+    Challenge->>Rule: Invoke(RuleContext)
+    RuleContext->>RuleEvaluation: SetRuleOutcome
+    end
+    
+    rect rgba(30,144,255, 0.5)
+    Challenge->>Challenge: RunOnCodeSubmittedHandler(ChallengeContext)
+    ChallengeContext->>ChallengeEvaluation: SetOutcome
+    ChallengeContext->>Lesson: StartChallengeAsync()
+    end
+
+    Challenge->>Kernel: DisplayEvaluation
