@@ -95,7 +95,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("[ General case ] Failure: Try again.");
+                .Be("[General case] Failure: Try again.");
         }
 
         [Fact]
@@ -159,11 +159,11 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("[ Code compiles ] Success: Your submission has compiled.");
+                .Be("[Code compiles] Success: Your submission has compiled.");
         }
 
         [Fact]
-        public void display_number_of_rules()
+        public void display_correct_number_of_rules_for_partial_success()
         {
             // arrange
             var evaluation = new Evaluation();
@@ -185,6 +185,52 @@ namespace Extension.Tests
                 .Should()
                     .Contain("(2/3)");
         }
-        
+
+        [Fact]
+        public void display_correct_number_of_rules_for_success()
+        {
+            // arrange
+            var evaluation = new Evaluation();
+            evaluation.SetRuleOutcome("Code compiles", Outcome.Success);
+            evaluation.SetRuleOutcome("Code matches answer key", Outcome.Success);
+            evaluation.SetOutcome(Outcome.Success);
+
+            // act
+            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
+
+            // assert
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(message);
+
+            var div = htmlDoc.DocumentNode
+                .SelectSingleNode("//div");
+
+            div.InnerText
+                .Should()
+                    .Contain("(2/2)");
+        }
+
+        [Fact]
+        public void feedback_message_can_be_displayed()
+        {
+            // arrange
+            var evaluation = new Evaluation();
+            evaluation.SetRuleOutcome("Code compiles", Outcome.Success, "No errors detected");
+            evaluation.SetRuleOutcome("Runtime error", Outcome.Failure, "Time limit exceeded");
+            evaluation.SetOutcome(Outcome.PartialSuccess);
+
+            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
+            // assert
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(message);
+
+            var div = htmlDoc.DocumentNode
+                .SelectSingleNode("//div");
+
+            div.InnerText
+                .Should()
+                .Be("Partial Success (1/2): Some tests passed.\n[Runtime error] Failure: Time limit exceeded\n[Code compiles] Success: No errors detected\n");
+        }
+
     }
 }
