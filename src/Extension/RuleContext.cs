@@ -1,5 +1,4 @@
-﻿
-namespace Extension
+﻿namespace Extension
 {
     public class RuleContext
     {
