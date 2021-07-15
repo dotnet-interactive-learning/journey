@@ -1,5 +1,6 @@
 ﻿using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
+using Microsoft.DotNet.Interactive.Events;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -14,6 +15,41 @@ namespace Extension
 {
     public static class KernelExtensions
     {
+        public static T UseLessonSetCurrentChallengeMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        {
+            kernel.AddMiddleware(async (command, context, next) =>
+            {
+                await next(command, context);
+                // todo: set lesson.CurrentChallenge to the appropriate challenge
+            });
+            return kernel;
+        }
+
+        public static T UseLessonEvaluateMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        {
+            kernel.AddMiddleware(async (command, context, next) =>
+            {
+                switch (command)
+                {
+                    case SubmitCode submitCode:
+                        await next(command, context);
+                        await lesson.CurrentChallenge.Evaluate();
+                        var view = lesson.CurrentChallenge.CurrentEvaluation.FormatAsHtml();
+                        var formattedValues = FormattedValue.FromObject(view);
+                        context.Publish(
+                            new DisplayedValueProduced(
+                                view,
+                                command,
+                                formattedValues));
+                        break;
+                    default:
+                        await next(command, context);
+                        break;
+                }
+            });
+            return kernel;
+        }
+
         //public static T UseQuestionMagicCommand<T>(this T kernel, Evaluator evaluator) where T : Kernel
         //{
         //    var questionCommand = new Command("#!question", "This question will be evaluated")

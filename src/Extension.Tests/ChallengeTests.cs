@@ -26,6 +26,7 @@ namespace Extension.Tests
             {
                 await context.StartChallengeAsync(challenge2);
             });
+            await challenge1.Evaluate();
 
             await challenge1.InvokeOnEvaluationComplete();
 

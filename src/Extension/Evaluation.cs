@@ -19,9 +19,9 @@ namespace Extension
     {
         private readonly string label;
 
-        private readonly Dictionary<string, Evaluation>ruleEvaluations = new();
+        private readonly Dictionary<string, Evaluation> ruleEvaluations = new();
 
-        public IEnumerable<Evaluation> Rules => ruleEvaluations.Values;
+        public IEnumerable<Evaluation> RuleEvaluations => ruleEvaluations.Values;
 
         public Outcome Outcome { get; private set; }
 
