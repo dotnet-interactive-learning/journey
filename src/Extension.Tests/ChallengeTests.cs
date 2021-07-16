@@ -57,7 +57,8 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("1 + 2");
             await kernel.SubmitCodeAsync("");
 
-            capturedCode.Should().BeEquivalentTo("", "1 + 2", "1 + 1");
+            challenge.SubmissionHistory.Select(h => h.SubmissionCode).ToList().Should().BeEquivalentTo("","1 + 2", "1 + 1");
+            capturedCode.Should().BeEquivalentTo( "1 + 2", "1 + 1");
         }
 
         [Fact]
@@ -73,13 +74,13 @@ namespace Extension.Tests
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
-                capturedEvents = context.SubmissionHistory.Select(s => s.EventsProduced.ToList()).ToList();
+               
             });
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
-
+            capturedEvents = challenge.SubmissionHistory.Select(s => s.EventsProduced.ToList()).ToList();
             capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
             {
                 evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3),
@@ -112,12 +113,14 @@ namespace Extension.Tests
                 {
                     context.SetOutcome(Outcome.Success, "not 1st");
                 }
-                capturedEvaluation = context.SubmissionHistory.Select(h => h.Evaluation).ToList();
+               
             });
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
+
+            capturedEvaluation = challenge.SubmissionHistory.Select(h => h.Evaluation).ToList();
 
             capturedEvaluation.Should().SatisfyRespectively(new Action<Evaluation>[]
             {
