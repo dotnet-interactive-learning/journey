@@ -24,18 +24,18 @@ namespace Extension
         public void Fail(string reason = null, object hint = null)
         {
             Passed = false;
-            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
         }
 
         public void Pass(string reason = null, object hint = null)
         {
             Passed = true;
-            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.Success, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.Success, reason, hint);
         }
 
         public void PartialPass(string reason = null, object hint = null)
         {
-            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
         }
     }
 }

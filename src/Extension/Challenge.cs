@@ -15,8 +15,8 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public ChallengeEvaluation CurrentEvaluation => CurrentSubmission.Evaluation;
-        public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
+        public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
+        public ChallengeSubmission CurrentSubmission => _submissionHistory.Count == 0 ? null : _submissionHistory.Peek();
         public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
         private List<Rule> _rules = new();
@@ -33,7 +33,7 @@ namespace Extension
         {
             _context = new ChallengeContext(this);
 
-            foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
+            foreach (var (rule, index) in _rules.Select((r, i) => (r, i)))
             {
                 var ruleContext = new RuleContext(_context, submittedCode, events, $"Rule {index + 1}");
                 rule.Evaluate(ruleContext);

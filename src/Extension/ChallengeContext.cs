@@ -6,16 +6,11 @@ namespace Extension
 {
     public class ChallengeContext
     {
-        public Lesson Lesson => Challenge.Lesson;
+        public Challenge Challenge { get; }
         public ChallengeEvaluation Evaluation { get; }
+        public Lesson Lesson => Challenge.Lesson;
         public IEnumerable<ChallengeSubmission> SubmissionHistory => Challenge.SubmissionHistory;
-
-        public  Challenge Challenge { get; }
-
-        public IEnumerable<RuleEvaluation> RuleEvaluations
-        {
-            get => Evaluation.RuleEvaluations;
-        }
+        public IEnumerable<RuleEvaluation> RuleEvaluations  => Evaluation.RuleEvaluations;
 
         public ChallengeContext(Challenge challenge)
         {
@@ -24,8 +19,8 @@ namespace Extension
                 throw new ArgumentNullException(nameof(challenge));
             }
 
-            Evaluation = new ChallengeEvaluation();
             Challenge = challenge;
+            Evaluation = new ChallengeEvaluation();
         }
 
         public void SetMessage(string message, object hint = null)
