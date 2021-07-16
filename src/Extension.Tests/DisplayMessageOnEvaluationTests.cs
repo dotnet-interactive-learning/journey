@@ -17,7 +17,7 @@ namespace Extension.Tests
         public void passing_evaluation_will_produce_default_success_message()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
             evaluation.SetOutcome(Outcome.Success);
 
             // act
@@ -39,7 +39,7 @@ namespace Extension.Tests
         public void failing_evaluation_will_produce_default_fail_message()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
             evaluation.SetOutcome(Outcome.Failure);
 
             // act
@@ -60,7 +60,7 @@ namespace Extension.Tests
         public void evaluation_will_produce_custom_message()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
             evaluation.SetOutcome(Outcome.Failure, "Try again.");
 
             // act
@@ -81,7 +81,7 @@ namespace Extension.Tests
         public void evaluation_can_have_a_label()
         {
             // arrange
-            var evaluation = new Evaluation("General case");
+            var evaluation = new RuleEvaluation("General case");
             evaluation.SetOutcome(Outcome.Failure, "Try again.");
 
             // act
@@ -102,7 +102,7 @@ namespace Extension.Tests
         public void partially_correct_evaluation_will_produce_default_partial_success_evaluation()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
             evaluation.SetOutcome(Outcome.PartialSuccess);
 
             // act
@@ -123,7 +123,7 @@ namespace Extension.Tests
         public void teacher_can_provide_hint()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
             evaluation.SetOutcome(Outcome.Failure, "Try again.", " Look over recursion.");
 
             // act
@@ -144,9 +144,8 @@ namespace Extension.Tests
         public void teacher_can_provide_feedback_for_a_specific_rule()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new ChallengeEvaluation();
             evaluation.SetRuleOutcome("Code compiles", Outcome.Success, "Your submission has compiled.");
-            evaluation.SetOutcome(Outcome.Success);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -166,11 +165,10 @@ namespace Extension.Tests
         public void display_number_of_rules()
         {
             // arrange
-            var evaluation = new Evaluation();
+            var evaluation = new ChallengeEvaluation();
             evaluation.SetRuleOutcome("Code compiles", Outcome.Success);
             evaluation.SetRuleOutcome("Code matches output", Outcome.Success);
             evaluation.SetRuleOutcome("Code is recursive", Outcome.Failure);
-            evaluation.SetOutcome(Outcome.PartialSuccess);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
