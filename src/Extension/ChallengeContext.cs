@@ -9,13 +9,8 @@ namespace Extension
         public Lesson Lesson => _challenge.Lesson;
         public Evaluation Evaluation => _challenge.CurrentEvaluation;
         public IEnumerable<ChallengeSubmission> SubmissionHistory => _challenge.SubmissionHistory;
-
+        public IEnumerable<Evaluation> RuleEvaluations => Evaluation.RuleEvaluations;
         private readonly Challenge _challenge;
-
-        public IEnumerable<Evaluation> RuleEvaluations
-        {
-            get => Evaluation.RuleEvaluations;
-        }
 
         internal ChallengeContext(Challenge challenge)
         {

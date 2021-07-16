@@ -29,10 +29,10 @@ namespace Extension
             Lesson = lesson;
         }
 
-        public async Task Evaluate(string submissionCode = null, IEnumerable<KernelEvent> events = null)
+        public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
         {
             CurrentEvaluation = new Evaluation();
-            _submissionHistory.Push(new ChallengeSubmission(submissionCode, CurrentEvaluation, events));
+            _submissionHistory.Push(new ChallengeSubmission(submittedCode, CurrentEvaluation, events));
             _context = new ChallengeContext(this);
             foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
             {

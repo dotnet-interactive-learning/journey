@@ -50,7 +50,7 @@ namespace Extension.Tests
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
-                capturedCode = context.SubmissionHistory.Select(h => h.SubmissionCode).ToList();
+                capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
 
             await kernel.SubmitCodeAsync("1 + 1");
@@ -136,6 +136,57 @@ namespace Extension.Tests
                     e.Outcome.Should().Be(Outcome.Failure);
                     e.Reason.Should().Be("1st");
                 }
+            });
+        }
+
+        [Fact]
+        public async Task can_use_rule_handler_to_access_code()
+        {
+            var capturedCode = new List<string>();
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context =>
+            {
+                capturedCode.Add(context.SubmittedCode);
+            });
+
+            await kernel.SubmitCodeAsync("1 + 1");
+            await kernel.SubmitCodeAsync("1 + 2");
+            await kernel.SubmitCodeAsync("1 + 3");
+
+            capturedCode.Should().BeEquivalentTo("1 + 1", "1 + 2", "1 + 3");
+        }
+
+        [Fact]
+        public async Task can_use_rule_handler_to_access_events()
+        {
+            var capturedEvents = new List<List<KernelEvent>>();
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context =>
+            {
+                capturedEvents.Add(context.EventsProduced.ToList());
+            });
+
+            await kernel.SubmitCodeAsync("alsjkdf");
+            await kernel.SubmitCodeAsync("1 + 1");
+            await kernel.SubmitCodeAsync("1 + 2");
+
+            capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
+            {
+                evts => evts.Should().ContainSingle<CommandFailed>(),
+                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
+                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3)
             });
         }
     }
