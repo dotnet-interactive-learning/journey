@@ -15,7 +15,7 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; private set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public Evaluation CurrentEvaluation { get; private set; }
+        public Evaluation CurrentEvaluation => _submissionHistory.Peek().Evaluation;
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
         public Stack<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
@@ -31,12 +31,11 @@ namespace Extension
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
         {
-            CurrentEvaluation = new Evaluation();
-            _submissionHistory.Push(new ChallengeSubmission(submittedCode, CurrentEvaluation, events));
+            _submissionHistory.Push(new ChallengeSubmission(submittedCode, events));
             _context = new ChallengeContext(this);
             foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
             {
-                var ruleContext = new RuleContext(this, CurrentEvaluation, $"Rule {index + 1}");
+                var ruleContext = new RuleContext(this, _context, $"Rule {index + 1}");
                 rule.Evaluate(ruleContext);
             }
             await InvokeOnCodeSubmittedHandler();

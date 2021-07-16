@@ -12,14 +12,15 @@ namespace Extension
         public string SubmittedCode => _submission.SubmittedCode;
         public IEnumerable<KernelEvent> EventsProduced => _submission.EventsProduced;
 
-        private Evaluation _challengeEvaluation;
+        private Evaluation _challengeEvaluation => _challengeContext.Evaluation;
         private readonly Challenge _challenge;
+        private readonly ChallengeContext _challengeContext;
         private readonly ChallengeSubmission _submission;
 
-        internal RuleContext(Challenge challenge, Evaluation challengeEvaluation, string defaultName = "")
+        internal RuleContext(Challenge challenge, ChallengeContext challengeContext, string defaultName = "")
         {
             _challenge = challenge;
-            _challengeEvaluation = challengeEvaluation;
+            _challengeContext = challengeContext;
             Name = defaultName;
             _submission = _challenge.CurrentSubmission;
         }
