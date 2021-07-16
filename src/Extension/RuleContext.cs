@@ -1,40 +1,41 @@
-﻿namespace Extension
+﻿using Microsoft.DotNet.Interactive.Events;
+using System.Collections.Generic;
+
+namespace Extension
 {
     public class RuleContext
     {
         public string Name { get; set; }
-        public Challenge Challenge { get; private set; }
-        public bool Passed { get; private set; } // do we need this?
+        public Challenge Challenge => _challengeContext.Challenge;
+        public string SubmittedCode { get; }
+        public IEnumerable<KernelEvent> EventsProduced { get;  }
+        public bool Passed { get; private set; }
 
-        private ChallengeEvaluation _evaluation;
+        private readonly ChallengeContext _challengeContext;
 
-        public RuleContext()
+        public RuleContext(ChallengeContext challengeContext, string submittedCode = null, IEnumerable<KernelEvent> events = null, string defaultName = "")
         {
-
-        }
-
-        public RuleContext(Challenge challenge, ChallengeEvaluation evaluation, string defaultName = "")
-        {
-            Challenge = challenge;
-            _evaluation = evaluation;
+            _challengeContext = challengeContext;
+            SubmittedCode = submittedCode;
+            EventsProduced = events;
             Name = defaultName;
         }
 
         public void Fail(string reason = null, object hint = null)
         {
             Passed = false;
-            _evaluation?.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
         }
 
         public void Pass(string reason = null, object hint = null)
         {
             Passed = true;
-            _evaluation?.SetRuleOutcome(Name, Outcome.Success, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.Success, reason, hint);
         }
 
         public void PartialPass(string reason = null, object hint = null)
         {
-            _evaluation?.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
+            _challengeContext.Evaluation.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
         }
     }
 }

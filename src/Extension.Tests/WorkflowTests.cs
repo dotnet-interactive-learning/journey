@@ -107,22 +107,22 @@ namespace Extension.Tests
             challenge1.OnCodeSubmitted(challengeContext =>
             {
                 var history = challengeContext.SubmissionHistory;
-                var consecutiveFailures = 0;
+                var pastConsecFailures = 0;
                 foreach (var submission in history)
                 {
                     var numPassed = submission.RuleEvaluations.Count(e => e.Passed);
                     var total = submission.RuleEvaluations.Count();
                     if (numPassed / total < 0.5)
                     {
-                        consecutiveFailures++;
+                        pastConsecFailures++;
                     }
                     else
                     {
-                        consecutiveFailures = 0;
+                        pastConsecFailures = 0;
                     }
                 }
 
-                if (consecutiveFailures > 3)
+                if (pastConsecFailures > 2)
                 {
                     challengeContext.SetMessage("Enough! Try something else.");
                 }

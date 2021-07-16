@@ -6,24 +6,21 @@ namespace Extension
 {
     public class ChallengeContext
     {
-        public Lesson Lesson => _challenge.Lesson;
-        public ChallengeEvaluation Evaluation => _challenge.CurrentEvaluation;
-        public IEnumerable<ChallengeSubmission> SubmissionHistory => _challenge.SubmissionHistory;
+        public Challenge Challenge { get; }
+        public ChallengeEvaluation Evaluation { get; }
+        public Lesson Lesson => Challenge.Lesson;
+        public IEnumerable<ChallengeSubmission> SubmissionHistory => Challenge.SubmissionHistory;
+        public IEnumerable<RuleEvaluation> RuleEvaluations  => Evaluation.RuleEvaluations;
 
-        private readonly Challenge _challenge;
-
-        public IEnumerable<RuleEvaluation> RuleEvaluations
-        {
-            get => Evaluation.RuleEvaluations;
-        }
-
-        internal ChallengeContext(Challenge challenge)
+        public ChallengeContext(Challenge challenge)
         {
             if (challenge is null)
             {
                 throw new ArgumentNullException(nameof(challenge));
             }
-            _challenge = challenge;
+
+            Challenge = challenge;
+            Evaluation = new ChallengeEvaluation();
         }
 
         public void SetMessage(string message, object hint = null)

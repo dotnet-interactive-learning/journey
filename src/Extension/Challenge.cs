@@ -12,11 +12,11 @@ namespace Extension
     public class Challenge
     {
         public Lesson Lesson { get; set; }
-        public IReadOnlyList<EditableCode> Contents { get; private set; }
+        public IReadOnlyList<EditableCode> Contents { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public ChallengeEvaluation CurrentEvaluation { get; private set; }
-        public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
+        public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
+        public ChallengeSubmission CurrentSubmission => _submissionHistory.Count == 0 ? null : _submissionHistory.Peek();
         public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
         private List<Rule> _rules = new();
@@ -29,53 +29,35 @@ namespace Extension
             Lesson = lesson;
         }
 
-        public async Task Evaluate(string submissionCode = null, IEnumerable<KernelEvent> events = null)
+        public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
         {
-            CurrentEvaluation = new ChallengeEvaluation();
-            _submissionHistory.Push(new ChallengeSubmission(submissionCode, CurrentEvaluation, events));
             _context = new ChallengeContext(this);
-            foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
+
+            foreach (var (rule, index) in _rules.Select((r, i) => (r, i)))
             {
-                var ruleContext = new RuleContext(this, CurrentEvaluation, $"Rule {index + 1}");
-                rule.Evaluate(ruleContext);
+                var ruleContext = new RuleContext(_context, submittedCode, events, $"Rule {index + 1}");
+                try
+                {
+                    rule.Evaluate(ruleContext);
+                }
+                catch (Exception e)
+                {
+
+                    ruleContext.Fail(e.Message);
+                }
             }
+
             await InvokeOnCodeSubmittedHandler();
+            
+            _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }
 
-        // todo: rename
         public async Task InvokeOnCodeSubmittedHandler()
         {
-            await OnCodeSubmittedHandler(_context);
-        }
-
-        public RuleEvaluation EvaluateChallengeEvaluationByDefault(RuleContext result)
-        {
-            // todo: result unused
-            // prob remove this arg because 
-            // we'll use challenge info in this object to construct rulecontext
-            // to pass them into rule.Evaluate()
-
-            // todo: two pathways: teacher sets by using challengeContext.Fail, etc
-            // or default behavior, which is this function
-            var evaluation = new RuleEvaluation();
-
-            var listOfRulePassOrFailOutcomes = new List<bool>();
-            foreach (var rule in _rules)
+            if (OnCodeSubmittedHandler != null)
             {
-                var ruleContext = new RuleContext();
-                rule.Evaluate(ruleContext);
-                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
+                await OnCodeSubmittedHandler(_context);
             }
-
-            if (listOfRulePassOrFailOutcomes.Contains(false))
-            {
-                evaluation.SetOutcome(Outcome.Failure);
-            }
-            else
-            {
-                evaluation.SetOutcome(Outcome.Success);
-            }
-            return evaluation;
         }
 
         public void AddRuleAsync(Func<RuleContext, Task> action)
