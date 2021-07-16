@@ -29,22 +29,6 @@ namespace Extension
             Evaluation.SetOutcome(outcome, reason, hint);
         }
 
-        // todo: get rid of these 
-        public void Pass(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.Success, reason, hint);
-        }
-
-        public void Fail(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.Failure, reason, hint);
-        }
-
-        public void PartialPass(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.PartialSuccess, reason, hint);
-        }
-
         public async Task StartChallengeAsync(Challenge challenge)
         {
             await Lesson.StartChallengeAsync(challenge);

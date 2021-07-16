@@ -63,12 +63,12 @@ namespace Extension.Tests
                 var total = challengeContext.RuleEvaluations.Count();
                 if (numPassed / total >= 0.5)
                 {
-                    challengeContext.Pass("Good work! Challenge 1 passed.");
+                    challengeContext.SetOutcome(Outcome.Success, "Good work! Challenge 1 passed.");
                     await challengeContext.StartChallengeAsync(challenge2);
                 }
                 else
                 {
-                    challengeContext.Fail("Keep working!");
+                    challengeContext.SetOutcome(Outcome.Failure, "Keep working!");
                 }
             });
 
@@ -125,7 +125,7 @@ namespace Extension.Tests
 
                 if (consecutiveFailures > 3)
                 {
-                    challengeContext.Pass("Enough! Try something else.");
+                    challengeContext.SetOutcome(Outcome.Success, "Enough! Try something else.");
                 }
                 else
                 {
@@ -133,11 +133,11 @@ namespace Extension.Tests
                     var total = challengeContext.RuleEvaluations.Count();
                     if (numPassed / total >= 0.5)
                     {
-                        challengeContext.Pass("Good work! Challenge 1 passed.");
+                        challengeContext.SetOutcome(Outcome.Success, "Good work! Challenge 1 passed.");
                     }
                     else
                     {
-                        challengeContext.Fail("Keep working!");
+                        challengeContext.SetOutcome(Outcome.Failure, "Keep working!");
                     }
                 }
             });
