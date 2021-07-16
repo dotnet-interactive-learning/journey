@@ -6,14 +6,14 @@
         public Challenge Challenge { get; private set; }
         public bool Passed { get; private set; } // do we need this?
 
-        private Evaluation _evaluation;
+        private ChallengeEvaluation _evaluation;
 
         public RuleContext()
         {
 
         }
 
-        public RuleContext(Challenge challenge, Evaluation evaluation, string defaultName = "")
+        public RuleContext(Challenge challenge, ChallengeEvaluation evaluation, string defaultName = "")
         {
             Challenge = challenge;
             _evaluation = evaluation;

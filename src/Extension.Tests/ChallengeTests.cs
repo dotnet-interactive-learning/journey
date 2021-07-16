@@ -92,7 +92,7 @@ namespace Extension.Tests
         [Fact]
         public async Task can_use_on_code_submitted_handler_to_access_evaluations_from_submission_history()
         {
-            var capturedEvaluation = new List<Evaluation>();
+            var capturedEvaluation = new List<ChallengeEvaluation>();
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
             {
@@ -105,12 +105,12 @@ namespace Extension.Tests
             {
                 if (isFirstSubmission)
                 {
-                    context.SetOutcome(Outcome.Failure, "1st");
+                    context.SetMessage("1st");
                     isFirstSubmission = false;
                 }
                 else
                 {
-                    context.SetOutcome(Outcome.Success, "not 1st");
+                    context.SetMessage("not 1st");
                 }
                 capturedEvaluation = context.SubmissionHistory.Select(h => h.Evaluation).ToList();
             });
@@ -119,22 +119,19 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
 
-            capturedEvaluation.Should().SatisfyRespectively(new Action<Evaluation>[]
+            capturedEvaluation.Should().SatisfyRespectively(new Action<ChallengeEvaluation>[]
             {
                 e =>
                 {
-                    e.Outcome.Should().Be(Outcome.Success);
-                    e.Reason.Should().Be("not 1st");
+                    e.Message.Should().Be("not 1st");
                 },
                 e =>
                 {
-                    e.Outcome.Should().Be(Outcome.Success);
-                    e.Reason.Should().Be("not 1st");
+                    e.Message.Should().Be("not 1st");
                 },
                 e =>
                 {
-                    e.Outcome.Should().Be(Outcome.Failure);
-                    e.Reason.Should().Be("1st");
+                    e.Message.Should().Be("1st");
                 }
             });
         }

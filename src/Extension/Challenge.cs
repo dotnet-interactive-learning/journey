@@ -15,7 +15,7 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; private set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public Evaluation CurrentEvaluation { get; private set; }
+        public ChallengeEvaluation CurrentEvaluation { get; private set; }
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
         public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
@@ -31,7 +31,7 @@ namespace Extension
 
         public async Task Evaluate(string submissionCode = null, IEnumerable<KernelEvent> events = null)
         {
-            CurrentEvaluation = new Evaluation();
+            CurrentEvaluation = new ChallengeEvaluation();
             _submissionHistory.Push(new ChallengeSubmission(submissionCode, CurrentEvaluation, events));
             _context = new ChallengeContext(this);
             foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
@@ -48,7 +48,7 @@ namespace Extension
             await OnCodeSubmittedHandler(_context);
         }
 
-        public Evaluation EvaluateChallengeEvaluationByDefault(RuleContext result)
+        public RuleEvaluation EvaluateChallengeEvaluationByDefault(RuleContext result)
         {
             // todo: result unused
             // prob remove this arg because 
@@ -57,7 +57,7 @@ namespace Extension
 
             // todo: two pathways: teacher sets by using challengeContext.Fail, etc
             // or default behavior, which is this function
-            var evaluation = new Evaluation();
+            var evaluation = new RuleEvaluation();
 
             var listOfRulePassOrFailOutcomes = new List<bool>();
             foreach (var rule in _rules)
