@@ -40,6 +40,10 @@ namespace Extension
                 rule.Evaluate(ruleContext);
             }
             await InvokeOnCodeSubmittedHandler();
+            if (!_context.IsChallengeOutcomeSet)
+            {
+                EvaluateChallengeEvaluationByDefault();
+            }
         }
 
         // todo: rename
@@ -48,34 +52,13 @@ namespace Extension
             await OnCodeSubmittedHandler(_context);
         }
 
-        public Evaluation EvaluateChallengeEvaluationByDefault(RuleContext result)
+        private void EvaluateChallengeEvaluationByDefault()
         {
-            // todo: result unused
-            // prob remove this arg because 
-            // we'll use challenge info in this object to construct rulecontext
-            // to pass them into rule.Evaluate()
+            // todo: discussion, is this right default behavior?
 
-            // todo: two pathways: teacher sets by using challengeContext.Fail, etc
-            // or default behavior, which is this function
-            var evaluation = new Evaluation();
-
-            var listOfRulePassOrFailOutcomes = new List<bool>();
-            foreach (var rule in _rules)
-            {
-                var ruleContext = new RuleContext();
-                rule.Evaluate(ruleContext);
-                listOfRulePassOrFailOutcomes.Add(ruleContext.Passed);
-            }
-
-            if (listOfRulePassOrFailOutcomes.Contains(false))
-            {
-                evaluation.SetOutcome(Outcome.Failure);
-            }
-            else
-            {
-                evaluation.SetOutcome(Outcome.Success);
-            }
-            return evaluation;
+            var didAllRulesPass = CurrentEvaluation.RuleEvaluations
+                .Select(e => e.Outcome).All(o => o == Outcome.Success);
+            CurrentEvaluation.SetOutcome(didAllRulesPass ? Outcome.Success : Outcome.Failure);
         }
 
         public void AddRuleAsync(Func<RuleContext, Task> action)

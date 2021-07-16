@@ -8,6 +8,7 @@ namespace Extension
 {
     public enum Outcome
     {
+        Unset,
         Failure,
         PartialSuccess,
         Success
@@ -17,11 +18,8 @@ namespace Extension
     // recursively defined?
     public class Evaluation
     {
-        private readonly string label;
 
-        private readonly Dictionary<string, Evaluation> ruleEvaluations = new();
-
-        public IEnumerable<Evaluation> RuleEvaluations => ruleEvaluations.Values;
+        public IEnumerable<Evaluation> RuleEvaluations => _ruleEvaluations.Values;
 
         public Outcome Outcome { get; private set; }
 
@@ -31,9 +29,14 @@ namespace Extension
 
         public bool Passed { get { return Outcome == Outcome.Success; } }
 
+        private readonly string _label;
+
+        private readonly Dictionary<string, Evaluation> _ruleEvaluations = new();
+
+
         public Evaluation(string label = null)
         {
-            this.label = label;
+            this._label = label;
         }
 
         public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
@@ -76,12 +79,12 @@ namespace Extension
             };
 
             var elements = new List<PocketView>();
-            var succeededRules = ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
-            var totalRules = ruleEvaluations.Count;
+            var succeededRules = _ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
+            var totalRules = _ruleEvaluations.Count;
             var countReport = totalRules > 0 ? $"({succeededRules}/{totalRules})" : string.Empty;
             outcomeMessage = $"{outcomeMessage}{countReport}: ";
 
-            if (string.IsNullOrWhiteSpace(label))
+            if (string.IsNullOrWhiteSpace(_label))
             {
                 PocketView summary = div[@class: "summary", style: outcomeDivStyle](b(outcomeMessage), (Reason));
 
@@ -90,7 +93,7 @@ namespace Extension
             }
             else
             {
-                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {this.label} ] "), b(outcomeMessage), (Reason));
+                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {this._label} ] "), b(outcomeMessage), (Reason));
 
                 elements.Add(summary);
             }
@@ -100,7 +103,7 @@ namespace Extension
                 var hintElement = div[@class: "hint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
                 elements.Add(hintElement);
             }
-            foreach (var rule in ruleEvaluations.Values.OrderBy(r=>r.Outcome).ThenBy(r=>r.label))
+            foreach (var rule in _ruleEvaluations.Values.OrderBy(r=>r.Outcome).ThenBy(r=>r._label))
             {
                 elements.Add(div[@class: "rule"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
             }
@@ -114,7 +117,16 @@ namespace Extension
         {
             var ruleEvaluation = new Evaluation(name);
             ruleEvaluation.SetOutcome(outcome, reason, hint);
-            ruleEvaluations[name] = ruleEvaluation;
+            _ruleEvaluations[name] = ruleEvaluation;
+        }
+
+        public Evaluation GetRuleEvaluation(string name)
+        {
+            if (!_ruleEvaluations.ContainsKey(name))
+            {
+                return null;
+            }
+            return _ruleEvaluations[name];
         }
     }
 }

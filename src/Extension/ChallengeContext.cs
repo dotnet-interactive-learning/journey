@@ -10,6 +10,9 @@ namespace Extension
         public Evaluation Evaluation => _challenge.CurrentEvaluation;
         public Stack<ChallengeSubmission> SubmissionHistory => _challenge.SubmissionHistory;
         public IEnumerable<Evaluation> RuleEvaluations => Evaluation.RuleEvaluations;
+
+        internal bool IsChallengeOutcomeSet => Evaluation.Outcome != Outcome.Unset;
+
         private readonly Challenge _challenge;
 
         internal ChallengeContext(Challenge challenge)

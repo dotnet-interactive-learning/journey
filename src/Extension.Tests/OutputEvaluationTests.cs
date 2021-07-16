@@ -13,6 +13,11 @@ namespace Extension.Tests
 {
     public class OutputEvaluationTests
     {
+        private Challenge GetEmptyChallenge(Lesson lesson = null)
+        {
+            return new Challenge(new EditableCode[] { }, lesson);
+        }
+
         [Fact(Skip = "later")]
         public async Task output_with_error_event_produces_failed_evaluation()
         {
@@ -26,8 +31,6 @@ namespace Extension.Tests
             //if they are the same then this test passes
 
             //arrange
-
-            var banana = new RuleContext();
             //banana.Passed
 
             using var csharpkernel = new CSharpKernel();
@@ -46,37 +49,73 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void when_the_output_passes_all_rules_then_evaluation_passes()
+        public async Task if_teacher_does_not_set_challenge_outcome_it_is_set_as_a_conjunction_of_rule_outcomes_fail_case()
         {
-            //arrange
-            var ruleContext = new RuleContext();
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Pass());
+            challenge.AddRule(context => context.Fail());
+            challenge.AddRule(context => context.Pass());
+            challenge.OnCodeSubmitted(context => capturedEvaluation = context.Evaluation);
 
-            //act
-            var challenge = new Challenge(new EditableCode[] { });
+            await kernel.SubmitCodeAsync("1 + 1");
 
-            challenge.AddRule(c => c.Pass());
-            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
-
-            //assert
-            evaluation.Outcome.Should().Be(Outcome.Success);
-
+            capturedEvaluation.Outcome.Should().Be(Outcome.Failure);
         }
 
-
         [Fact]
-        public void when_the_output_fails_any_rule_then_evaluation_fails()
+        public async Task if_teacher_does_not_set_challenge_outcome_it_is_set_as_a_conjunction_of_rule_outcomes_pass_case()
         {
-            //arrange
-            var ruleContext = new RuleContext();
-      
-            //act
-            var challenge = new Challenge(new EditableCode[] { });
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Pass());
+            challenge.AddRule(context => context.Pass());
+            challenge.AddRule(context => context.Pass());
+            challenge.OnCodeSubmitted(context => capturedEvaluation = context.Evaluation);
 
-            challenge.AddRule(c => c.Fail());
-            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
+            await kernel.SubmitCodeAsync("1 + 1");
 
-            //assert
-            evaluation.Outcome.Should().Be(Outcome.Failure);
+            capturedEvaluation.Outcome.Should().Be(Outcome.Success);
+        }
+
+        [Theory]
+        [InlineData(Outcome.Success, "123", 3)]
+        [InlineData(Outcome.Failure, "123", 3)]
+        [InlineData(Outcome.PartialSuccess, "123", 3)]
+        public async Task if_teacher_sets_challenge_outcome_explicitly_then_challenge_evaluation_is_set(
+            Outcome outcome, string reason, object hint)
+        {
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.OnCodeSubmitted(context =>
+            {
+                capturedEvaluation = context.Evaluation;
+                context.SetOutcome(outcome, reason, hint);
+            });
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            capturedEvaluation.Outcome.Should().Be(outcome);
+            capturedEvaluation.Reason.Should().Be(reason);
+            capturedEvaluation.Hint.Should().Be(hint);
         }
 
         [Fact(Skip = "later")]
@@ -120,24 +159,67 @@ namespace Extension.Tests
 
         }
 
-
         [Fact]
-        public void when_ruleContext_fail_is_called_then_ruleContext_passed_is_false_()
+        public async Task when_rule_context_fail_is_called_then_rule_evaluation_is_set()
         {
-            var ruleContext = new RuleContext();
-            ruleContext.Fail();
-            
-            ruleContext.Passed.Should().Be(false);
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Fail("abc", 3));
+            challenge.OnCodeSubmitted(context => capturedEvaluation = context.Evaluation);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            capturedEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.Failure);
+            capturedEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            capturedEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
         }
 
+        [Fact]
+        public async Task when_rule_context_pass_is_called_then_rule_evaluation_is_set()
+        {
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Pass("abc", 3));
+            challenge.OnCodeSubmitted(context => capturedEvaluation = context.Evaluation);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            capturedEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.Success);
+            capturedEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            capturedEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
+        }
 
         [Fact]
-        public void when_ruleContext_pass_is_called_ruleContext_passed_is_true()
+        public async Task when_rule_context_partialpass_is_called_then_rule_evaluation_is_set()
         {
-            var ruleContext = new RuleContext();
-            ruleContext.Pass();
+            Evaluation capturedEvaluation = null;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.PartialPass("abc", 3));
+            challenge.OnCodeSubmitted(context => capturedEvaluation = context.Evaluation);
 
-            ruleContext.Passed.Should().Be(true);
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            capturedEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.PartialSuccess);
+            capturedEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            capturedEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
         }
     }
 }
