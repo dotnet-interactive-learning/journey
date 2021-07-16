@@ -15,7 +15,7 @@ namespace Extension.Tests
     public class OutputEvaluationTests
     {
         [Fact(Skip = "later")]
-        public async Task output_with_error_event_produces_failed_evaluation()
+        public void output_with_error_event_produces_failed_evaluation()
         {
             //in english:
             //If the users output is not the same as the output the teacher(or notebook creater) expects
@@ -42,7 +42,8 @@ namespace Extension.Tests
 
             //assert
             //evaluation.Passed.Should().Be(false);
-        
+
+            throw new NotImplementedException();
 
         }
 
@@ -94,25 +95,25 @@ namespace Extension.Tests
 
 
 
-//            //arrange
-//            using var csharpkernel = new CSharpKernel();
-//            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-//            var result = await csharpkernel.SubmitCodeAsync(
-//@"//return 1+1
-//1+1");
+            //            //arrange
+            //            using var csharpkernel = new CSharpKernel();
+            //            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            //            var result = await csharpkernel.SubmitCodeAsync(
+            //@"//return 1+1
+            //1+1");
 
-//            //act
-//            if (result == null)
-//            {
-//                throw new Exception("Submission empty");
+            //            //act
+            //            if (result == null)
+            //            {
+            //                throw new Exception("Submission empty");
 
-//            }
+            //            }
 
-//            //assert
+            //            //assert
 
-//            throw new Exception();
+            //            throw new Exception();
 
-
+            throw new NotImplementedException();
 
         }
 
