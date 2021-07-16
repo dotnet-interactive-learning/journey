@@ -75,6 +75,7 @@ namespace Extension
                 _ => throw new NotImplementedException()
             };
 
+            // change color of rules text
             var outcomeRuleStyle = Outcome switch
             {
                 Outcome.Success => "color:green",

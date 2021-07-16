@@ -31,7 +31,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("Success: All tests passed.");
+                .Be("Success: All tests passed.\n");
         }
 
 
@@ -53,7 +53,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("Failure: Incorrect solution.");
+                .Be("Failure: Incorrect solution.\n");
         }
 
         [Fact]
@@ -74,7 +74,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("Failure: Try again.");
+                .Be("Failure: Try again.\n");
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("[General case] Failure: Try again.");
+                .Be("[General case] Failure: Try again.\n");
         }
 
         [Fact]
@@ -116,7 +116,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("Partial Success: Some tests passed.");
+                .Be("Partial Success: Some tests passed.\n");
         }
 
         [Fact]
@@ -159,7 +159,7 @@ namespace Extension.Tests
 
             div.InnerText
                 .Should()
-                .Be("[Code compiles] Success: Your submission has compiled.");
+                .Be("[Code compiles] Success: Your submission has compiled.\n");
         }
 
         [Fact]
