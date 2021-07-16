@@ -12,7 +12,7 @@ namespace Extension
 
         public  Challenge Challenge { get; }
 
-        public IEnumerable<Evaluation> RuleEvaluations
+        public IEnumerable<RuleEvaluation> RuleEvaluations
         {
             get => Evaluation.RuleEvaluations;
         }
@@ -28,25 +28,9 @@ namespace Extension
             Challenge = challenge;
         }
 
-        public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
+        public void SetMessage(string message, object hint = null)
         {
-            Evaluation.SetOutcome(outcome, reason, hint);
-        }
-
-        // todo: get rid of these 
-        public void Pass(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.Success, reason, hint);
-        }
-
-        public void Fail(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.Failure, reason, hint);
-        }
-
-        public void PartialPass(string reason = null, object hint = null)
-        {
-            Evaluation.SetOutcome(Outcome.PartialSuccess, reason, hint);
+            Evaluation.SetMessage(message, hint);
         }
 
         public async Task StartChallengeAsync(Challenge challenge)

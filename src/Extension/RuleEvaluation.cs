@@ -12,16 +12,10 @@ namespace Extension
         PartialSuccess,
         Success
     };
-    [TypeFormatterSource(typeof(EvaluationFormatterSource))]
-    // make immutable
-    // recursively defined?
-    public class Evaluation
+    [TypeFormatterSource(typeof(RuleEvaluationFormatterSource))]
+    public class RuleEvaluation
     {
-        private readonly string label;
-
-        private readonly Dictionary<string, Evaluation> ruleEvaluations = new();
-
-        public IEnumerable<Evaluation> RuleEvaluations => ruleEvaluations.Values;
+        public string Label { get; }
 
         public Outcome Outcome { get; private set; }
 
@@ -31,9 +25,9 @@ namespace Extension
 
         public bool Passed { get { return Outcome == Outcome.Success; } }
 
-        public Evaluation(string label = null)
+        public RuleEvaluation(string label = null)
         {
-            this.label = label;
+            Label = label;
         }
 
         public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
@@ -75,13 +69,11 @@ namespace Extension
                 _ => throw new NotImplementedException()
             };
 
-            var elements = new List<PocketView>();
-            var succeededRules = ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
-            var totalRules = ruleEvaluations.Count;
-            var countReport = totalRules > 0 ? $"({succeededRules}/{totalRules})" : string.Empty;
-            outcomeMessage = $"{outcomeMessage}{countReport}: ";
+            outcomeMessage = $"{outcomeMessage}: ";
 
-            if (string.IsNullOrWhiteSpace(label))
+            var elements = new List<PocketView>();
+
+            if (string.IsNullOrWhiteSpace(Label))
             {
                 PocketView summary = div[@class: "summary", style: outcomeDivStyle](b(outcomeMessage), (Reason));
 
@@ -90,31 +82,20 @@ namespace Extension
             }
             else
             {
-                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {this.label} ] "), b(outcomeMessage), (Reason));
+                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {Label} ] "), b(outcomeMessage), (Reason));
 
                 elements.Add(summary);
             }
-            
+
             if (Hint is not null)
             {
                 var hintElement = div[@class: "hint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
                 elements.Add(hintElement);
             }
-            foreach (var rule in ruleEvaluations.Values.OrderBy(r=>r.Outcome).ThenBy(r=>r.label))
-            {
-                elements.Add(div[@class: "rule"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
-            }
 
             PocketView report = div(elements);
 
             return report;
-        }
-
-        public void SetRuleOutcome(string name, Outcome outcome, string reason = null, object hint = null)
-        {
-            var ruleEvaluation = new Evaluation(name);
-            ruleEvaluation.SetOutcome(outcome, reason, hint);
-            ruleEvaluations[name] = ruleEvaluation;
         }
     }
 }
