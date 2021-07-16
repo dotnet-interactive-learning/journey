@@ -19,6 +19,27 @@ namespace Extension.Tests
             return new Challenge(new EditableCode[] { }, lesson);
         }
 
+        [Fact]
+        public async Task if_teacher_sets_challenge_message_then_challenge_evaluation_is_set()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.OnCodeSubmitted(context =>
+            {
+                context.SetMessage("123", 3);
+            });
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.Message.Should().Be("123");
+            challenge.CurrentEvaluation.Hint.Should().Be(3);
+        }
+
         [Fact(Skip = "later")]
         public void output_with_error_event_produces_failed_evaluation()
         {
@@ -94,24 +115,60 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void when_ruleContext_fail_is_called_then_ruleContext_passed_is_false_()
+        public async Task when_rule_context_fail_is_called_then_rule_evaluation_is_set()
         {
-            var challengeContext = new ChallengeContext(GetEmptyChallenge());
-            var ruleContext = new RuleContext(challengeContext);
-            ruleContext.Fail();
-            
-            ruleContext.Passed.Should().Be(false);
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Fail("abc", 3));
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.Failure);
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
         }
 
+        [Fact]
+        public async Task when_rule_context_pass_is_called_then_rule_evaluation_is_set()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.Pass("abc", 3));
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.Success);
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
+        }
 
         [Fact]
-        public void when_ruleContext_pass_is_called_ruleContext_passed_is_true()
+        public async Task when_rule_context_partialpass_is_called_then_rule_evaluation_is_set()
         {
-            var challengeContext = new ChallengeContext(GetEmptyChallenge());
-            var ruleContext = new RuleContext(challengeContext);
-            ruleContext.Pass();
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context => context.PartialPass("abc", 3));
 
-            ruleContext.Passed.Should().Be(true);
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.PartialSuccess);
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
+            challenge.CurrentEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
         }
     }
 }

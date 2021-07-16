@@ -5,14 +5,14 @@ namespace Extension
 {
     public class ChallengeSubmission
     {
-        public string SubmissionCode { get; private set; }
-        public ChallengeEvaluation Evaluation { get; private set; }
-        public IEnumerable<KernelEvent> EventsProduced { get; private set; }
+        public string SubmittedCode { get; }
+        public ChallengeEvaluation Evaluation { get; }
+        public IEnumerable<KernelEvent> EventsProduced { get; }
         public IEnumerable<RuleEvaluation> RuleEvaluations => Evaluation.RuleEvaluations;
 
-        public ChallengeSubmission(string submissionCode, ChallengeEvaluation evaluation, IEnumerable<KernelEvent> events)
+        public ChallengeSubmission(string submittedCode, ChallengeEvaluation evaluation, IEnumerable<KernelEvent> events)
         {
-            SubmissionCode = submissionCode;
+            SubmittedCode = submittedCode;
             Evaluation = evaluation;
             EventsProduced = events;
         }

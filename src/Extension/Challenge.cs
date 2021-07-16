@@ -29,19 +29,19 @@ namespace Extension
             Lesson = lesson;
         }
 
-        public async Task Evaluate(string submissionCode = null, IEnumerable<KernelEvent> events = null)
+        public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
         {
             _context = new ChallengeContext(this);
 
             foreach (var (index, rule) in _rules.Select((r, i) => (i, r)))
             {
-                var ruleContext = new RuleContext(_context, $"Rule {index + 1}");
+                var ruleContext = new RuleContext(_context, submittedCode, events, $"Rule {index + 1}");
                 rule.Evaluate(ruleContext);
             }
 
             await InvokeOnCodeSubmittedHandler();
             
-            _submissionHistory.Push(new ChallengeSubmission(submissionCode, _context.Evaluation, events));
+            _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }
 
         public async Task InvokeOnCodeSubmittedHandler()

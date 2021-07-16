@@ -21,7 +21,7 @@ namespace Extension.Tests
 
         // todo:  this test should be changed to use end to end, this is prob too artificial
         [Fact]
-        public async Task can_use_on_code_submitted_handler_to_skip_to_a_specific_challenge()
+        public async Task teacher_can_skip_to_a_specific_challenge_when_evaluating_a_challenge()
         {
             var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge(lesson);
@@ -38,7 +38,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task can_use_on_code_submitted_handler_to_access_code_from_submission_history()
+        public async Task teacher_can_access_code_from_submission_history_when_evaluating_a_challenge()
         {
             var capturedCode = new List<string>();
             var lesson = new Lesson();
@@ -50,19 +50,19 @@ namespace Extension.Tests
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
-                capturedCode = context.SubmissionHistory.Select(h => h.SubmissionCode).ToList();
+                capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
             await kernel.SubmitCodeAsync("");
 
-            challenge.SubmissionHistory.Select(h => h.SubmissionCode).ToList().Should().BeEquivalentTo("","1 + 2", "1 + 1");
-            capturedCode.Should().BeEquivalentTo( "1 + 2", "1 + 1");
+            challenge.SubmissionHistory.Select(h => h.SubmittedCode).ToList().Should().BeEquivalentTo("","1 + 2", "1 + 1");
+            capturedCode.Should().BeEquivalentTo("1 + 2", "1 + 1");
         }
 
         [Fact]
-        public async Task can_use_on_code_submitted_handler_to_access_events_from_submission_history()
+        public async Task teacher_can_access_events_from_submission_history_when_evaluating_a_challenge()
         {
             var capturedEvents = new List<List<KernelEvent>>();
             var lesson = new Lesson();
@@ -85,9 +85,8 @@ namespace Extension.Tests
             });
         }
 
-
         [Fact]
-        public async Task can_use_on_code_submitted_handler_to_access_evaluations_from_submission_history()
+        public async Task teacher_can_access_evaluations_from_submission_history_when_evaluating_a_challenge()
         {
             var capturedEvaluation = new List<ChallengeEvaluation>();
             var lesson = new Lesson();
@@ -119,18 +118,60 @@ namespace Extension.Tests
 
             capturedEvaluation.Should().SatisfyRespectively(new Action<ChallengeEvaluation>[]
             {
-                e =>
-                {
-                    e.Message.Should().Be("not 1st");
-                },
-                e =>
-                {
-                    e.Message.Should().Be("not 1st");
-                },
-                e =>
-                {
-                    e.Message.Should().Be("1st");
-                }
+                e => e.Message.Should().Be("not 1st"),
+                e => e.Message.Should().Be("not 1st"),
+                e => e.Message.Should().Be("1st")
+            });
+        }
+
+        [Fact]
+        public async Task teacher_can_access_code_when_evaluating_a_rule()
+        {
+            var capturedCode = new List<string>();
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context =>
+            {
+                capturedCode.Add(context.SubmittedCode);
+            });
+
+            await kernel.SubmitCodeAsync("1 + 1");
+            await kernel.SubmitCodeAsync("1 + 2");
+            await kernel.SubmitCodeAsync("1 + 3");
+
+            capturedCode.Should().BeEquivalentTo("1 + 1", "1 + 2", "1 + 3");
+        }
+
+        [Fact]
+        public async Task teacher_can_access_events_when_evaluating_a_rule()
+        {
+            var capturedEvents = new List<List<KernelEvent>>();
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(context =>
+            {
+                capturedEvents.Add(context.EventsProduced.ToList());
+            });
+
+            await kernel.SubmitCodeAsync("alsjkdf");
+            await kernel.SubmitCodeAsync("1 + 1");
+            await kernel.SubmitCodeAsync("1 + 2");
+
+            capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
+            {
+                evts => evts.Should().ContainSingle<CommandFailed>(),
+                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
+                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3)
             });
         }
     }

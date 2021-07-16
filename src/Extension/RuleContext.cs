@@ -1,16 +1,23 @@
-﻿namespace Extension
+﻿using Microsoft.DotNet.Interactive.Events;
+using System.Collections.Generic;
+
+namespace Extension
 {
     public class RuleContext
     {
         public string Name { get; set; }
         public Challenge Challenge => _challengeContext.Challenge;
+        public string SubmittedCode { get; }
+        public IEnumerable<KernelEvent> EventsProduced { get;  }
         public bool Passed { get; private set; }
 
         private readonly ChallengeContext _challengeContext;
 
-        public RuleContext(ChallengeContext challengeContext, string defaultName = "")
+        public RuleContext(ChallengeContext challengeContext, string submittedCode = null, IEnumerable<KernelEvent> events = null, string defaultName = "")
         {
             _challengeContext = challengeContext;
+            SubmittedCode = submittedCode;
+            EventsProduced = events;
             Name = defaultName;
         }
 
