@@ -20,7 +20,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task if_teacher_sets_challenge_message_then_challenge_evaluation_is_set()
+        public async Task teacher_can_provide_challenge_evaluation_feedback()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel

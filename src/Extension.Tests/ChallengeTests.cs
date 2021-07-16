@@ -21,7 +21,7 @@ namespace Extension.Tests
 
         // todo:  this test should be changed to use end to end, this is prob too artificial
         [Fact]
-        public async Task teacher_can_skip_to_a_specific_challenge_when_evaluating_a_challenge()
+        public async Task teacher_can_start_another_challenge_when_evaluating_a_challenge()
         {
             var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge(lesson);
@@ -55,14 +55,32 @@ namespace Extension.Tests
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
-            await kernel.SubmitCodeAsync("");
+            await kernel.SubmitCodeAsync("1 + 3");
 
-            challenge.SubmissionHistory.Select(h => h.SubmittedCode).ToList().Should().BeEquivalentTo("","1 + 2", "1 + 1");
             capturedCode.Should().BeEquivalentTo("1 + 2", "1 + 1");
+            capturedCode.Should().NotContain("1 + 3");
         }
 
         [Fact]
-        public async Task teacher_can_access_events_from_submission_history_when_evaluating_a_challenge()
+        public async Task challenge_tracks_submitted_code_in_submission_history()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+            await kernel.SubmitCodeAsync("1 + 2");
+            await kernel.SubmitCodeAsync("1 + 3");
+
+            challenge.SubmissionHistory.Select(h => h.SubmittedCode).ToList().Should().BeEquivalentTo("1 + 3", "1 + 2", "1 + 1");
+        }
+
+        [Fact]
+        public async Task challenge_tracks_events_in_submission_history()
         {
             var capturedEvents = new List<List<KernelEvent>>();
             var lesson = new Lesson();
@@ -86,7 +104,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_access_evaluations_from_submission_history_when_evaluating_a_challenge()
+        public async Task challenge_tracks_evaluations_in_submission_history()
         {
             var capturedEvaluation = new List<ChallengeEvaluation>();
             var lesson = new Lesson();
@@ -96,18 +114,11 @@ namespace Extension.Tests
             }.UseLessonEvaluateMiddleware(lesson);
             var challenge = GetEmptyChallenge(lesson);
             await lesson.StartChallengeAsync(challenge);
-            bool isFirstSubmission = true;
+            int numberOfSubmission = 1;
             challenge.OnCodeSubmitted(context =>
             {
-                if (isFirstSubmission)
-                {
-                    context.SetMessage("1st");
-                    isFirstSubmission = false;
-                }
-                else
-                {
-                    context.SetMessage("not 1st");
-                }
+                context.SetMessage($"{numberOfSubmission}");
+                numberOfSubmission++;
             });
 
             await kernel.SubmitCodeAsync("1 + 1");
@@ -118,9 +129,9 @@ namespace Extension.Tests
 
             capturedEvaluation.Should().SatisfyRespectively(new Action<ChallengeEvaluation>[]
             {
-                e => e.Message.Should().Be("not 1st"),
-                e => e.Message.Should().Be("not 1st"),
-                e => e.Message.Should().Be("1st")
+                e => e.Message.Should().Be("3"),
+                e => e.Message.Should().Be("2"),
+                e => e.Message.Should().Be("1")
             });
         }
 
