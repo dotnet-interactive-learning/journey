@@ -15,7 +15,7 @@ namespace Extension
         public IReadOnlyList<EditableCode> Contents { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
-        public Evaluation CurrentEvaluation => CurrentSubmission.Evaluation;
+        public ChallengeEvaluation CurrentEvaluation => CurrentSubmission.Evaluation;
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
         public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
@@ -44,7 +44,6 @@ namespace Extension
             _submissionHistory.Push(new ChallengeSubmission(submissionCode, _context.Evaluation, events));
         }
 
-        // todo: rename
         public async Task InvokeOnCodeSubmittedHandler()
         {
             if (OnCodeSubmittedHandler != null)

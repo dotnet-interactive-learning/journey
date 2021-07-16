@@ -28,14 +28,14 @@ namespace Extension.Tests
 
             //arrange
 
-//            var banana = new RuleContext();
-//            //banana.Passed
+            //            var banana = new RuleContext();
+            //            //banana.Passed
 
-//            using var csharpkernel = new CSharpKernel();
-//            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-//            var result = await csharpkernel.SubmitCodeAsync(
-//@"//return 2
-//1+2");
+            //            using var csharpkernel = new CSharpKernel();
+            //            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            //            var result = await csharpkernel.SubmitCodeAsync(
+            //@"//return 2
+            //1+2");
 
             //act
             //var evaluation = new Evaluator().EvaluateResult(result);
@@ -45,35 +45,6 @@ namespace Extension.Tests
 
             throw new NotImplementedException();
 
-        }
-
-        [Fact]
-        public async Task when_the_output_passes_all_rules_then_evaluation_passes()
-        {
-            //arrange
-
-            //act
-            var challenge = new Challenge(new EditableCode[] { });
-            challenge.AddRule(c => c.Pass());
-            await challenge.Evaluate();
-
-            //assert
-            challenge.CurrentEvaluation.Outcome.Should().Be(Outcome.Success);
-
-        }
-
-
-        [Fact]
-        public async Task when_the_output_fails_any_rule_then_evaluation_fails()
-        {
-   
-      
-            //act
-            var challenge = new Challenge(new EditableCode[] { });
-            challenge.AddRule(c => c.Fail());
-            await challenge.Evaluate();
-            //assert
-            challenge.CurrentEvaluation.Outcome.Should().Be(Outcome.Failure);
         }
 
         [Fact(Skip = "later")]

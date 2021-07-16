@@ -122,7 +122,7 @@ namespace Extension.Tests
 
             capturedEvaluation = challenge.SubmissionHistory.Select(h => h.Evaluation).ToList();
 
-            capturedEvaluation.Should().SatisfyRespectively(new Action<Evaluation>[]
+            capturedEvaluation.Should().SatisfyRespectively(new Action<ChallengeEvaluation>[]
             {
                 e =>
                 {

@@ -7,7 +7,7 @@ namespace Extension
     public class ChallengeContext
     {
         public Lesson Lesson => Challenge.Lesson;
-        public Evaluation Evaluation { get; }
+        public ChallengeEvaluation Evaluation { get; }
         public IEnumerable<ChallengeSubmission> SubmissionHistory => Challenge.SubmissionHistory;
 
         public  Challenge Challenge { get; }
@@ -24,7 +24,7 @@ namespace Extension
                 throw new ArgumentNullException(nameof(challenge));
             }
 
-            Evaluation = new Evaluation();
+            Evaluation = new ChallengeEvaluation();
             Challenge = challenge;
         }
 

@@ -2,10 +2,11 @@
 {
     public class RuleContext
     {
-        private readonly ChallengeContext _challengeContext;
         public string Name { get; set; }
         public Challenge Challenge => _challengeContext.Challenge;
-        public bool Passed { get; private set; } // do we need this?
+        public bool Passed { get; private set; }
+
+        private readonly ChallengeContext _challengeContext;
 
         public RuleContext(ChallengeContext challengeContext, string defaultName = "")
         {
