@@ -14,6 +14,11 @@ namespace Extension.Tests
 {
     public class OutputEvaluationTests
     {
+        private Challenge GetEmptyChallenge(Lesson lesson = null)
+        {
+            return new Challenge(new EditableCode[] { }, lesson);
+        }
+
         [Fact(Skip = "later")]
         public void output_with_error_event_produces_failed_evaluation()
         {
@@ -88,11 +93,10 @@ namespace Extension.Tests
 
         }
 
-
         [Fact]
         public void when_ruleContext_fail_is_called_then_ruleContext_passed_is_false_()
         {
-            var challengeContext = new ChallengeContext(new Challenge(Enumerable.Empty<EditableCode>().ToList()));
+            var challengeContext = new ChallengeContext(GetEmptyChallenge());
             var ruleContext = new RuleContext(challengeContext);
             ruleContext.Fail();
             
@@ -103,7 +107,7 @@ namespace Extension.Tests
         [Fact]
         public void when_ruleContext_pass_is_called_ruleContext_passed_is_true()
         {
-            var challengeContext = new ChallengeContext(new Challenge(Enumerable.Empty<EditableCode>().ToList()));
+            var challengeContext = new ChallengeContext(GetEmptyChallenge());
             var ruleContext = new RuleContext(challengeContext);
             ruleContext.Pass();
 

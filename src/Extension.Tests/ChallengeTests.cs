@@ -72,10 +72,6 @@ namespace Extension.Tests
             }.UseLessonEvaluateMiddleware(lesson);
             var challenge = GetEmptyChallenge(lesson);
             await lesson.StartChallengeAsync(challenge);
-            challenge.OnCodeSubmitted(context =>
-            {
-               
-            });
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -113,7 +109,6 @@ namespace Extension.Tests
                 {
                     context.SetMessage("not 1st");
                 }
-               
             });
 
             await kernel.SubmitCodeAsync("1 + 1");
