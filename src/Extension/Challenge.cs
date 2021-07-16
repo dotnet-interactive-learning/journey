@@ -36,7 +36,15 @@ namespace Extension
             foreach (var (rule, index) in _rules.Select((r, i) => (r, i)))
             {
                 var ruleContext = new RuleContext(_context, submittedCode, events, $"Rule {index + 1}");
-                rule.Evaluate(ruleContext);
+                try
+                {
+                    rule.Evaluate(ruleContext);
+                }
+                catch (Exception e)
+                {
+
+                    ruleContext.Fail(e.Message);
+                }
             }
 
             await InvokeOnCodeSubmittedHandler();

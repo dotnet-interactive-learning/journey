@@ -185,5 +185,71 @@ namespace Extension.Tests
                 evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3)
             });
         }
+
+        [Fact]
+        public async Task teacher_can_use_assertion_libraries_in_rule_definitions()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            challenge.AddRule(c =>
+            {
+                3.Should().Be(10);
+            });
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.First().Reason.Should().Be("Expected value to be 10, but found 3.");
+        }
+
+        [Fact]
+        public async Task teacher_can_user_exceptions_to_fail_evaluation()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            challenge.AddRule(c =>
+            {
+                throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
+            });
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.First().Reason.Should().Be("Students should write better than 1 + 1");
+        }
+
+        [Fact]
+        public async Task unhandled_exception_will_cause_rule_to_fail()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge = GetEmptyChallenge(lesson);
+            challenge.AddRule(c =>
+            {
+                var userValue = 0;
+                var ration = 10 / userValue;
+                if (ration > 1)
+                {
+                    c.Pass("Good job");
+                }
+            });
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("1 + 1");
+
+            challenge.CurrentEvaluation.RuleEvaluations.First().Reason.Should().Be("Attempted to divide by zero.");
+        }
     }
 }
+
