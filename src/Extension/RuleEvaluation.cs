@@ -69,22 +69,25 @@ namespace Extension
                 _ => throw new NotImplementedException()
             };
 
-            outcomeMessage = $"{outcomeMessage}: ";
-
             var elements = new List<PocketView>();
 
             if (string.IsNullOrWhiteSpace(Label))
             {
-                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b(outcomeMessage), (Reason));
+                PocketView header = summary[style: outcomeDivStyle](b(outcomeMessage));
 
-                elements.Add(summary);
+                elements.Add(header);
 
             }
             else
             {
-                PocketView summary = div[@class: "summary", style: outcomeDivStyle](b($"[ {Label} ] "), b(outcomeMessage), (Reason));
+                PocketView header = summary[style: outcomeDivStyle](b($"[ {Label} ] "), b(outcomeMessage));
 
-                elements.Add(summary);
+                elements.Add(header);
+            }
+
+            if (!string.IsNullOrWhiteSpace(Reason))
+            {
+                elements.Add(p(Reason)); 
             }
 
             if (Hint is not null)
@@ -93,7 +96,7 @@ namespace Extension
                 elements.Add(hintElement);
             }
 
-            PocketView report = div(elements);
+            PocketView report = details[@class: "ruleEvaluation"](elements);
 
             return report;
         }
