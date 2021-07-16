@@ -17,7 +17,7 @@ namespace Extension
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public Evaluation CurrentEvaluation { get; private set; }
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Peek();
-        public IEnumerable<ChallengeSubmission> SubmissionHistory => _submissionHistory;
+        public Stack<ChallengeSubmission> SubmissionHistory => _submissionHistory;
 
         private List<Rule> _rules = new();
         private Stack<ChallengeSubmission> _submissionHistory = new();
