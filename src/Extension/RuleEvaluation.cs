@@ -23,7 +23,7 @@ namespace Extension
 
         public object Hint { get; private set; }
 
-        public bool Passed { get { return Outcome == Outcome.Success; } }
+        public bool Passed => Outcome == Outcome.Success;
 
         public RuleEvaluation(string label = null)
         {

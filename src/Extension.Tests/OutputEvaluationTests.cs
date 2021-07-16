@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,7 +15,7 @@ namespace Extension.Tests
     public class OutputEvaluationTests
     {
         [Fact(Skip = "later")]
-        public async Task output_with_error_event_produces_failed_evaluation()
+        public void output_with_error_event_produces_failed_evaluation()
         {
             //in english:
             //If the users output is not the same as the output the teacher(or notebook creater) expects
@@ -27,14 +28,14 @@ namespace Extension.Tests
 
             //arrange
 
-            var banana = new RuleContext();
-            //banana.Passed
+//            var banana = new RuleContext();
+//            //banana.Passed
 
-            using var csharpkernel = new CSharpKernel();
-            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-            var result = await csharpkernel.SubmitCodeAsync(
-@"//return 2
-1+2");
+//            using var csharpkernel = new CSharpKernel();
+//            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+//            var result = await csharpkernel.SubmitCodeAsync(
+//@"//return 2
+//1+2");
 
             //act
             //var evaluation = new Evaluator().EvaluateResult(result);
@@ -42,41 +43,39 @@ namespace Extension.Tests
             //assert
             //evaluation.Passed.Should().Be(false);
 
+            throw new NotImplementedException();
 
         }
 
         [Fact]
-        public void when_the_output_passes_all_rules_then_evaluation_passes()
+        public async Task when_the_output_passes_all_rules_then_evaluation_passes()
         {
             //arrange
-            var ruleContext = new RuleContext();
 
             //act
             var challenge = new Challenge(new EditableCode[] { });
-
             challenge.AddRule(c => c.Pass());
-            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
+            await challenge.Evaluate();
 
             //assert
-            evaluation.Outcome.Should().Be(Outcome.Success);
+            //challenge.CurrentEvaluation.Outcome.Should().Be(Outcome.Success);
+            throw new NotImplementedException();
 
         }
 
 
         [Fact]
-        public void when_the_output_fails_any_rule_then_evaluation_fails()
+        public async Task when_the_output_fails_any_rule_then_evaluation_fails()
         {
-            //arrange
-            var ruleContext = new RuleContext();
+   
       
             //act
             var challenge = new Challenge(new EditableCode[] { });
-
             challenge.AddRule(c => c.Fail());
-            var evaluation = challenge.EvaluateChallengeEvaluationByDefault(ruleContext);
-
+            await challenge.Evaluate();
             //assert
-            evaluation.Outcome.Should().Be(Outcome.Failure);
+            //challenge.CurrentEvaluation.Outcome.Should().Be(Outcome.Failure);
+            throw new NotImplementedException();
         }
 
         [Fact(Skip = "later")]
@@ -98,25 +97,25 @@ namespace Extension.Tests
 
 
 
-//            //arrange
-//            using var csharpkernel = new CSharpKernel();
-//            using var events = csharpkernel.KernelEvents.ToSubscribedList();
-//            var result = await csharpkernel.SubmitCodeAsync(
-//@"//return 1+1
-//1+1");
+            //            //arrange
+            //            using var csharpkernel = new CSharpKernel();
+            //            using var events = csharpkernel.KernelEvents.ToSubscribedList();
+            //            var result = await csharpkernel.SubmitCodeAsync(
+            //@"//return 1+1
+            //1+1");
 
-//            //act
-//            if (result == null)
-//            {
-//                throw new Exception("Submission empty");
+            //            //act
+            //            if (result == null)
+            //            {
+            //                throw new Exception("Submission empty");
 
-//            }
+            //            }
 
-//            //assert
+            //            //assert
 
-//            throw new Exception();
+            //            throw new Exception();
 
-
+            throw new NotImplementedException();
 
         }
 
@@ -124,7 +123,8 @@ namespace Extension.Tests
         [Fact]
         public void when_ruleContext_fail_is_called_then_ruleContext_passed_is_false_()
         {
-            var ruleContext = new RuleContext();
+            var challengeContext = new ChallengeContext(new Challenge(Enumerable.Empty<EditableCode>().ToList()));
+            var ruleContext = new RuleContext(challengeContext);
             ruleContext.Fail();
             
             ruleContext.Passed.Should().Be(false);
@@ -134,7 +134,8 @@ namespace Extension.Tests
         [Fact]
         public void when_ruleContext_pass_is_called_ruleContext_passed_is_true()
         {
-            var ruleContext = new RuleContext();
+            var challengeContext = new ChallengeContext(new Challenge(Enumerable.Empty<EditableCode>().ToList()));
+            var ruleContext = new RuleContext(challengeContext);
             ruleContext.Pass();
 
             ruleContext.Passed.Should().Be(true);

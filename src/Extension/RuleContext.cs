@@ -2,39 +2,32 @@
 {
     public class RuleContext
     {
+        private readonly ChallengeContext _challengeContext;
         public string Name { get; set; }
-        public Challenge Challenge { get; private set; }
+        public Challenge Challenge => _challengeContext.Challenge;
         public bool Passed { get; private set; } // do we need this?
 
-        private ChallengeEvaluation _evaluation;
-
-        public RuleContext()
+        public RuleContext(ChallengeContext challengeContext, string defaultName = "")
         {
-
-        }
-
-        public RuleContext(Challenge challenge, ChallengeEvaluation evaluation, string defaultName = "")
-        {
-            Challenge = challenge;
-            _evaluation = evaluation;
+            _challengeContext = challengeContext;
             Name = defaultName;
         }
 
         public void Fail(string reason = null, object hint = null)
         {
             Passed = false;
-            _evaluation?.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
+            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.Failure, reason, hint);
         }
 
         public void Pass(string reason = null, object hint = null)
         {
             Passed = true;
-            _evaluation?.SetRuleOutcome(Name, Outcome.Success, reason, hint);
+            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.Success, reason, hint);
         }
 
         public void PartialPass(string reason = null, object hint = null)
         {
-            _evaluation?.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
+            _challengeContext.Evaluation?.SetRuleOutcome(Name, Outcome.PartialSuccess, reason, hint);
         }
     }
 }
