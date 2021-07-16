@@ -84,7 +84,6 @@ namespace Extension.Tests
                 .Should()
                 .ContainSingle(v =>
                     v.MimeType == "text/html"
-                    && v.Value.Contains("Failure:")
                     && v.Value.Contains("Keep working!")
                     && v.Value.Contains("this rule failed because reasons"));
         }

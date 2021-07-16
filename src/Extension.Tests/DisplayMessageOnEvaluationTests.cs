@@ -1,18 +1,34 @@
 ﻿using FluentAssertions;
-using Microsoft.DotNet.Interactive.Formatting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xunit;
 using HtmlAgilityPack;
-using Extension;
+using Microsoft.DotNet.Interactive.Formatting;
+using Xunit;
 
 namespace Extension.Tests
 {
-    public class DisplayMessageOnEvaluationTests
+
+    public class RuleEvaluationFormattingTests
     {
+        [Fact]
+        public void passing_evaluation_will_produce_default_success_summary()
+        {
+            // arrange
+            var evaluation = new RuleEvaluation();
+            evaluation.SetOutcome(Outcome.Success);
+
+            // act
+            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
+            // assert
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(message);
+
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/summary");
+
+            summary.InnerText
+                .Should()
+                .Be("Success");
+        }
+
         [Fact]
         public void passing_evaluation_will_produce_default_success_message()
         {
@@ -26,14 +42,34 @@ namespace Extension.Tests
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/p");
 
-            div.InnerText
+            summary.InnerText
                 .Should()
-                .Be("Success: All tests passed.");
+                .Be("All tests passed.");
         }
 
+        [Fact]
+        public void failing_evaluation_will_produce_default_fail_summary()
+        {
+            // arrange
+            var evaluation = new RuleEvaluation();
+            evaluation.SetOutcome(Outcome.Failure);
+
+            // act
+            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
+            // assert
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(message);
+
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/summary");
+
+            summary.InnerText
+                .Should()
+                .Be("Failure");
+        }
 
         [Fact]
         public void failing_evaluation_will_produce_default_fail_message()
@@ -48,13 +84,14 @@ namespace Extension.Tests
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/p");
 
-            div.InnerText
+            summary.InnerText
                 .Should()
-                .Be("Failure: Incorrect solution.");
+                .Be("Incorrect solution.");
         }
+
 
         [Fact]
         public void evaluation_will_produce_custom_message()
@@ -69,12 +106,12 @@ namespace Extension.Tests
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
+            var p = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/p");
 
-            div.InnerText
+            p.InnerText
                 .Should()
-                .Be("Failure: Try again.");
+                .Be("Try again.");
         }
 
         [Fact]
@@ -90,16 +127,16 @@ namespace Extension.Tests
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/summary");
 
-            div.InnerText
+            summary.InnerText
                 .Should()
-                .Be("[ General case ] Failure: Try again.");
+                .Be("[ General case ] Failure");
         }
 
         [Fact]
-        public void partially_correct_evaluation_will_produce_default_partial_success_evaluation()
+        public void partially_correct_evaluation_will_produce_default_partial_success_summary()
         {
             // arrange
             var evaluation = new RuleEvaluation();
@@ -111,12 +148,33 @@ namespace Extension.Tests
             var htmlDoc = new HtmlDocument();
             htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
+            var summary = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/summary");
 
-            div.InnerText
+            summary.InnerText
                 .Should()
-                .Be("Partial Success: Some tests passed.");
+                .Be("Partial Success");
+        }
+
+        [Fact]
+        public void partially_correct_evaluation_will_produce_default_partial_success_message()
+        {
+            // arrange
+            var evaluation = new RuleEvaluation();
+            evaluation.SetOutcome(Outcome.PartialSuccess);
+
+            // act
+            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
+            // assert
+            var htmlDoc = new HtmlDocument();
+            htmlDoc.LoadHtml(message);
+
+            var p = htmlDoc.DocumentNode
+                .SelectSingleNode("//details/p");
+
+            p.InnerText
+                .Should()
+                .Be("Some tests passed.");
         }
 
         [Fact]
@@ -140,49 +198,9 @@ namespace Extension.Tests
                 .Be(" Look over recursion.");
         }
 
-        [Fact]
-        public void teacher_can_provide_feedback_for_a_specific_rule()
-        {
-            // arrange
-            var evaluation = new ChallengeEvaluation();
-            evaluation.SetRuleOutcome("Code compiles", Outcome.Success, "Your submission has compiled.");
 
-            // act
-            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
-            // assert
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(message);
 
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div[@class='rule']");
 
-            div.InnerText
-                .Should()
-                .Be("[ Code compiles ] Success: Your submission has compiled.");
-        }
-
-        [Fact]
-        public void display_number_of_rules()
-        {
-            // arrange
-            var evaluation = new ChallengeEvaluation();
-            evaluation.SetRuleOutcome("Code compiles", Outcome.Success);
-            evaluation.SetRuleOutcome("Code matches output", Outcome.Success);
-            evaluation.SetRuleOutcome("Code is recursive", Outcome.Failure);
-
-            // act
-            var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
-            // assert
-            var htmlDoc = new HtmlDocument();
-            htmlDoc.LoadHtml(message);
-
-            var div = htmlDoc.DocumentNode
-                .SelectSingleNode("//div");
-
-            div.InnerText
-                .Should()
-                    .Contain("(2/3)");
-        }
         
     }
 }

@@ -36,32 +36,32 @@ namespace Extension
             var succeededRules = ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
             var totalRules = ruleEvaluations.Count;
             var countReport = totalRules > 0 ? $"({succeededRules}/{totalRules})" : string.Empty;
-            var message = string.IsNullOrWhiteSpace(Message) ? $"{countReport} passed" : Message;
+            var message = string.IsNullOrWhiteSpace(Message) ? $"{countReport} rules have passed." : Message;
 
             if (string.IsNullOrWhiteSpace(label))
             {
-                PocketView summary = div[@class: "summary"](b(message));
+                PocketView header = summary[@class: "challengeSummary"](b(message));
 
-                elements.Add(summary);
+                elements.Add(header);
             }
             else
             {
-                PocketView summary = div[@class: "summary"](b($"[ {this.label} ] "), b(message));
+                PocketView header = summary[@class: "challengeSummary"](b($"[ {this.label} ] "), b(message));
 
-                elements.Add(summary);
+                elements.Add(header);
             }
 
             if (Hint is not null)
             {
-                var hintElement = div[@class: "hint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
+                var hintElement = div[@class: "challengeHint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
                 elements.Add(hintElement);
             }
             foreach (var rule in ruleEvaluations.Values.OrderBy(r => r.Outcome).ThenBy(r => r.Label))
             {
-                elements.Add(div[@class: "rule"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
+                elements.Add(div[@class: "ruleContainer"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
             }
 
-            PocketView report = div(elements);
+            PocketView report = details[@class: "challengeEvaluation", open:"true"](elements);
 
             return report;
         }
