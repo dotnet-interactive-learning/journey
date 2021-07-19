@@ -68,8 +68,7 @@ namespace Extension
 
         public void SetRuleOutcome(string name, Outcome outcome, string reason = null, object hint = null)
         {
-            var ruleEvaluation = new RuleEvaluation(name);
-            ruleEvaluation.SetOutcome(outcome, reason, hint);
+            var ruleEvaluation = new RuleEvaluation(outcome, name, reason, hint);
             ruleEvaluations[name] = ruleEvaluation;
         }
     }
