@@ -14,9 +14,9 @@ namespace Extension.Tests
 {
     public class OutputEvaluationTests
     {
-        private Challenge GetEmptyChallenge(Lesson lesson = null)
+        private Challenge GetEmptyChallenge()
         {
-            return new Challenge(new EditableCode[] { }, lesson);
+            return new Challenge(new EditableCode[] { });
         }
 
         [Fact]
@@ -27,7 +27,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
@@ -115,14 +115,14 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task when_rule_context_fail_is_called_then_rule_evaluation_is_set()
+        public async Task teacher_can_fail_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Fail("abc", 3));
 
@@ -134,14 +134,14 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task when_rule_context_pass_is_called_then_rule_evaluation_is_set()
+        public async Task teacher_can_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Pass("abc", 3));
 
@@ -153,14 +153,14 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task when_rule_context_partialpass_is_called_then_rule_evaluation_is_set()
+        public async Task teacher_can_partially_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.PartialPass("abc", 3));
 
