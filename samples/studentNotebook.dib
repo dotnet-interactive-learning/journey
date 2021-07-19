@@ -4,4 +4,4 @@
 
 #!csharp
 
-EnableProgressiveLearning("teacher.dib")
+StartLesson("teacher.dib") 
