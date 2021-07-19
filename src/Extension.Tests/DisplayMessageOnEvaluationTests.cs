@@ -12,8 +12,7 @@ namespace Extension.Tests
         public void passing_evaluation_will_produce_default_success_summary()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Success);
+            var evaluation = new RuleEvaluation(Outcome.Success);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -33,8 +32,7 @@ namespace Extension.Tests
         public void passing_evaluation_will_produce_default_success_message()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Success);
+            var evaluation = new RuleEvaluation(Outcome.Success);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -54,8 +52,7 @@ namespace Extension.Tests
         public void failing_evaluation_will_produce_default_fail_summary()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Failure);
+            var evaluation = new RuleEvaluation(Outcome.Failure);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -75,8 +72,7 @@ namespace Extension.Tests
         public void failing_evaluation_will_produce_default_fail_message()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Failure);
+            var evaluation = new RuleEvaluation(Outcome.Failure);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -97,8 +93,7 @@ namespace Extension.Tests
         public void evaluation_will_produce_custom_message()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Failure, "Try again.");
+            var evaluation = new RuleEvaluation(Outcome.Failure, reason: "Try again.");
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -118,8 +113,7 @@ namespace Extension.Tests
         public void evaluation_can_have_a_label()
         {
             // arrange
-            var evaluation = new RuleEvaluation("General case");
-            evaluation.SetOutcome(Outcome.Failure, "Try again.");
+            var evaluation = new RuleEvaluation(Outcome.Failure, "General case", "Try again.");
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -139,8 +133,7 @@ namespace Extension.Tests
         public void partially_correct_evaluation_will_produce_default_partial_success_summary()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.PartialSuccess);
+            var evaluation = new RuleEvaluation(Outcome.PartialSuccess);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -160,8 +153,7 @@ namespace Extension.Tests
         public void partially_correct_evaluation_will_produce_default_partial_success_message()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.PartialSuccess);
+            var evaluation = new RuleEvaluation(Outcome.PartialSuccess);
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);
@@ -181,8 +173,7 @@ namespace Extension.Tests
         public void teacher_can_provide_hint()
         {
             // arrange
-            var evaluation = new RuleEvaluation();
-            evaluation.SetOutcome(Outcome.Failure, "Try again.", " Look over recursion.");
+            var evaluation = new RuleEvaluation(Outcome.Failure, null, "Try again.", " Look over recursion.");
 
             // act
             var message = evaluation.ToDisplayString(HtmlFormatter.MimeType);

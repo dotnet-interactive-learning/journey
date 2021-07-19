@@ -17,21 +17,17 @@ namespace Extension
     {
         public string Label { get; }
 
-        public Outcome Outcome { get; private set; }
+        public Outcome Outcome { get; }
 
-        public string Reason { get; private set; }
+        public string Reason { get; }
 
-        public object Hint { get; private set; }
+        public object Hint { get; }
 
         public bool Passed { get { return Outcome == Outcome.Success; } }
 
-        public RuleEvaluation(string label = null)
+        public RuleEvaluation(Outcome outcome, string label = null, string reason = null, object hint = null)
         {
             Label = label;
-        }
-
-        public void SetOutcome(Outcome outcome, string reason = null, object hint = null)
-        {
             Hint = hint;
             Outcome = outcome;
             if (string.IsNullOrWhiteSpace(reason))
@@ -42,13 +38,12 @@ namespace Extension
                     Outcome.PartialSuccess => "Some tests passed.",
                     Outcome.Failure => "Incorrect solution.",
                     _ => throw new NotImplementedException()
-                };   
+                };
             }
             else
             {
                 Reason = reason;
             }
-
         }
 
         public PocketView FormatAsHtml()
