@@ -9,7 +9,7 @@ namespace Extension.Tests
     public class RuleEvaluationFormattingTests
     {
         [Fact]
-        public void passing_evaluation_will_produce_default_success_summary()
+        public void passing_rule_evaluation_will_produce_default_success_summary()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Success);
@@ -29,7 +29,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void passing_evaluation_will_produce_default_success_message()
+        public void passing_rule_evaluation_will_produce_default_success_message()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Success);
@@ -49,7 +49,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void failing_evaluation_will_produce_default_fail_summary()
+        public void failing_rule_evaluation_will_produce_default_fail_summary()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Failure);
@@ -69,7 +69,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void failing_evaluation_will_produce_default_fail_message()
+        public void failing_rule_evaluation_will_produce_default_fail_message()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Failure);
@@ -90,7 +90,7 @@ namespace Extension.Tests
 
 
         [Fact]
-        public void evaluation_will_produce_custom_message()
+        public void rule_evaluation_will_produce_custom_message()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Failure, reason: "Try again.");
@@ -110,7 +110,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void evaluation_can_have_a_label()
+        public void rule_evaluation_can_have_a_label()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Failure, "General case", "Try again.");
@@ -130,7 +130,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void partially_correct_evaluation_will_produce_default_partial_success_summary()
+        public void partially_correct_rule_evaluation_will_produce_default_partial_success_summary()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.PartialSuccess);
@@ -150,7 +150,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void partially_correct_evaluation_will_produce_default_partial_success_message()
+        public void partially_correct_rule_evaluation_will_produce_default_partial_success_message()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.PartialSuccess);
@@ -170,7 +170,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public void teacher_can_provide_hint()
+        public void teacher_can_provide_hint_to_rule_evaluation()
         {
             // arrange
             var evaluation = new RuleEvaluation(Outcome.Failure, null, "Try again.", " Look over recursion.");
@@ -188,10 +188,5 @@ namespace Extension.Tests
                 .Should()
                 .Be(" Look over recursion.");
         }
-
-
-
-
-        
     }
 }
