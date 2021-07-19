@@ -11,7 +11,7 @@ namespace Extension
 {
     public class Challenge
     {
-        public Lesson Lesson { get; set; }
+        public Lesson Lesson { get; internal set; }
         public IReadOnlyList<EditableCode> Contents { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
@@ -23,10 +23,9 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null)
+        public Challenge(IReadOnlyList<EditableCode> content)
         {
             Contents = content;
-            Lesson = lesson;
         }
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
