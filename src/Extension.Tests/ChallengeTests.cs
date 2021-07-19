@@ -14,9 +14,9 @@ namespace Extension.Tests
 {
     public class ChallengeTests
     {
-        private Challenge GetEmptyChallenge(Lesson lesson = null)
+        private Challenge GetEmptyChallenge()
         {
-            return new Challenge(new EditableCode[] { }, lesson);
+            return new Challenge(new EditableCode[] { });
         }
 
         // todo:  this test should be changed to use end to end, this is prob too artificial
@@ -24,15 +24,15 @@ namespace Extension.Tests
         public async Task teacher_can_start_another_challenge_when_evaluating_a_challenge()
         {
             var lesson = new Lesson();
-            var challenge1 = GetEmptyChallenge(lesson);
-            var challenge2 = GetEmptyChallenge(lesson);
+            var challenge1 = GetEmptyChallenge();
+            var challenge2 = GetEmptyChallenge();
             challenge1.OnCodeSubmittedAsync(async (context) =>
             {
                 await context.StartChallengeAsync(challenge2);
             });
-            await challenge1.Evaluate();
+            await lesson.StartChallengeAsync(challenge1);
 
-            await challenge1.InvokeOnCodeSubmittedHandler();
+            await challenge1.Evaluate();
 
             lesson.CurrentChallenge.Should().Be(challenge2);
         }
@@ -46,7 +46,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
@@ -69,7 +69,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
@@ -88,7 +88,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("alsjl");
@@ -112,7 +112,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             int numberOfSubmission = 1;
             challenge.OnCodeSubmitted(context =>
@@ -144,7 +144,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
@@ -167,7 +167,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
@@ -194,7 +194,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
                 3.Should().Be(10);
@@ -207,14 +207,14 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_user_exceptions_to_fail_evaluation()
+        public async Task teacher_can_use_exceptions_to_fail_evaluation()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
                 throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
@@ -234,7 +234,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge = GetEmptyChallenge(lesson);
+            var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
                 var userValue = 0;

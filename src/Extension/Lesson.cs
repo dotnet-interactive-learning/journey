@@ -23,6 +23,7 @@ namespace Extension
         {
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
+            CurrentChallenge.Lesson = this;
             // todo: await someexternalendpoint.StartChallenge that sends EditableCode
         }
     }
