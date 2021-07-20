@@ -56,7 +56,7 @@ namespace Extension
                 var hintElement = div[@class: "challengeHint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
                 elements.Add(hintElement);
             }
-            foreach (var rule in ruleEvaluations.Values.OrderBy(r => r.Outcome).ThenBy(r => r.Label))
+            foreach (var rule in ruleEvaluations.Values.OrderBy(r => r.Outcome).ThenBy(r => r.Name))
             {
                 elements.Add(div[@class: "ruleContainer"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
             }

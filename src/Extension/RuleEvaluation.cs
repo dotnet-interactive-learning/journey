@@ -15,7 +15,7 @@ namespace Extension
     [TypeFormatterSource(typeof(RuleEvaluationFormatterSource))]
     public class RuleEvaluation
     {
-        public string Label { get; }
+        public string Name { get; }
 
         public Outcome Outcome { get; }
 
@@ -25,9 +25,9 @@ namespace Extension
 
         public bool Passed { get { return Outcome == Outcome.Success; } }
 
-        public RuleEvaluation(Outcome outcome, string label = null, string reason = null, object hint = null)
+        public RuleEvaluation(Outcome outcome, string name = null, string reason = null, object hint = null)
         {
-            Label = label;
+            Name = name;
             Hint = hint;
             Outcome = outcome;
             if (string.IsNullOrWhiteSpace(reason))
@@ -66,7 +66,7 @@ namespace Extension
 
             var elements = new List<PocketView>();
 
-            if (string.IsNullOrWhiteSpace(Label))
+            if (string.IsNullOrWhiteSpace(Name))
             {
                 PocketView header = summary[style: outcomeDivStyle](b(outcomeMessage));
 
@@ -75,7 +75,7 @@ namespace Extension
             }
             else
             {
-                PocketView header = summary[style: outcomeDivStyle](b($"[ {Label} ] "), b(outcomeMessage));
+                PocketView header = summary[style: outcomeDivStyle](b($"[ {Name} ] "), b(outcomeMessage));
 
                 elements.Add(header);
             }

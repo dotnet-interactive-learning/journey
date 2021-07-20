@@ -11,6 +11,7 @@ namespace Extension
 {
     public class Challenge
     {
+        public string Name { get; }
         public Lesson Lesson { get; internal set; }
         public IReadOnlyList<EditableCode> Contents { get; }
         public bool Revealed { get; set; } = false;
@@ -23,9 +24,10 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<EditableCode> content)
+        public Challenge(IReadOnlyList<EditableCode> content, string name = null)
         {
             Contents = content;
+            Name = name;
         }
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
@@ -34,7 +36,8 @@ namespace Extension
 
             foreach (var (rule, index) in _rules.Select((r, i) => (r, i)))
             {
-                var ruleContext = new RuleContext(_context, submittedCode, events, $"Rule {index + 1}");
+                var ruleLabel = string.IsNullOrWhiteSpace(rule.Name) ? $"Rule {index + 1}" : rule.Name;
+                var ruleContext = new RuleContext(_context, submittedCode, events, ruleLabel);
                 try
                 {
                     rule.Evaluate(ruleContext);
@@ -53,25 +56,26 @@ namespace Extension
 
         public async Task InvokeOnCodeSubmittedHandler()
         {
-            if (OnCodeSubmittedHandler != null)
+            if (OnCodeSubmittedHandler is not null)
             {
-                await OnCodeSubmittedHandler(_context);
+                await OnCodeSubmittedHandler(_context); 
             }
         }
 
-        public void AddRuleAsync(Func<RuleContext, Task> action)
-        {
-            AddRule(new Rule(action));
-        }
+        public void AddRuleAsync(string name, Func<RuleContext, Task> action) => AddRule(new Rule(action, name));
 
-        public void AddRule(Action<RuleContext> action)
+        public void AddRuleAsync(Func<RuleContext, Task> action) => AddRuleAsync(null, action);
+        
+        public void AddRule(string name, Action<RuleContext> action)
         {
-            AddRuleAsync((context) =>
+            AddRuleAsync(name, (context) =>
             {
                 action(context);
                 return Task.CompletedTask;
             });
         }
+
+        public void AddRule(Action<RuleContext> action) => AddRule(null, action);
 
         public void OnCodeSubmittedAsync(Func<ChallengeContext, Task> action)
         {

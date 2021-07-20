@@ -32,5 +32,15 @@ namespace Extension
         {
             await Lesson.StartChallengeAsync(challenge);
         }
+
+        public async Task StartChallengeAsync(string name)
+        {
+            await Lesson.StartChallengeAsync(name);
+        }
+
+        public async Task StartNextChallengeAsync()
+        {
+            await Lesson.StartNextChallengeAsync();
+        }
     }
 }
