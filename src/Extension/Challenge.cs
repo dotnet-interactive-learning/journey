@@ -33,7 +33,7 @@ namespace Extension
             Name = name;
             OnCodeSubmittedHandler = (context) => {
                 KernelInvocationContext.Current?.Display(CurrentEvaluation);
-                return Lesson.StartNextChallengeAsync(); 
+                return Lesson.StartNextChallengeAsync();
             };
         }
 

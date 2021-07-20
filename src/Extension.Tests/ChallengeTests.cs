@@ -72,6 +72,7 @@ namespace Extension.Tests
             }.UseLessonEvaluateMiddleware(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
+            challenge.OnCodeSubmitted(_ => { });
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -91,10 +92,12 @@ namespace Extension.Tests
             }.UseLessonEvaluateMiddleware(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
+            challenge.OnCodeSubmitted(_ => { });
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
+            
             capturedEvents = challenge.SubmissionHistory.Select(s => s.EventsProduced.ToList()).ToList();
             capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
             {
@@ -151,6 +154,7 @@ namespace Extension.Tests
             {
                 capturedCode.Add(context.SubmittedCode);
             });
+            challenge.OnCodeSubmitted(_ => { });
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -174,6 +178,7 @@ namespace Extension.Tests
             {
                 capturedEvents.Add(context.EventsProduced.ToList());
             });
+            challenge.OnCodeSubmitted(_=>{ });
 
             await kernel.SubmitCodeAsync("alsjkdf");
             await kernel.SubmitCodeAsync("1 + 1");
