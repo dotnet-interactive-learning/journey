@@ -117,7 +117,7 @@ namespace Extension.Tests
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenge1);
+            lesson.CurrentChallenge.Should().Be(null);
         }
 
         [Fact]
