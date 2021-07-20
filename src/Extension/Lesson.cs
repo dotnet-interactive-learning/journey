@@ -40,6 +40,12 @@ namespace Extension
             // todo: await someexternalendpoint.StartChallenge that sends EditableCode
         }
 
+        public Task StartLessonAsync()
+        {
+            var challenge = _challenges.FirstOrDefault();
+            return StartChallengeAsync(challenge);
+        }
+
         public async Task StartChallengeAsync(string name)
         {
             var challenge = _challenges.FirstOrDefault(c => c.Name == name);
@@ -54,6 +60,7 @@ namespace Extension
             var index = _challenges.FindIndex(c => c == CurrentChallenge);
             if (index == -1 || index + 1 >= _challenges.Count)
             {
+                CurrentChallenge = null;
                 return;
             }
             await StartChallengeAsync(_challenges[index + 1]);
