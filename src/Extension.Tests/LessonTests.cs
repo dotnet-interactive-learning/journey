@@ -14,16 +14,24 @@ namespace Extension.Tests
 {
     public class LessonTests
     {
-        private Challenge GetEmptyChallenge(string name = null)
+        private Challenge GetChallenge(string name = null)
         {
-            return new Challenge(new EditableCode[] { }, name);
+            return new Challenge(new EditableCode[] { }, name: name);
+        }
+
+        private List<EditableCode> GetEditableCode(string code)
+        {
+            return new List<EditableCode>
+            {
+                new EditableCode("csharp", code)
+            };
         }
 
         [Fact]
         public async Task starting_to_an_unrevealed_challenge_directly_reveals_it()
         {
             var lesson = new Lesson();
-            var challenge = GetEmptyChallenge();
+            var challenge = GetChallenge();
 
             await lesson.StartChallengeAsync(challenge);
 
@@ -34,7 +42,7 @@ namespace Extension.Tests
         public async Task starting_a_challenge_sets_the_current_challenge_to_it()
         {
             var lesson = new Lesson();
-            var challenge = GetEmptyChallenge();
+            var challenge = GetChallenge();
 
             await lesson.StartChallengeAsync(challenge);
 
@@ -49,13 +57,13 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge1 = GetEmptyChallenge("1");
+            var challenge1 = new Challenge(GetEditableCode("1"), name: "1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartChallengeAsync("3");
             });
-            var challenge2 = GetEmptyChallenge("2");
-            var challenge3 = GetEmptyChallenge("3");
+            var challenge2 = new Challenge(GetEditableCode("2"), name: "2");
+            var challenge3 = new Challenge(GetEditableCode("3"), name: "3");
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);
@@ -74,13 +82,13 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge1 = GetEmptyChallenge("1");
+            var challenge1 = GetChallenge("1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartNextChallengeAsync();
             });
-            var challenge2 = GetEmptyChallenge("2");
-            var challenge3 = GetEmptyChallenge("3");
+            var challenge2 = GetChallenge("2");
+            var challenge3 = GetChallenge("3");
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);
@@ -99,7 +107,7 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
-            var challenge1 = GetEmptyChallenge("1");
+            var challenge1 = GetChallenge("1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartNextChallengeAsync();

@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -56,6 +57,11 @@ namespace Extension
                 return;
             }
             await StartChallengeAsync(_challenges[index + 1]);
+        }
+
+        public bool IsSetupCommand(KernelCommand command)
+        {
+            return CurrentChallenge.Setup.Any(s => s == command);
         }
     }
 }
