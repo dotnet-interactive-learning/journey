@@ -31,6 +31,10 @@ namespace Extension
             Contents = content;
             Setup = setup ?? new SubmitCode[] { };
             Name = name;
+            OnCodeSubmittedHandler = (context) => {
+                KernelInvocationContext.Current?.Display(CurrentEvaluation);
+                return Lesson.StartNextChallengeAsync();
+            };
         }
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
@@ -54,6 +58,7 @@ namespace Extension
 
             await InvokeOnCodeSubmittedHandler();
             
+
             _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }
 
