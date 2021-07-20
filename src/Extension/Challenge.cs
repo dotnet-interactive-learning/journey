@@ -15,7 +15,8 @@ namespace Extension
         public string Name { get; }
         public Lesson Lesson { get; internal set; }
         public IReadOnlyList<EditableCode> Contents { get; }
-        public IReadOnlyList<SubmitCode> Setup { get; }
+        public IReadOnlyList<SubmitCode> ChallengeSetup { get; }
+        public IReadOnlyList<SubmitCode> QuestionSetup { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
@@ -26,12 +27,14 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<EditableCode> content, IReadOnlyList<SubmitCode> setup = null, string name = null)
+        public Challenge(IReadOnlyList<EditableCode> content, IReadOnlyList<SubmitCode> challengeSetup = null, IReadOnlyList<SubmitCode> questionSetup = null, string name = null)
         {
             Contents = content;
-            Setup = setup ?? new SubmitCode[] { };
+            ChallengeSetup = challengeSetup ?? new SubmitCode[] { };
+            QuestionSetup = questionSetup ?? new SubmitCode[] { };
             Name = name;
-            OnCodeSubmittedHandler = (context) => {
+            OnCodeSubmittedHandler = (context) =>
+            {
                 KernelInvocationContext.Current?.Display(CurrentEvaluation);
                 return Lesson.StartNextChallengeAsync();
             };
@@ -57,7 +60,7 @@ namespace Extension
             }
 
             await InvokeOnCodeSubmittedHandler();
-            
+
 
             _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }
@@ -66,14 +69,14 @@ namespace Extension
         {
             if (OnCodeSubmittedHandler is not null)
             {
-                await OnCodeSubmittedHandler(_context); 
+                await OnCodeSubmittedHandler(_context);
             }
         }
 
         public void AddRuleAsync(string name, Func<RuleContext, Task> action) => AddRule(new Rule(action, name));
 
         public void AddRuleAsync(Func<RuleContext, Task> action) => AddRuleAsync(null, action);
-        
+
         public void AddRule(string name, Action<RuleContext> action)
         {
             AddRuleAsync(name, (context) =>
