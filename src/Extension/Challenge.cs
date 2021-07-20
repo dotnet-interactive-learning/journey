@@ -1,4 +1,5 @@
 ﻿using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Extension
     {
         public Lesson Lesson { get; set; }
         public IReadOnlyList<EditableCode> Contents { get; }
+        public IReadOnlyList<SubmitCode> Setup { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
@@ -23,10 +25,11 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null)
+        public Challenge(IReadOnlyList<EditableCode> content, Lesson lesson = null, IReadOnlyList<SubmitCode> setup = null)
         {
             Contents = content;
             Lesson = lesson;
+            Setup = setup ?? new SubmitCode[] { };
         }
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)

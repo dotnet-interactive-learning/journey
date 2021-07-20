@@ -1,6 +1,7 @@
 ﻿using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
 using System;
@@ -249,6 +250,30 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("1 + 1");
 
             challenge.CurrentEvaluation.RuleEvaluations.First().Reason.Should().Be("Attempted to divide by zero.");
+        }
+
+        [Fact]
+        public async Task teacher_can_add_setup_code_to_a_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var setup = new SubmitCode[] {
+                new SubmitCode("var a = 2;"), 
+                new SubmitCode("var b = 3;"),
+                new SubmitCode("a = 4;")
+            };
+            var challenge = new Challenge(new EditableCode[] { }, lesson, setup);
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("a+b");
+
+            events.Should().NotBeOfType<CommandFailed>();
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
+
         }
     }
 }

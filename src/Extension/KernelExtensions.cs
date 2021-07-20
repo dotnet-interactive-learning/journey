@@ -32,6 +32,15 @@ namespace Extension
                 switch (command)
                 {
                     case SubmitCode submitCode:
+                        if (lesson.IsSetupCommand(submitCode))
+                        {
+                            await next(command, context);
+                            break;
+                        }
+                        foreach(var setup in lesson.CurrentChallenge.Setup)
+                        {
+                            await kernel.SendAsync(setup);
+                        }
                         await next(command, context);
                         var events = context.KernelEvents.ToSubscribedList();
                         await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
