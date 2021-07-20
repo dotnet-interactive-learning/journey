@@ -10,6 +10,7 @@ namespace Extension
 {
     public class Lesson
     {
+        public ILessonHost Host { get; set; }
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
 
@@ -25,10 +26,7 @@ namespace Extension
             _challenges.Add(challenge);
         }
 
-        // todo: remove pragma
-#pragma warning disable 1998
         public async Task StartChallengeAsync(Challenge challenge)
-#pragma warning restore 1998
         {
             if (challenge == null)
             {
@@ -37,7 +35,7 @@ namespace Extension
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
-            // todo: await someexternalendpoint.StartChallenge that sends EditableCode
+            await Host?.StartChallengeAsync(challenge);
         }
 
         public Task StartLessonAsync()
@@ -64,11 +62,6 @@ namespace Extension
                 return;
             }
             await StartChallengeAsync(_challenges[index + 1]);
-        }
-
-        public bool IsSetupCommand(KernelCommand command)
-        {
-            return CurrentChallenge.Setup.Any(s => s == command);
         }
     }
 }
