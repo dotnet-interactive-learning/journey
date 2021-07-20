@@ -49,10 +49,11 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(sampleContent, lesson);
-            var challenge2 = new Challenge(sampleContent2, lesson);
+            var challenge1 = new Challenge(sampleContent);
+            var challenge2 = new Challenge(sampleContent2);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
@@ -75,7 +76,6 @@ namespace Extension.Tests
             // teacher sends challenge
             await lesson.StartChallengeAsync(challenge1);
 
-            using var events = kernel.KernelEvents.ToSubscribedList();
             // student submit code
             await kernel.SubmitCodeAsync(sampleAnswer);
 
@@ -97,9 +97,10 @@ namespace Extension.Tests
             {
                 new CSharpKernel()
             }.UseLessonEvaluateMiddleware(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(sampleContent, lesson);
+            var challenge1 = new Challenge(sampleContent);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
@@ -144,7 +145,6 @@ namespace Extension.Tests
             // teacher sends challenge
             await lesson.StartChallengeAsync(challenge1);
 
-            using var events = kernel.KernelEvents.ToSubscribedList();
             // student submit code
             await kernel.SubmitCodeAsync(sampleAnswer);
             await kernel.SubmitCodeAsync(sampleAnswer);

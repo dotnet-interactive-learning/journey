@@ -5,7 +5,7 @@ namespace Extension
 {
     public class RuleContext
     {
-        public string Name { get; set; }
+        public string Name { get; }
         public Challenge Challenge => _challengeContext.Challenge;
         public string SubmittedCode { get; }
         public IEnumerable<KernelEvent> EventsProduced { get;  }
@@ -13,12 +13,12 @@ namespace Extension
 
         private readonly ChallengeContext _challengeContext;
 
-        public RuleContext(ChallengeContext challengeContext, string submittedCode = null, IEnumerable<KernelEvent> events = null, string defaultName = "")
+        public RuleContext(ChallengeContext challengeContext, string submittedCode = null, IEnumerable<KernelEvent> events = null, string name = "")
         {
             _challengeContext = challengeContext;
             SubmittedCode = submittedCode;
             EventsProduced = events;
-            Name = defaultName;
+            Name = name;
         }
 
         public void Fail(string reason = null, object hint = null)
