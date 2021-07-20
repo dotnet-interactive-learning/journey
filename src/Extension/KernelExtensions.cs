@@ -27,7 +27,19 @@ namespace Extension
                             await next(command, context);
                             break;
                         }
-                        foreach(var setup in lesson.CurrentChallenge.Setup)
+                        if (lesson.IsStartingChallenge)
+                        {
+                            foreach (var code in lesson.CurrentChallenge.Contents)
+                            {
+                                //await kernel.SendAsync(new SendEditableCode(code.Language, code.Code));
+                            }
+                            foreach (var setup in lesson.CurrentChallenge.ChallengeSetup)
+                            {
+                                await kernel.SendAsync(setup);
+                            }
+                            lesson.IsStartingChallenge = false;
+                        }
+                        foreach(var setup in lesson.CurrentChallenge.QuestionSetup)
                         {
                             await kernel.SendAsync(setup);
                         }

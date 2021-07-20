@@ -10,10 +10,10 @@ namespace Extension
 {
     public class Lesson
     {
-        public ILessonHost Host { get; set; }
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
-
+        public bool IsStartingChallenge { get; set; } = true;
+        
         private List<Challenge> _challenges = new();
 
         public Lesson(string name = null)
@@ -35,10 +35,7 @@ namespace Extension
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
-            if (Host is not null)
-            {
-                await Host.StartChallengeAsync(challenge); 
-            }
+            IsStartingChallenge = true;
         }
 
         public Task StartLessonAsync()

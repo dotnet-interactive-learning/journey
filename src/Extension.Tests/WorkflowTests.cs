@@ -77,7 +77,7 @@ namespace Extension.Tests
             await lesson.StartChallengeAsync(challenge1);
 
             // student submit code
-            await kernel.SubmitCodeAsync(sampleAnswer);
+            await kernel.SubmitCodeAsync("1+1");
 
             events.Should().ContainSingle<DisplayedValueProduced>()
                 .Which.FormattedValues

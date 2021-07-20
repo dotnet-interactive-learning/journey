@@ -97,7 +97,7 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
-            
+
             capturedEvents = challenge.SubmissionHistory.Select(s => s.EventsProduced.ToList()).ToList();
             capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
             {
@@ -178,7 +178,7 @@ namespace Extension.Tests
             {
                 capturedEvents.Add(context.EventsProduced.ToList());
             });
-            challenge.OnCodeSubmitted(_=>{ });
+            challenge.OnCodeSubmitted(_ => { });
 
             await kernel.SubmitCodeAsync("alsjkdf");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -258,7 +258,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_add_setup_code_to_a_challenge()
+        public async Task teacher_can_add_question_setup_code_to_a_challenge()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
@@ -267,11 +267,11 @@ namespace Extension.Tests
             }.UseLessonEvaluateMiddleware(lesson);
             using var events = kernel.KernelEvents.ToSubscribedList();
             var setup = new SubmitCode[] {
-                new SubmitCode("var a = 2;"), 
+                new SubmitCode("var a = 2;"),
                 new SubmitCode("var b = 3;"),
                 new SubmitCode("a = 4;")
             };
-            var challenge = new Challenge(new EditableCode[] { }, setup);
+            var challenge = new Challenge(new EditableCode[] { }, questionSetup: setup);
             await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
@@ -279,6 +279,68 @@ namespace Extension.Tests
             events.Should().NotBeOfType<CommandFailed>();
             events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
 
+        }
+
+        [Fact]
+        public async Task teacher_can_add_challenge_setup_code_to_a_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var setup = new SubmitCode[] {
+                new SubmitCode("var a = 2;"),
+                new SubmitCode("var b = 3;"),
+                new SubmitCode("a = 4;")
+            };
+            var challenge = new Challenge(new EditableCode[] { }, challengeSetup: setup);
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("a+b");
+
+            events.Should().NotBeOfType<CommandFailed>();
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
+        }
+
+        [Fact]
+        public async Task challenge_setup_runs_per_challenge_start_and_question_setup_runs_per_submit_code()
+        {
+            var isChallenge1FirstSubmission = true;
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var questionSetup = new SubmitCode[] {
+                new SubmitCode("a=a+1;")
+            };
+            var challengeSetup1 = new SubmitCode[] {
+                new SubmitCode("var a = 1;")
+            };
+            var challenge1 = new Challenge(new EditableCode[] { }, challengeSetup1, questionSetup);
+            var challengeSetup2 = new SubmitCode[] {
+                new SubmitCode("a=a+2;")
+            };
+            var challenge2 = new Challenge(new EditableCode[] { }, challengeSetup2);
+            challenge1.OnCodeSubmitted(async context =>
+            {
+                if (!isChallenge1FirstSubmission)
+                {
+                    await context.StartChallengeAsync(challenge2); 
+                }
+                isChallenge1FirstSubmission = false;
+            });
+
+            await lesson.StartChallengeAsync(challenge1);
+            await kernel.SubmitCodeAsync("var s = 1;");
+            await kernel.SubmitCodeAsync("var s = 1;");
+            await kernel.SubmitCodeAsync("a");
+
+            events.Should().NotBeOfType<CommandFailed>();
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(5);
         }
     }
 }
