@@ -35,7 +35,10 @@ namespace Extension
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
-            await Host?.StartChallengeAsync(challenge);
+            if (Host is not null)
+            {
+                await Host.StartChallengeAsync(challenge); 
+            }
         }
 
         public Task StartLessonAsync()
