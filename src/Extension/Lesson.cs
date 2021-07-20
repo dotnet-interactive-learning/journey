@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,6 +25,11 @@ namespace Extension
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             // todo: await someexternalendpoint.StartChallenge that sends EditableCode
+        }
+
+        public bool IsSetupCommand(KernelCommand command)
+        {
+            return CurrentChallenge.Setup.Any(s => s == command);
         }
     }
 }
