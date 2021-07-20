@@ -53,7 +53,14 @@ namespace Extension
             }
 
             await InvokeOnCodeSubmittedHandler();
-            
+            if (Lesson.CurrentChallenge == this)
+            {
+                if (_context.RuleEvaluations.All(e => e.Passed))
+                {
+                    await Lesson.StartNextChallengeAsync();
+                }
+            }
+
             _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }
 

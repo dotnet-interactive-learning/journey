@@ -75,7 +75,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_explicitly_proceed_to_the_next_challenge()
+        public async Task teacher_can_explicitly_start_the_next_challenge()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
@@ -100,7 +100,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task explicitly_proceeding_to_the_next_challenge_at_last_challenge_does_nothing()
+        public async Task explicitly_starting_the_next_challenge_at_last_challenge_does_nothing()
         {
             var lesson = new Lesson();
             using var kernel = new CompositeKernel
@@ -112,6 +112,92 @@ namespace Extension.Tests
             {
                 await context.StartNextChallengeAsync();
             });
+            lesson.AddChallenge(challenge1);
+            await lesson.StartChallengeAsync(challenge1);
+
+            await kernel.SubmitCodeAsync("1+1");
+
+            lesson.CurrentChallenge.Should().Be(challenge1);
+        }
+
+        [Fact]
+        public async Task if_all_rules_passed_and_teacher_does_not_start_a_challenge_then_start_next_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge1 = GetChallenge("1");
+            challenge1.AddRule(c => c.Pass());
+            challenge1.AddRule(c => c.Pass());
+            var challenge2 = GetChallenge("2");
+            var challenge3 = GetChallenge("3");
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
+            lesson.AddChallenge(challenge3);
+            await lesson.StartChallengeAsync(challenge1);
+
+            await kernel.SubmitCodeAsync("1+1");
+
+            lesson.CurrentChallenge.Should().Be(challenge2);
+        }
+
+        [Fact]
+        public async Task if_not_all_rules_passed_and_teacher_does_not_start_a_challenge_then_do_not_start_next_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge1 = GetChallenge("1");
+            challenge1.AddRule(c => c.Fail());
+            challenge1.AddRule(c => c.Pass());
+            var challenge2 = GetChallenge("2");
+            var challenge3 = GetChallenge("3");
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
+            lesson.AddChallenge(challenge3);
+            await lesson.StartChallengeAsync(challenge1);
+
+            await kernel.SubmitCodeAsync("1+1");
+
+            lesson.CurrentChallenge.Should().Be(challenge1);
+        }
+
+        [Fact]
+        public async Task if_no_rules_were_defined_and_teacher_does_not_start_a_challenge_then_start_next_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge1 = GetChallenge("1");
+            var challenge2 = GetChallenge("2");
+            var challenge3 = GetChallenge("3");
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
+            lesson.AddChallenge(challenge3);
+            await lesson.StartChallengeAsync(challenge1);
+
+            await kernel.SubmitCodeAsync("1+1");
+
+            lesson.CurrentChallenge.Should().Be(challenge2);
+        }
+
+        [Fact]
+        public async Task if_current_challenge_is_last_challenge_and_teacher_does_not_start_a_challenge_then_stay_in_same_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = new CompositeKernel
+            {
+                new CSharpKernel()
+            }.UseLessonEvaluateMiddleware(lesson);
+            var challenge1 = GetChallenge("1");
+            challenge1.AddRule(c => c.Pass());
+            challenge1.AddRule(c => c.Pass());
             lesson.AddChallenge(challenge1);
             await lesson.StartChallengeAsync(challenge1);
 
