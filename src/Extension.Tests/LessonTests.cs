@@ -35,7 +35,7 @@ namespace Extension.Tests
             var challenge = GetChallenge();
             lesson.AddChallenge(challenge);
 
-            await lesson.StartChallengeAsync(challenge);
+            await lesson.StartLessonAsync();
 
             challenge.Revealed.Should().BeTrue();
         }
@@ -47,7 +47,7 @@ namespace Extension.Tests
             var challenge = GetChallenge();
             lesson.AddChallenge(challenge);
 
-            await lesson.StartChallengeAsync(challenge);
+            await lesson.StartLessonAsync();
 
             lesson.CurrentChallenge.Should().Be(challenge);
         }
@@ -67,7 +67,7 @@ namespace Extension.Tests
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);
-            await lesson.StartChallengeAsync(challenge1);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1+1");
 
@@ -89,7 +89,7 @@ namespace Extension.Tests
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);
-            await lesson.StartChallengeAsync(challenge1);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1+1");
 
@@ -107,7 +107,7 @@ namespace Extension.Tests
                 await context.StartNextChallengeAsync();
             });
             lesson.AddChallenge(challenge1);
-            await lesson.StartChallengeAsync(challenge1);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1+1");
 

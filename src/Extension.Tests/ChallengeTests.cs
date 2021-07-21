@@ -22,13 +22,13 @@ namespace Extension.Tests
             var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge();
             var challenge2 = GetEmptyChallenge();
-            lesson.AddChallenge(challenge1);
-            lesson.AddChallenge(challenge2);
             challenge1.OnCodeSubmittedAsync(async (context) =>
             {
                 await context.StartChallengeAsync(challenge2);
             });
-            await lesson.StartChallengeAsync(challenge1);
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
+            await lesson.StartLessonAsync();
 
             await challenge1.Evaluate();
 
@@ -42,12 +42,12 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
                 capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -63,9 +63,9 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -81,9 +81,9 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -102,17 +102,17 @@ namespace Extension.Tests
         public async Task challenge_tracks_evaluations_in_submission_history()
         {
             var capturedEvaluation = new List<ChallengeEvaluation>();
+            int numberOfSubmission = 1;
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
-            int numberOfSubmission = 1;
             challenge.OnCodeSubmitted(context =>
             {
                 context.SetMessage($"{numberOfSubmission}");
                 numberOfSubmission++;
             });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -135,13 +135,13 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
                 capturedCode.Add(context.SubmittedCode);
             });
             challenge.OnCodeSubmitted(_ => { });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -157,13 +157,13 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
-            await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
                 capturedEvents.Add(context.EventsProduced.ToList());
             });
             challenge.OnCodeSubmitted(_ => { });
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("alsjkdf");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -183,12 +183,12 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 3.Should().Be(10);
             });
-            await lesson.StartChallengeAsync(challenge);
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -201,12 +201,12 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
             });
-            await lesson.StartChallengeAsync(challenge);
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -219,7 +219,6 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
-            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 var userValue = 0;
@@ -229,7 +228,8 @@ namespace Extension.Tests
                     c.Pass("Good job");
                 }
             });
-            await lesson.StartChallengeAsync(challenge);
+            lesson.AddChallenge(challenge);
+            await lesson.StartLessonAsync();
 
             await kernel.SubmitCodeAsync("1 + 1");
 
