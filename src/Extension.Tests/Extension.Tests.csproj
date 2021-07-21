@@ -29,4 +29,8 @@
 		<ProjectReference Include="..\Extension\Extension.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Notebooks\" />
+	</ItemGroup>
+
 </Project>

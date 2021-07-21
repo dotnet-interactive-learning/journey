@@ -1,5 +1,4 @@
-﻿
-using Extension.Tests.Utilities;
+﻿using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
