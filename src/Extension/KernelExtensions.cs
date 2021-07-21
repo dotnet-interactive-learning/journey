@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -24,7 +25,36 @@ namespace Extension
                 await InitializeChallenge(lesson.CurrentChallenge);
             });
             kernel.AddDirective(startCommand);
+            kernel.UseProgressiveLearningMiddleware<T>(lesson);
+            return kernel;
+        }
 
+        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel
+        {
+            var lesson = new Lesson();
+            var argument = new Argument<FileInfo>("filePath");
+            
+            var startCommand = new Command("#!start-lesson")
+            {
+                argument
+            };
+
+            startCommand.Handler = CommandHandler.Create<FileInfo, KernelInvocationContext>(async (filePath, context) =>
+            {
+                var document = await File.ReadAllTextAsync(filePath.FullName);
+
+                // todo: call parser here
+
+                await lesson.StartLessonAsync();
+                await InitializeChallenge(lesson.CurrentChallenge);
+            });
+            kernel.AddDirective(startCommand);
+            kernel.UseProgressiveLearningMiddleware<T>(lesson);
+            return kernel;
+        }
+
+        private static T UseProgressiveLearningMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        {
             kernel.AddMiddleware(async (command, context, next) =>
             {
                 switch (command)
@@ -62,17 +92,17 @@ namespace Extension
             });
 
             return kernel;
+        }
 
-            async Task InitializeChallenge(Challenge challengeToInit)
+        private static async Task InitializeChallenge(Challenge challengeToInit)
+        {
+            foreach (var content in challengeToInit.Contents)
             {
-                foreach (var content in challengeToInit.Contents)
-                {
-                    await Kernel.Root.SendAsync(content);
-                }
-                foreach (var setup in challengeToInit.ChallengeSetup)
-                {
-                    await Kernel.Root.SendAsync(setup);
-                }
+                await Kernel.Root.SendAsync(content);
+            }
+            foreach (var setup in challengeToInit.ChallengeSetup)
+            {
+                await Kernel.Root.SendAsync(setup);
             }
         }
     }

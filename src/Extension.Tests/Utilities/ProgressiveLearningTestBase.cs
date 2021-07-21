@@ -15,13 +15,23 @@ namespace Extension.Tests.Utilities
             return new Challenge();
         }
 
-        protected CompositeKernel CreateKernel(Lesson lesson)
+        protected CompositeKernel CreateKernel(Lesson lesson = null)
         {
             var kernel = new CompositeKernel
             {
                 new CSharpKernel(),
                 new FakeKernel("vscode")
-            }.UseProgressiveLearning(lesson);
+            };
+
+            if (lesson is not null)
+            {
+                kernel.UseProgressiveLearning(lesson);
+            }
+            else
+            {
+                kernel.UseProgressiveLearning();
+            }
+
             kernel.DefaultKernelName = "csharp";
             return kernel;
         }
