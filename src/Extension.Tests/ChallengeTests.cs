@@ -13,13 +13,8 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class ChallengeTests
+    public class ChallengeTests : ProgressiveLearningTestBase
     {
-        private Challenge GetEmptyChallenge()
-        {
-            return new Challenge(new EditableCode[] { });
-        }
-
         // todo:  this test should be changed to use end to end, this is prob too artificial
         [Fact]
         public async Task teacher_can_start_another_challenge_when_evaluating_a_challenge()
@@ -43,10 +38,7 @@ namespace Extension.Tests
         {
             var capturedCode = new List<string>();
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
@@ -66,10 +58,7 @@ namespace Extension.Tests
         public async Task challenge_tracks_submitted_code_in_submission_history()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
@@ -86,10 +75,7 @@ namespace Extension.Tests
         {
             var capturedEvents = new List<List<KernelEvent>>();
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
@@ -112,10 +98,7 @@ namespace Extension.Tests
         {
             var capturedEvaluation = new List<ChallengeEvaluation>();
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             int numberOfSubmission = 1;
@@ -144,10 +127,7 @@ namespace Extension.Tests
         {
             var capturedCode = new List<string>();
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
@@ -168,10 +148,7 @@ namespace Extension.Tests
         {
             var capturedEvents = new List<List<KernelEvent>>();
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
@@ -196,10 +173,7 @@ namespace Extension.Tests
         public async Task teacher_can_use_assertion_libraries_in_rule_definitions()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
@@ -216,10 +190,7 @@ namespace Extension.Tests
         public async Task teacher_can_use_exceptions_to_fail_evaluation()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
@@ -236,10 +207,7 @@ namespace Extension.Tests
         public async Task unhandled_exception_will_cause_rule_to_fail()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
@@ -255,92 +223,6 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("1 + 1");
 
             challenge.CurrentEvaluation.RuleEvaluations.First().Reason.Should().Be("Attempted to divide by zero.");
-        }
-
-        [Fact]
-        public async Task teacher_can_add_question_setup_code_to_a_challenge()
-        {
-            var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
-            using var events = kernel.KernelEvents.ToSubscribedList();
-            var setup = new SubmitCode[] {
-                new SubmitCode("var a = 2;"),
-                new SubmitCode("var b = 3;"),
-                new SubmitCode("a = 4;")
-            };
-            var challenge = new Challenge(new EditableCode[] { }, questionSetup: setup);
-            await lesson.StartChallengeAsync(challenge);
-
-            await kernel.SubmitCodeAsync("a+b");
-
-            events.Should().NotBeOfType<CommandFailed>();
-            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
-
-        }
-
-        [Fact]
-        public async Task teacher_can_add_challenge_setup_code_to_a_challenge()
-        {
-            var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
-            using var events = kernel.KernelEvents.ToSubscribedList();
-            var setup = new SubmitCode[] {
-                new SubmitCode("var a = 2;"),
-                new SubmitCode("var b = 3;"),
-                new SubmitCode("a = 4;")
-            };
-            var challenge = new Challenge(new EditableCode[] { }, challengeSetup: setup);
-            await lesson.StartChallengeAsync(challenge);
-
-            await kernel.SubmitCodeAsync("a+b");
-
-            events.Should().NotBeOfType<CommandFailed>();
-            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
-        }
-
-        [Fact]
-        public async Task challenge_setup_runs_per_challenge_start_and_question_setup_runs_per_submit_code()
-        {
-            var isChallenge1FirstSubmission = true;
-            var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
-            using var events = kernel.KernelEvents.ToSubscribedList();
-            var questionSetup = new SubmitCode[] {
-                new SubmitCode("a=a+1;")
-            };
-            var challengeSetup1 = new SubmitCode[] {
-                new SubmitCode("var a = 1;")
-            };
-            var challenge1 = new Challenge(new EditableCode[] { }, challengeSetup1, questionSetup);
-            var challengeSetup2 = new SubmitCode[] {
-                new SubmitCode("a=a+2;")
-            };
-            var challenge2 = new Challenge(new EditableCode[] { }, challengeSetup2);
-            challenge1.OnCodeSubmitted(async context =>
-            {
-                if (!isChallenge1FirstSubmission)
-                {
-                    await context.StartChallengeAsync(challenge2); 
-                }
-                isChallenge1FirstSubmission = false;
-            });
-
-            await lesson.StartChallengeAsync(challenge1);
-            await kernel.SubmitCodeAsync("var s = 1;");
-            await kernel.SubmitCodeAsync("var s = 1;");
-            await kernel.SubmitCodeAsync("a");
-
-            events.Should().NotBeOfType<CommandFailed>();
-            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(5);
         }
     }
 }

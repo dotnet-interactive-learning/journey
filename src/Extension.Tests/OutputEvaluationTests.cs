@@ -12,21 +12,13 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class OutputEvaluationTests
+    public class OutputEvaluationTests : ProgressiveLearningTestBase
     {
-        private Challenge GetEmptyChallenge()
-        {
-            return new Challenge(new EditableCode[] { });
-        }
-
         [Fact]
         public async Task teacher_can_provide_challenge_evaluation_feedback()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
@@ -118,10 +110,7 @@ namespace Extension.Tests
         public async Task teacher_can_fail_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Fail("abc", 3));
@@ -137,10 +126,7 @@ namespace Extension.Tests
         public async Task teacher_can_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Pass("abc", 3));
@@ -156,10 +142,7 @@ namespace Extension.Tests
         public async Task teacher_can_partially_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.PartialPass("abc", 3));

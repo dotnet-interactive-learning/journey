@@ -2,6 +2,7 @@
 using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
 using System.Collections.Generic;
@@ -11,16 +12,16 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class WorkflowTests
+    public class WorkflowTests : ProgressiveLearningTestBase
     {
-        private IReadOnlyList<EditableCode> sampleContent = new EditableCode[]
+        private IReadOnlyList<SendEditableCode> sampleContent = new SendEditableCode[]
         {
-            new EditableCode("markdown",
+            new SendEditableCode("markdown",
 @"# Challenge 1
 
 ## Add 1 with 2 and return it"),
 
-            new EditableCode("csharp",
+            new SendEditableCode("csharp",
 @"// write your answer here")
         };
 
@@ -28,15 +29,15 @@ namespace Extension.Tests
 @"#!csharp
 1 + 2";
 
-        private IReadOnlyList<EditableCode> sampleContent2 = new EditableCode[]
+        private IReadOnlyList<SendEditableCode> sampleContent2 = new SendEditableCode[]
         {
-            new EditableCode("markdown",
+            new SendEditableCode("markdown",
 @"# Challenge 2
 
 ## Times 1 with 2 and return it
 "),
 
-            new EditableCode("csharp", @"
+            new SendEditableCode("csharp", @"
 // write your answer here
 ")
         };
@@ -45,10 +46,7 @@ namespace Extension.Tests
         public async Task Test()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
@@ -88,15 +86,11 @@ namespace Extension.Tests
                     && v.Value.Contains("this rule failed because reasons"));
         }
 
-
         [Fact]
         public async Task teacher_can_access_challenge_submission_history_for_challenge_evaluation()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
