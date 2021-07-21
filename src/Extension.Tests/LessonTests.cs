@@ -2,6 +2,7 @@
 using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using System;
 using System.Collections.Generic;
@@ -12,18 +13,18 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class LessonTests
+    public class LessonTests : ProgressiveLearningTestBase
     {
         private Challenge GetChallenge(string name = null)
         {
-            return new Challenge(new EditableCode[] { }, name: name);
+            return new Challenge(name: name);
         }
 
-        private List<EditableCode> GetEditableCode(string code)
+        private List<SendEditableCode> GetSendEditableCode(string code)
         {
-            return new List<EditableCode>
+            return new List<SendEditableCode>
             {
-                new EditableCode("csharp", code)
+                new SendEditableCode("csharp", code)
             };
         }
 
@@ -53,17 +54,14 @@ namespace Extension.Tests
         public async Task teacher_can_start_a_challenge_using_challenge_name()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
-            var challenge1 = new Challenge(GetEditableCode("1"), name: "1");
+            using var kernel = CreateKernel(lesson);
+            var challenge1 = new Challenge(GetSendEditableCode("1"), name: "1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartChallengeAsync("3");
             });
-            var challenge2 = new Challenge(GetEditableCode("2"), name: "2");
-            var challenge3 = new Challenge(GetEditableCode("3"), name: "3");
+            var challenge2 = new Challenge(GetSendEditableCode("2"), name: "2");
+            var challenge3 = new Challenge(GetSendEditableCode("3"), name: "3");
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);
@@ -78,10 +76,7 @@ namespace Extension.Tests
         public async Task teacher_can_explicitly_start_the_next_challenge()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge1 = GetChallenge("1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
@@ -103,10 +98,7 @@ namespace Extension.Tests
         public async Task explicitly_starting_the_next_challenge_at_last_challenge_does_nothing()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge1 = GetChallenge("1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
@@ -124,10 +116,7 @@ namespace Extension.Tests
         public async Task when_a_student_submits_code_to_a_challenge_they_move_to_the_next_challenge()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge1 = GetChallenge("1");
             var challenge2 = GetChallenge("2");
             var challenge3 = GetChallenge("3");
@@ -145,10 +134,7 @@ namespace Extension.Tests
         public async Task when_a_student_completes_the_last_challenge_then_the_lesson_is_completed()
         {
             var lesson = new Lesson();
-            using var kernel = new CompositeKernel
-            {
-                new CSharpKernel()
-            }.UseLessonEvaluateMiddleware(lesson);
+            using var kernel = CreateKernel(lesson);
             var challenge1 = GetChallenge("1");
             var challenge2 = GetChallenge("2");
             lesson.AddChallenge(challenge1);

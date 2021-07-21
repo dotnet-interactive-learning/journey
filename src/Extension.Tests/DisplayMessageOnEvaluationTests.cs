@@ -88,7 +88,6 @@ namespace Extension.Tests
                 .Be("Incorrect solution.");
         }
 
-
         [Fact]
         public void rule_evaluation_will_produce_custom_message()
         {

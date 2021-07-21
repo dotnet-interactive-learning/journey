@@ -12,11 +12,10 @@ namespace Extension
 {
     public class Challenge
     {
-        public string Name { get; }
+        public string Name { get; internal set; }
         public Lesson Lesson { get; internal set; }
-        public IReadOnlyList<EditableCode> Contents { get; }
+        public IReadOnlyList<SendEditableCode> Contents { get; }
         public IReadOnlyList<SubmitCode> ChallengeSetup { get; }
-        public IReadOnlyList<SubmitCode> QuestionSetup { get; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
@@ -27,11 +26,10 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<EditableCode> content, IReadOnlyList<SubmitCode> challengeSetup = null, IReadOnlyList<SubmitCode> questionSetup = null, string name = null)
+        public Challenge(IReadOnlyList<SendEditableCode> content = null, IReadOnlyList<SubmitCode> challengeSetup = null, string name = null)
         {
-            Contents = content;
+            Contents = content ?? new SendEditableCode[] { };
             ChallengeSetup = challengeSetup ?? new SubmitCode[] { };
-            QuestionSetup = questionSetup ?? new SubmitCode[] { };
             Name = name;
             OnCodeSubmittedHandler = (context) =>
             {
@@ -60,7 +58,6 @@ namespace Extension
             }
 
             await InvokeOnCodeSubmittedHandler();
-
 
             _submissionHistory.Push(new ChallengeSubmission(submittedCode, _context.Evaluation, events));
         }

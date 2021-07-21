@@ -15,8 +15,16 @@ namespace Extension
 {
     public static class KernelExtensions
     {
-        public static T UseLessonEvaluateMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        public static T UseProgressiveLearning<T>(this T kernel, Lesson lesson) where T : Kernel
         {
+            var startCommand = new Command("#!start-lesson");
+            startCommand.Handler = CommandHandler.Create<KernelInvocationContext>(async context =>
+            {
+                await lesson.StartLessonAsync();
+                await InitializeChallenge(lesson.CurrentChallenge);
+            });
+            kernel.AddDirective(startCommand);
+
             kernel.AddMiddleware(async (command, context, next) =>
             {
                 switch (command)
@@ -27,40 +35,45 @@ namespace Extension
                             await next(command, context);
                             break;
                         }
-                        if (lesson.IsStartingChallenge)
-                        {
-                            foreach (var code in lesson.CurrentChallenge.Contents)
-                            {
-                                //await kernel.SendAsync(new SendEditableCode(code.Language, code.Code));
-                            }
-                            foreach (var setup in lesson.CurrentChallenge.ChallengeSetup)
-                            {
-                                await kernel.SendAsync(setup);
-                            }
-                            lesson.IsStartingChallenge = false;
-                        }
-                        foreach(var setup in lesson.CurrentChallenge.QuestionSetup)
-                        {
-                            await kernel.SendAsync(setup);
-                        }
+                        var currentChallenge = lesson.CurrentChallenge;
+
                         await next(command, context);
-                        
+
                         var events = context.KernelEvents.ToSubscribedList();
                         await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
-                        var view = lesson.CurrentChallenge.CurrentEvaluation.FormatAsHtml();
+                        var view = currentChallenge.CurrentEvaluation.FormatAsHtml();
                         var formattedValues = FormattedValue.FromObject(view);
                         context.Publish(
                             new DisplayedValueProduced(
                                 view,
                                 command,
                                 formattedValues));
+
+                        if (lesson.CurrentChallenge != currentChallenge)
+                        {
+                            await InitializeChallenge(lesson.CurrentChallenge);
+                        }
+
                         break;
                     default:
                         await next(command, context);
                         break;
                 }
             });
+
             return kernel;
+
+            async Task InitializeChallenge(Challenge challengeToInit)
+            {
+                foreach (var content in challengeToInit.Contents)
+                {
+                    await Kernel.Root.SendAsync(content);
+                }
+                foreach (var setup in challengeToInit.ChallengeSetup)
+                {
+                    await Kernel.Root.SendAsync(setup);
+                }
+            }
         }
     }
 }

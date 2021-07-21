@@ -12,7 +12,6 @@ namespace Extension
     {
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
-        public bool IsStartingChallenge { get; set; } = true;
         
         private List<Challenge> _challenges = new();
 
@@ -23,19 +22,23 @@ namespace Extension
 
         public void AddChallenge(Challenge challenge)
         {
+            if (string.IsNullOrWhiteSpace(challenge.Name))
+            {
+                challenge.Name = $"Challenge {_challenges.Count + 1}";
+            }
             _challenges.Add(challenge);
         }
 
-        public async Task StartChallengeAsync(Challenge challenge)
+        public Task StartChallengeAsync(Challenge challenge)
         {
             if (challenge == null)
             {
-                return;
+                return Task.CompletedTask;
             }
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
-            IsStartingChallenge = true;
+            return Task.CompletedTask;
         }
 
         public Task StartLessonAsync()
@@ -56,12 +59,13 @@ namespace Extension
         public async Task StartNextChallengeAsync()
         {
             var index = _challenges.FindIndex(c => c == CurrentChallenge);
-            if (index == -1 || index + 1 >= _challenges.Count)
+            index++;
+            if (index < 0 || index >= _challenges.Count)
             {
                 CurrentChallenge = null;
                 return;
             }
-            await StartChallengeAsync(_challenges[index + 1]);
+            await StartChallengeAsync(_challenges[index]);
         }
     }
 }
