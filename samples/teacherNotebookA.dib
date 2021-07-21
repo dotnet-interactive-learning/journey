@@ -4,11 +4,7 @@ var global_magic_number = "42";
 
 #!markdown
 
-# Challenge Linked List
-
-#!markdown
-
-## [ChallengeSetup]
+# [Challenge] Linked List
 
 #!csharp
 
@@ -62,7 +58,7 @@ Lesson.CurrentChallenge.OnCodeSubmitted(
 
 #!markdown
 
-## [QuestionSetup]
+## [ChallengeSetup]
 
 #!csharp
 
@@ -82,7 +78,7 @@ double pi = 3.14;
 
 #!markdown
 
-### Question 1: Linked List
+### Challenge: Linked List
 
 #!markdown
 

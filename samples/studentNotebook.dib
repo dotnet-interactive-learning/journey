@@ -4,4 +4,4 @@
 
 #!csharp
 
-StartLesson("teacher.dib") 
+#!start-lesson "teacherNotebookA.dib"
