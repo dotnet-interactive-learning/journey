@@ -43,7 +43,7 @@ namespace Extension.Tests
         };
 
         [Fact]
-        public async Task Test()
+        public async Task teacher_can_evaluate_a_challenge()
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
@@ -51,27 +51,22 @@ namespace Extension.Tests
 
             // teacher defines challenge
             var challenge1 = new Challenge(sampleContent);
-            var challenge2 = new Challenge(sampleContent2);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
             });
-            challenge1.OnCodeSubmittedAsync(async challengeContext =>
+            challenge1.OnCodeSubmitted(challengeContext =>
             {
                 var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();
                 if (numPassed / total >= 0.5)
-                {
-                    challengeContext.SetMessage("Good work! Challenge 1 passed.");
-                    await challengeContext.StartChallengeAsync(challenge2);
-                }
+                { }
                 else
                 {
                     challengeContext.SetMessage("Keep working!");
                 }
             });
             lesson.AddChallenge(challenge1);
-            lesson.AddChallenge(challenge2);
 
             // teacher sends challenge
             await lesson.StartLessonAsync();
@@ -103,33 +98,26 @@ namespace Extension.Tests
             });
             challenge1.OnCodeSubmitted(challengeContext =>
             {
-                var history = challengeContext.SubmissionHistory;
-                var pastConsecFailures = 0;
-                foreach (var submission in history)
+                var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
+                var total = challengeContext.RuleEvaluations.Count();
+                if (numPassed / total >= 0.5)
                 {
-                    var numPassed = submission.RuleEvaluations.Count(e => e.Passed);
-                    var total = submission.RuleEvaluations.Count();
-                    if (numPassed / total < 0.5)
-                    {
-                        pastConsecFailures++;
-                    }
-                    else
-                    {
-                        pastConsecFailures = 0;
-                    }
-                }
-
-                if (pastConsecFailures > 2)
-                {
-                    challengeContext.SetMessage("Enough! Try something else.");
+                    challengeContext.SetMessage("Good work! Challenge 1 passed.");
                 }
                 else
                 {
-                    var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
-                    var total = challengeContext.RuleEvaluations.Count();
-                    if (numPassed / total >= 0.5)
+                    var history = challengeContext.SubmissionHistory;
+                    var pastFailures = 0;
+                    foreach (var submission in history)
                     {
-                        challengeContext.SetMessage("Good work! Challenge 1 passed.");
+                        numPassed = submission.RuleEvaluations.Count(e => e.Passed);
+                        total = submission.RuleEvaluations.Count();
+                        if (numPassed / total < 0.5) pastFailures++;
+                    }
+
+                    if (pastFailures > 2)
+                    {
+                        challengeContext.SetMessage("Enough! Try something else.");
                     }
                     else
                     {
