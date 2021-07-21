@@ -33,6 +33,7 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             var challenge = GetChallenge();
+            lesson.AddChallenge(challenge);
 
             await lesson.StartChallengeAsync(challenge);
 
@@ -44,6 +45,7 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             var challenge = GetChallenge();
+            lesson.AddChallenge(challenge);
 
             await lesson.StartChallengeAsync(challenge);
 
