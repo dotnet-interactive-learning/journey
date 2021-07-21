@@ -42,10 +42,9 @@ namespace Extension
         {
             _context = new ChallengeContext(this);
 
-            foreach (var (rule, index) in _rules.Select((r, i) => (r, i)))
+            foreach (var rule in _rules)
             {
-                var ruleLabel = string.IsNullOrWhiteSpace(rule.Name) ? $"Rule {index + 1}" : rule.Name;
-                var ruleContext = new RuleContext(_context, submittedCode, events, ruleLabel);
+                var ruleContext = new RuleContext(_context, submittedCode, events, rule.Name);
                 try
                 {
                     rule.Evaluate(ruleContext);
@@ -70,7 +69,11 @@ namespace Extension
             }
         }
 
-        public void AddRuleAsync(string name, Func<RuleContext, Task> action) => AddRule(new Rule(action, name));
+        public void AddRuleAsync(string name, Func<RuleContext, Task> action)
+        {
+            name = string.IsNullOrWhiteSpace(name) ? $"Rule {_rules.Count + 1}" : name;
+            AddRule(new Rule(action, name));
+        }
 
         public void AddRuleAsync(Func<RuleContext, Task> action) => AddRuleAsync(null, action);
 
