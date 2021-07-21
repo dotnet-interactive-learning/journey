@@ -35,6 +35,11 @@ namespace Extension
             {
                 return Task.CompletedTask;
             }
+
+            if (!_challenges.Contains(challenge))
+            {
+                throw new ArgumentException("Cannot start a challenge that is not part of this lesson", nameof(challenge));
+            }
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;

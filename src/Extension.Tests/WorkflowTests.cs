@@ -52,6 +52,8 @@ namespace Extension.Tests
             // teacher defines challenge
             var challenge1 = new Challenge(sampleContent);
             var challenge2 = new Challenge(sampleContent2);
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
@@ -95,6 +97,7 @@ namespace Extension.Tests
 
             // teacher defines challenge
             var challenge1 = new Challenge(sampleContent);
+            lesson.AddChallenge(challenge1);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");

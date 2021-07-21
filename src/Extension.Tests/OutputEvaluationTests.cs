@@ -20,6 +20,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
@@ -112,6 +113,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Fail("abc", 3));
 
@@ -128,6 +130,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.Pass("abc", 3));
 
@@ -144,6 +147,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context => context.PartialPass("abc", 3));
 

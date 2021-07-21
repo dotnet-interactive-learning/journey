@@ -22,6 +22,8 @@ namespace Extension.Tests
             var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge();
             var challenge2 = GetEmptyChallenge();
+            lesson.AddChallenge(challenge1);
+            lesson.AddChallenge(challenge2);
             challenge1.OnCodeSubmittedAsync(async (context) =>
             {
                 await context.StartChallengeAsync(challenge2);
@@ -40,6 +42,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(context =>
             {
@@ -60,6 +63,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
 
@@ -77,6 +81,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.OnCodeSubmitted(_ => { });
 
@@ -100,6 +105,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             int numberOfSubmission = 1;
             challenge.OnCodeSubmitted(context =>
@@ -129,6 +135,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
@@ -150,6 +157,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             await lesson.StartChallengeAsync(challenge);
             challenge.AddRule(context =>
             {
@@ -175,6 +183,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 3.Should().Be(10);
@@ -192,6 +201,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
@@ -209,6 +219,7 @@ namespace Extension.Tests
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
+            lesson.AddChallenge(challenge);
             challenge.AddRule(c =>
             {
                 var userValue = 0;
