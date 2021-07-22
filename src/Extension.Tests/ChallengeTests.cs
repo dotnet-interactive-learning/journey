@@ -222,8 +222,8 @@ namespace Extension.Tests
             challenge.AddRule(c =>
             {
                 var userValue = 0;
-                var ration = 10 / userValue;
-                if (ration > 1)
+                var ratio = 10 / userValue;
+                if (ratio > 1)
                 {
                     c.Pass("Good job");
                 }
