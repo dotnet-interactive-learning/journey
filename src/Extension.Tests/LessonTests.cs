@@ -4,6 +4,7 @@ using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
+using Microsoft.DotNet.Interactive.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -147,6 +148,100 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("2+1");
 
             lesson.CurrentChallenge.Should().Be(null);
+        }
+
+        [Fact]
+        public async Task teacher_can_run_challenge_environment_setup_code_when_starting_a_lesson()
+        {
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var setup = new SubmitCode[] {
+                new SubmitCode("var a = 2;"),
+                new SubmitCode("var b = 3;"),
+                new SubmitCode("a = 4;")
+            };
+            lesson.AddChallenge(new Challenge(environmentSetup: setup));
+            await kernel.SubmitCodeAsync("#!start-lesson");
+
+            await kernel.SubmitCodeAsync("a+b");
+
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
+        }
+
+        [Fact]
+        public async Task teacher_can_show_challenge_contents_when_starting_a_lesson()
+        {
+            var capturedCommands = new List<SendEditableCode>();
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            var vscodeKernel = kernel.FindKernel("vscode");
+            vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
+            {
+                capturedCommands.Add(command);
+                return Task.CompletedTask;
+            });
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var contents = new SendEditableCode[] {
+                new SendEditableCode("csharp", "var a = 2;"),
+                new SendEditableCode("csharp", "var b = 3;"),
+                new SendEditableCode("csharp", "a = 4;")
+            };
+            lesson.AddChallenge(new Challenge(contents: contents));
+            await kernel.SubmitCodeAsync("#!start-lesson");
+
+            await kernel.SubmitCodeAsync("a+b");
+
+            capturedCommands.Should().BeEquivalentTo(contents);
+        }
+
+        [Fact]
+        public async Task teacher_can_run_challenge_environment_setup_code_when_progressing_the_student_to_a_new_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var setup = new SubmitCode[] {
+                new SubmitCode("var a = 2;"),
+                new SubmitCode("var b = 3;"),
+                new SubmitCode("a = 4;")
+            };
+            lesson.AddChallenge(new Challenge());
+            lesson.AddChallenge(new Challenge(environmentSetup: setup));
+            await kernel.SubmitCodeAsync("#!start-lesson");
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+
+            await kernel.SubmitCodeAsync("a + b");
+
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(7);
+        }
+
+        [Fact]
+        public async Task teacher_can_show_challenge_contents_when_progressing_the_student_to_a_new_challenge()
+        {
+            var capturedCommands = new List<SendEditableCode>();
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            var vscodeKernel = kernel.FindKernel("vscode");
+            vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
+            {
+                capturedCommands.Add(command);
+                return Task.CompletedTask;
+            });
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var contents = new SendEditableCode[] {
+                new SendEditableCode("csharp", "var a = 2;"),
+                new SendEditableCode("csharp", "var b = 3;"),
+                new SendEditableCode("csharp", "a = 4;")
+            };
+            lesson.AddChallenge(new Challenge());
+            lesson.AddChallenge(new Challenge(contents: contents));
+            await kernel.SubmitCodeAsync("#!start-lesson");
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+
+            await kernel.SubmitCodeAsync("a + b");
+
+            capturedCommands.Should().BeEquivalentTo(contents);
         }
     }
 }
