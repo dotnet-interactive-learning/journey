@@ -99,6 +99,11 @@ namespace Extension
 
         private static async Task InitializeChallenge(Challenge challengeToInit)
         {
+            if (challengeToInit is null)
+            {
+                return;
+            }
+
             foreach (var content in challengeToInit.Contents)
             {
                 await Kernel.Root.SendAsync(content);
