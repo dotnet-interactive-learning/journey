@@ -33,4 +33,10 @@
 	  <Folder Include="Notebooks\" />
 	</ItemGroup>
 
+	<ItemGroup>
+		<Content Include="Notebooks\*.*">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
 </Project>

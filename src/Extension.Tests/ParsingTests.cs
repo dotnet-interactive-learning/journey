@@ -16,17 +16,16 @@ namespace Extension.Tests
 {
     public class ParsingTests : ProgressiveLearningTestBase
     {
-        private string GetStartupCommand(string relativeFilePath)
+        private string GetNotebookPath(string relativeFilePath)
         {
             var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var path = Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
-            return $"#!start-lesson {path}";
+            return Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
         }
 
         [Fact]
         public async Task parser_can_parse_teacher_notebook_with_two_challenges_with_all_components_defined()
         {
-            var file = new FileInfo(@"C:\dev\intern2021\src\Extension.Tests\Notebooks\notebookTwoChallengesAllCorrect.dib");
+            var file = new FileInfo(GetNotebookPath(@"Notebooks\notebookTwoChallengesAllCorrect.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
