@@ -1,6 +1,7 @@
 ﻿using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
+using Microsoft.DotNet.Interactive.Notebook;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -29,27 +30,28 @@ namespace Extension
             return kernel;
         }
 
-        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel
+        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel, IKernelCommandHandler<ParseNotebook>
         {
-            var lesson = new Lesson();
-            var argument = new Argument<FileInfo>("filePath");
+            var argument = new Argument<FileInfo>("file");
             
             var startCommand = new Command("#!start-lesson")
             {
                 argument
             };
 
-            startCommand.Handler = CommandHandler.Create<FileInfo, KernelInvocationContext>(async (filePath, context) =>
+            startCommand.Handler = CommandHandler.Create<FileInfo, KernelInvocationContext>(async (file, context) =>
             {
-                var document = await File.ReadAllTextAsync(filePath.FullName);
-
-                // todo: call parser here
+                var rawData = await File.ReadAllBytesAsync(file.FullName);
+                // todo: NotebookFileFormatHandler.Parse what are its last two arguments
+                var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+                var lesson = NotebookLessonParser.Parse(document);
 
                 await lesson.StartLessonAsync();
                 await InitializeChallenge(lesson.CurrentChallenge);
+                kernel.UseProgressiveLearningMiddleware<T>(lesson);
             });
+
             kernel.AddDirective(startCommand);
-            kernel.UseProgressiveLearningMiddleware<T>(lesson);
             return kernel;
         }
 

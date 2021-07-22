@@ -14,8 +14,8 @@ namespace Extension
     {
         public string Name { get; internal set; }
         public Lesson Lesson { get; internal set; }
-        public IReadOnlyList<SendEditableCode> Contents { get; }
-        public IReadOnlyList<SubmitCode> ChallengeSetup { get; }
+        public IReadOnlyList<SendEditableCode> Contents { get; internal set; }
+        public IReadOnlyList<SubmitCode> ChallengeSetup { get; internal set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
