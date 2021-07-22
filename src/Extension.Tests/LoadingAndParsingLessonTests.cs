@@ -14,7 +14,7 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class ParsingTests : ProgressiveLearningTestBase
+    public class LoadingAndParsingLessonTests : ProgressiveLearningTestBase
     {
         private string GetNotebookPath(string relativeFilePath)
         {
