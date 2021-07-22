@@ -11,7 +11,7 @@ namespace Extension
     {
         public static bool IsSetupCommand(this Lesson lesson, KernelCommand command)
         {
-            return lesson.CurrentChallenge.ChallengeSetup.Any(s => s == command);
+            return lesson.CurrentChallenge.EnvironmentSetup.Any(s => s == command);
         }
     }
 }

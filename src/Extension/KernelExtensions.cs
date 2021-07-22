@@ -44,7 +44,8 @@ namespace Extension
                 var rawData = await File.ReadAllBytesAsync(file.FullName);
                 // todo: NotebookFileFormatHandler.Parse what are its last two arguments
                 var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
-                var lesson = NotebookLessonParser.Parse(document);
+                var lessonBlueprint = NotebookLessonParser.Parse(document);
+                var lesson = lessonBlueprint.ToLesson();
 
                 await lesson.StartLessonAsync();
                 await InitializeChallenge(lesson.CurrentChallenge);
@@ -102,7 +103,7 @@ namespace Extension
             {
                 await Kernel.Root.SendAsync(content);
             }
-            foreach (var setup in challengeToInit.ChallengeSetup)
+            foreach (var setup in challengeToInit.EnvironmentSetup)
             {
                 await Kernel.Root.SendAsync(setup);
             }

@@ -34,10 +34,10 @@ namespace Extension
             { "Scratchpad", ChallengeDirective.Scratchpad }
         };
 
-        public static Lesson Parse(NotebookDocument document)
+        public static LessonBlueprint Parse(NotebookDocument document)
         {
-            List<NotebookCell> lessonSetup = new();
-            List<List<NotebookCell>> challenges = new();
+            List<NotebookCell> rawSetup = new();
+            List<List<NotebookCell>> rawChallenges = new();
             List<string> challengeNames = new();
 
             int indexOfFirstLessonDirective = 0;
@@ -45,9 +45,11 @@ namespace Extension
             while (indexOfFirstLessonDirective < document.Cells.Length 
                 && !TryParseLessonDirectiveCell(document.Cells[indexOfFirstLessonDirective], out var _, out var _, out var _))
             {
-                lessonSetup.Add(document.Cells[indexOfFirstLessonDirective]);
+                rawSetup.Add(document.Cells[indexOfFirstLessonDirective]);
                 indexOfFirstLessonDirective++;
             }
+
+            var setup = rawSetup.Select(c => new SubmitCode(c.Contents)).ToList();
 
             List<NotebookCell> currentChallenge = new();
             int cellCount = document.Cells.Length;
@@ -69,19 +71,16 @@ namespace Extension
                         currentChallenge.Add(document.Cells[i]);
                         i++;
                     }
-                    challenges.Add(currentChallenge);
+                    rawChallenges.Add(currentChallenge);
                     currentChallenge = new();
                 }
             }
-            challenges.Add(currentChallenge);
+            rawChallenges.Add(currentChallenge);
 
-            var lesson = new Lesson();
-
-            // todo: lesson setup
-
+            List<ChallengeBlueprint> challenges = new();
             HashSet<string> challengeNamesSet = new();
             var index = 1;
-            foreach (var item in challengeNames.Zip(challenges))
+            foreach (var item in challengeNames.Zip(rawChallenges))
             {
                 var name = item.Item1;
                 var challengeCells = item.Item2;
@@ -92,33 +91,29 @@ namespace Extension
                     throw new ArgumentException($"{name} conflicts with an existing challenge name");
                 }
 
-                var challenge = ParseChallenge(challengeCells, name);
-                lesson.AddChallenge(challenge);
+                challenges.Add(ParseChallenge(challengeCells, name));
 
                 index++;
             }
 
-            return lesson;
+            // todo: what is lesson name?
+            return new LessonBlueprint("", setup, challenges);
         }
 
-        private static Challenge ParseChallenge(List<NotebookCell> cells, string name)
+        private static ChallengeBlueprint ParseChallenge(List<NotebookCell> cells, string name)
         {
-            var challenge = new Challenge();
-
-            List<NotebookCell> challengeDefinition = new();
-            List<NotebookCell> challengeSetup = new();
-            List<NotebookCell> challengeContent = new();
+            List<NotebookCell> rawSetup = new();
+            List<NotebookCell> rawEnvironmentSetup = new();
+            List<NotebookCell> rawContents = new();
 
             int indexOfFirstChallengeDirective = 0;
 
             while (indexOfFirstChallengeDirective < cells.Count
                 && !TryParseChallengeDirectiveCell(cells[indexOfFirstChallengeDirective], out var _, out var directive, out var _))
             {
-                challengeDefinition.Add(cells[indexOfFirstChallengeDirective]);
+                rawSetup.Add(cells[indexOfFirstChallengeDirective]);
                 indexOfFirstChallengeDirective++;
             }
-
-            // todo: execute challenge definitions
 
             string currentDirective = null;
             for (int i = indexOfFirstChallengeDirective; i < cells.Count;)
@@ -142,15 +137,16 @@ namespace Extension
                 }
             }
 
-            challenge.Contents = challengeContent.Select(c => new SendEditableCode(c.Language, c.Contents)).ToList();
-            challenge.ChallengeSetup = challengeSetup.Select(c => new SubmitCode(c.Language, c.Contents)).ToList();
-
-            if (challenge.Contents.Count == 0)
+            if (rawContents.Count == 0)
             {
-                throw new ArgumentException($"{challenge.Name} has an empty question");
+                throw new ArgumentException($"Challenge {name} has an empty question");
             }
 
-            return challenge;
+            var setup = rawSetup.Select(c => new SubmitCode(c.Contents)).ToList();
+            var contents = rawContents.Select(c => new SendEditableCode(c.Language, c.Contents)).ToList();
+            var environmentSetup = rawEnvironmentSetup.Select(c => new SubmitCode(c.Contents)).ToList();
+
+            return new ChallengeBlueprint(name, setup, contents, environmentSetup);
 
             void AddChallengeComponent(string directiveName, NotebookCell cell)
             {
@@ -158,10 +154,10 @@ namespace Extension
                 switch (directive)
                 {
                     case ChallengeDirective.ChallengeSetup:
-                        challengeSetup.Add(cell);
+                        rawEnvironmentSetup.Add(cell);
                         break;
                     case ChallengeDirective.Question:
-                        challengeContent.Add(cell);
+                        rawContents.Add(cell);
                         break;
                     default:
                         break;
@@ -175,12 +171,7 @@ namespace Extension
             {
                 return false;
             }
-            var isDirectiveValid = _stringToLessonDirectiveMap.Keys.Contains(directive);
-            if (!isDirectiveValid)
-            {
-                throw new ArgumentException($"{directive} is an invalid directive");
-            }
-            return true;
+            return _stringToLessonDirectiveMap.Keys.Contains(directive);
         }
 
         private static bool TryParseChallengeDirectiveCell(NotebookCell cell, out NotebookCell remainingCell, out string directive, out string afterDirective)
@@ -189,12 +180,7 @@ namespace Extension
             {
                 return false;
             }
-            var isDirectiveValid = _stringToChallengeDirectiveMap.Keys.Contains(directive);
-            if (!isDirectiveValid)
-            {
-                throw new ArgumentException($"{directive} is an invalid directive");
-            }
-            return true;
+            return _stringToChallengeDirectiveMap.Keys.Contains(directive);
         }
 
         private static bool TryParseDirectiveCell(NotebookCell cell, out string directive, out string afterDirective, out NotebookCell remainingCell)

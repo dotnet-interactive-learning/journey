@@ -57,13 +57,13 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
-            var challenge1 = new Challenge(GetSendEditableCode("1"), name: "1");
+            var challenge1 = new Challenge(contents: GetSendEditableCode("1"), name: "1");
             challenge1.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartChallengeAsync("3");
             });
-            var challenge2 = new Challenge(GetSendEditableCode("2"), name: "2");
-            var challenge3 = new Challenge(GetSendEditableCode("3"), name: "3");
+            var challenge2 = new Challenge(contents: GetSendEditableCode("2"), name: "2");
+            var challenge3 = new Challenge(contents: GetSendEditableCode("3"), name: "3");
             lesson.AddChallenge(challenge1);
             lesson.AddChallenge(challenge2);
             lesson.AddChallenge(challenge3);

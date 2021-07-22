@@ -49,7 +49,7 @@ namespace Extension.Tests
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(sampleContent);
+            var challenge1 = new Challenge(contents: sampleContent);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
@@ -90,7 +90,7 @@ namespace Extension.Tests
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(sampleContent);
+            var challenge1 = new Challenge(contents: sampleContent);
             challenge1.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");

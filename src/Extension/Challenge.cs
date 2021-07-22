@@ -14,8 +14,9 @@ namespace Extension
     {
         public string Name { get; internal set; }
         public Lesson Lesson { get; internal set; }
-        public IReadOnlyList<SendEditableCode> Contents { get; internal set; }
-        public IReadOnlyList<SubmitCode> ChallengeSetup { get; internal set; }
+        public IReadOnlyList<SubmitCode> Setup { get; private set; }
+        public IReadOnlyList<SendEditableCode> Contents { get; private set; }
+        public IReadOnlyList<SubmitCode> EnvironmentSetup { get; private set; }
         public bool Revealed { get; set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
@@ -26,10 +27,11 @@ namespace Extension
         private Stack<ChallengeSubmission> _submissionHistory = new();
         private ChallengeContext _context;
 
-        public Challenge(IReadOnlyList<SendEditableCode> content = null, IReadOnlyList<SubmitCode> challengeSetup = null, string name = null)
+        public Challenge(IReadOnlyList<SubmitCode> setup = null, IReadOnlyList<SendEditableCode> contents = null, IReadOnlyList<SubmitCode> environmentSetup = null, string name = null)
         {
-            Contents = content ?? new SendEditableCode[] { };
-            ChallengeSetup = challengeSetup ?? new SubmitCode[] { };
+            Setup = setup ?? new SubmitCode[] { };
+            Contents = contents ?? new SendEditableCode[] { };
+            EnvironmentSetup = environmentSetup ?? new SubmitCode[] { };
             Name = name;
             OnCodeSubmittedHandler = (context) =>
             {
