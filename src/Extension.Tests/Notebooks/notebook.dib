@@ -1,10 +1,14 @@
 #!csharp
 
-var global_magic_number = "42";
+lesson setup 1
+
+#!csharp
+
+lesson setup 2
 
 #!markdown
 
-# Challenge Linked List
+# [Challenge] LinkedList
 
 #!csharp
 
@@ -22,40 +26,6 @@ Lesson.CurrentChallenge.AddRule(
     }
 );
 
-#!csharp
-
-// using exceptions
-Lesson.CurrentChallenge.AddRule(
-    (ruleContext) => {
-        LinkedList testlist = LinkedList.GetRandomList();
-        if (!LinkedList.IsValid(context.ReturnValue))
-        {
-            LinkedList.Display();
-            throw new Exception($"The result you returned does not correspond to a valid linked list. See above");
-        }
-        context.Pass("Good job. The result you returned is a valid linked list");
-    }
-);
-
-#!csharp
-
-// using FluentAssertions (exceptions)
-Lesson.CurrentChallenge.AddRule(
-    (ruleContext) => {
-        context.ReturnValue.Should().Contain(3.14, "Your answer is not correct");
-        context.Pass("Good job. Your answer is correct.");
-    }
-);
-
-#!csharp
-
-Lesson.CurrentChallenge.OnCodeSubmitted(
-    async (challengeContext) => {
-        // await challengeContext.StartChallengeAsync("BFS");
-        await challengeContext.StartNextChallengeAsync();
-    }
-);
-
 #!markdown
 
 ## [ChallengeSetup]
@@ -67,10 +37,6 @@ double GetConstant() => 1.0;
 public class LinkedList { } 
 
 Formatter.Register<LinkedList>( ... );
-
-#!csharp
-
-double pi = 3.14;
 
 #!markdown
 
@@ -97,27 +63,16 @@ void ReverseLinkedList(LinkedList head)
 
 #!markdown
 
-Now, you will implement reversing a linked list using iteration
-
-#!csharp
-
-// type your answer here
-// remove the throw new and starting type ur answer
-void DFSIterative() 
-{
-    throw new NotImplementedException();
-}
-
-#!markdown
-
-Applications of linked list include
-
-Stuff
-
-#!markdown
-
 ## [Scratchpad]
 
 #!csharp
 
 double area(double x, double y) => GetConstant() * x * y;
+
+#!markdown
+
+# [Challenge] DFS
+
+#!csharp
+
+second challenge
