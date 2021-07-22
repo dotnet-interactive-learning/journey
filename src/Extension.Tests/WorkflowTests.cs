@@ -138,8 +138,8 @@ namespace Extension.Tests
             events
                 .Should()
                 .ContainSingle<DisplayedValueProduced>(
-                    e => e.FormattedValues.Single(
-                        v => v.MimeType == "text/html").Value.Contains("Enough! Try something else."));
+                    e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                        .Value.Contains("Enough! Try something else."));
         }
     }
 }

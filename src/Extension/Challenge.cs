@@ -14,10 +14,11 @@ namespace Extension
     {
         public string Name { get; internal set; }
         public Lesson Lesson { get; internal set; }
+        public bool IsSetup { get; internal set; } = false;
         public IReadOnlyList<SubmitCode> Setup { get; private set; }
         public IReadOnlyList<SendEditableCode> Contents { get; private set; }
         public IReadOnlyList<SubmitCode> EnvironmentSetup { get; private set; }
-        public bool Revealed { get; set; } = false;
+        public bool Revealed { get; internal set; } = false;
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Count == 0 ? null : _submissionHistory.Peek();

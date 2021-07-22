@@ -47,8 +47,14 @@ namespace Extension
                 var lessonBlueprint = NotebookLessonParser.Parse(document);
                 var lesson = lessonBlueprint.ToLesson();
 
+                await InitializeLesson(lesson);
+
                 await lesson.StartLessonAsync();
+
+                await Bootstrapping(lesson);
+
                 await InitializeChallenge(lesson.CurrentChallenge);
+
                 kernel.UseProgressiveLearningMiddleware<T>(lesson);
             });
 
@@ -104,11 +110,39 @@ namespace Extension
                 return;
             }
 
+            if (!challengeToInit.IsSetup)
+            {
+                foreach (var setup in challengeToInit.Setup)
+                {
+                    await Kernel.Root.SendAsync(setup);
+                }
+                challengeToInit.IsSetup = true;
+            }
+
             foreach (var content in challengeToInit.Contents)
             {
                 await Kernel.Root.SendAsync(content);
             }
             foreach (var setup in challengeToInit.EnvironmentSetup)
+            {
+                await Kernel.Root.SendAsync(setup);
+            }
+        }
+
+        private static async Task Bootstrapping(Lesson lesson)
+        {
+            var kernel = Kernel.Root.FindKernel("csharp");
+            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
+            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
+            if (kernel is DotNetKernel dotNetKernel)
+            {
+                await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
+            }
+        }
+
+        private static async Task InitializeLesson(Lesson lesson)
+        {
+            foreach (var setup in lesson.Setup)
             {
                 await Kernel.Root.SendAsync(setup);
             }

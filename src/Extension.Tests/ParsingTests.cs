@@ -5,6 +5,7 @@ using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
 using Microsoft.DotNet.Interactive.Notebook;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,7 +15,7 @@ using Xunit;
 
 namespace Extension.Tests
 {
-    public class LoadingAndParsingLessonTests : ProgressiveLearningTestBase
+    public class ParsingTests : ProgressiveLearningTestBase
     {
         private string GetNotebookPath(string relativeFilePath)
         {
@@ -25,7 +26,7 @@ namespace Extension.Tests
         [Fact]
         public async Task parser_can_parse_teacher_notebook_with_two_challenges_with_all_components_defined()
         {
-            var file = new FileInfo(GetNotebookPath(@"Notebooks\notebookTwoChallengesAllCorrect.dib"));
+            var file = new FileInfo(GetNotebookPath(@"Notebooks\forParsing1.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
@@ -54,6 +55,49 @@ namespace Extension.Tests
 
             lesson.Challenges[1].Contents.Select(sec => sec.Code).Join("\r\n")
                 .Should().ContainAll("challenge2QuestionCell1", "challenge2QuestionCell2");
+        }
+
+
+        [Fact]
+        public async Task duplicate_challenge_name_causes_parser_to_throw_exception()
+        {
+            var file = new FileInfo(GetNotebookPath(@"Notebooks\forParsing2DuplicateChallengeName.dib"));
+            var rawData = await File.ReadAllBytesAsync(file.FullName);
+            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+
+            parsingDuplicateChallengeName
+                .Should().Throw<ArgumentException>()
+                .Which.Message.Should().Contain("conflicts");
+        }
+
+        [Fact]
+        public async Task notebook_with_no_challenge_causes_parser_to_throw_exception()
+        {
+            var file = new FileInfo(GetNotebookPath(@"Notebooks\noChallenge.dib"));
+            var rawData = await File.ReadAllBytesAsync(file.FullName);
+            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+
+            parsingDuplicateChallengeName
+                .Should().Throw<ArgumentException>()
+                .Which.Message.Should().Contain("This lesson has no challenges");
+        }
+
+        [Fact]
+        public async Task a_challenge_with_no_question_causes_parser_to_throw_exception()
+        {
+            var file = new FileInfo(GetNotebookPath(@"Notebooks\challengeWithNoQuestion.dib"));
+            var rawData = await File.ReadAllBytesAsync(file.FullName);
+            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+
+            parsingDuplicateChallengeName
+                .Should().Throw<ArgumentException>()
+                .Which.Message.Should().Contain("empty question");
         }
     }
 }
