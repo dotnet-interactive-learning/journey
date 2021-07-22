@@ -12,12 +12,14 @@ namespace Extension
     {
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
+        public IReadOnlyList<SubmitCode> Setup { get; private set; }
         
         private List<Challenge> _challenges = new();
 
-        public Lesson(string name = null)
+        public Lesson(string name = null, IReadOnlyList<SubmitCode> setup = null)
         {
             Name = name;
+            Setup = setup;
         }
 
         public void AddChallenge(Challenge challenge)
