@@ -12,5 +12,17 @@ namespace Extension.Tests.Utilities
         {
             return string.Join(delimiter, s);
         }
+
+        public static bool ContainsAll(this string s, params string[] expectedSubstrings)
+        {
+            foreach (var substring in expectedSubstrings)
+            {
+                if (!s.Contains(substring))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }

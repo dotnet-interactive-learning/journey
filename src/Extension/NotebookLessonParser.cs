@@ -22,6 +22,7 @@ namespace Extension
 
     public class NotebookLessonParser
     {
+
         private static Dictionary<string, LessonDirective> _stringToLessonDirectiveMap = new Dictionary<string, LessonDirective>
         {
             { "Challenge", LessonDirective.Challenge }
@@ -33,6 +34,19 @@ namespace Extension
             { "Question", ChallengeDirective.Question },
             { "Scratchpad", ChallengeDirective.Scratchpad }
         };
+
+        public static List<string> AllDirectiveNames
+        {
+            get
+            {
+                if (allDirectiveNames is null)
+                {
+                    allDirectiveNames = _stringToLessonDirectiveMap.Keys.Concat(_stringToChallengeDirectiveMap.Keys).ToList();
+                }
+                return allDirectiveNames;
+            }
+        }
+        private static List<string> allDirectiveNames = null;
 
         public static LessonBlueprint Parse(NotebookDocument document)
         {
@@ -94,6 +108,11 @@ namespace Extension
                 challenges.Add(ParseChallenge(challengeCells, name));
 
                 index++;
+            }
+
+            if (challenges.Count == 0)
+            {
+                throw new ArgumentException($"This lesson has no challenges");
             }
 
             // todo: what is lesson name?
@@ -196,7 +215,7 @@ namespace Extension
 
             var result = Regex.Split(cell.Contents, "\r\n|\r|\n");
 
-            string directivePattern = @"[^\[]\[(?<directive>[a-zA-z]+)\][ ]?(?<afterDirective>[\S]*)";
+            string directivePattern = @"[^\[]*\[(?<directive>[a-zA-z]+)\][ ]?(?<afterDirective>[\S]*)";
             var match = Regex.Match(result[0], directivePattern);
             if (!match.Success)
             {
