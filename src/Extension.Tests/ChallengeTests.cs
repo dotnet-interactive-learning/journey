@@ -26,9 +26,8 @@ namespace Extension.Tests
             {
                 await context.StartChallengeAsync(challenge2);
             });
-            lesson.AddChallenge(challenge1);
-            lesson.AddChallenge(challenge2);
-            await lesson.StartLessonAsync();
+            challenge1.SetDefaultProgression(challenge2);
+            await lesson.StartChallengeAsync(challenge1);
 
             await challenge1.Evaluate();
 
@@ -46,8 +45,7 @@ namespace Extension.Tests
             {
                 capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -64,8 +62,7 @@ namespace Extension.Tests
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -82,8 +79,7 @@ namespace Extension.Tests
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -111,8 +107,7 @@ namespace Extension.Tests
                 context.SetMessage($"{numberOfSubmission}");
                 numberOfSubmission++;
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -140,8 +135,7 @@ namespace Extension.Tests
                 capturedCode.Add(context.SubmittedCode);
             });
             challenge.OnCodeSubmitted(_ => { });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -162,8 +156,7 @@ namespace Extension.Tests
                 capturedEvents.Add(context.EventsProduced.ToList());
             });
             challenge.OnCodeSubmitted(_ => { });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("alsjkdf");
             await kernel.SubmitCodeAsync("1 + 1");
@@ -187,8 +180,7 @@ namespace Extension.Tests
             {
                 3.Should().Be(10);
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -205,8 +197,7 @@ namespace Extension.Tests
             {
                 throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -228,8 +219,7 @@ namespace Extension.Tests
                     c.Pass("Good job");
                 }
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 

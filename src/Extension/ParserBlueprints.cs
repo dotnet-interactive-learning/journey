@@ -21,34 +21,27 @@ namespace Extension
             Contents = contents;
             EnvironmentSetup = environmentSetup;
         }
+
+        public Challenge ToChallenge()
+        {
+            return new Challenge(Setup,Contents,EnvironmentSetup, Name);
+        }
     }
 
     public class LessonBlueprint
     {
         public string Name { get; }
         public IReadOnlyList<SubmitCode> Setup { get; }
-        public IReadOnlyList<ChallengeBlueprint> Challenges { get; }
 
-        public LessonBlueprint(string name, IReadOnlyList<SubmitCode> setup, IReadOnlyList<ChallengeBlueprint> challenges)
+        public LessonBlueprint(string name, IReadOnlyList<SubmitCode> setup)
         {
             Name = name;
             Setup = setup;
-            Challenges = challenges;
         }
 
         public Lesson ToLesson()
         {
-            List<Challenge> challenges = new();
-            foreach (var c in Challenges)
-            {
-                challenges.Add(new Challenge(c.Setup, c.Contents, c.EnvironmentSetup, c.Name));
-            }
-
             Lesson lesson = new(Name, Setup);
-            foreach (var c in challenges)
-            {
-                lesson.AddChallenge(c);
-            }
             return lesson;
         }
     }

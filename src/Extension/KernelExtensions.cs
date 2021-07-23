@@ -19,13 +19,6 @@ namespace Extension
     {
         public static T UseProgressiveLearning<T>(this T kernel, Lesson lesson) where T : Kernel
         {
-            var startCommand = new Command("#!start-lesson");
-            startCommand.Handler = CommandHandler.Create<KernelInvocationContext>(async context =>
-            {
-                await lesson.StartLessonAsync();
-                await InitializeChallenge(lesson.CurrentChallenge);
-            });
-            kernel.AddDirective(startCommand);
             kernel.UseProgressiveLearningMiddleware<T>(lesson);
             return kernel;
         }
@@ -44,12 +37,18 @@ namespace Extension
                 var rawData = await File.ReadAllBytesAsync(file.FullName);
                 // todo: NotebookFileFormatHandler.Parse what are its last two arguments
                 var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
-                var lessonBlueprint = NotebookLessonParser.Parse(document);
+                NotebookLessonParser.Parse(document, out var lessonBlueprint, out var challengeBlueprints);
+                var challenges = challengeBlueprints.Select(b => b.ToChallenge());
+                challenges.SetDefaultProgression();
                 var lesson = lessonBlueprint.ToLesson();
+                lesson.SetChallengeLookup(name =>
+                {
+                    return challenges.FirstOrDefault(c => c.Name == name);
+                });
 
                 await InitializeLesson(lesson);
 
-                await lesson.StartLessonAsync();
+                await lesson.StartChallengeAsync(challenges.First());
 
                 await Bootstrapping(lesson);
 

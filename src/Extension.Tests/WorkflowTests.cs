@@ -49,12 +49,12 @@ namespace Extension.Tests
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(contents: sampleContent);
-            challenge1.AddRule(ruleContext =>
+            var challenge = new Challenge(contents: sampleContent);
+            challenge.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
             });
-            challenge1.OnCodeSubmitted(challengeContext =>
+            challenge.OnCodeSubmitted(challengeContext =>
             {
                 var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();
@@ -65,10 +65,9 @@ namespace Extension.Tests
                     challengeContext.SetMessage("Keep working!");
                 }
             });
-            lesson.AddChallenge(challenge1);
 
             // teacher sends challenge
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             // student submit code
             await kernel.SubmitCodeAsync("1+1");
@@ -90,12 +89,12 @@ namespace Extension.Tests
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
-            var challenge1 = new Challenge(contents: sampleContent);
-            challenge1.AddRule(ruleContext =>
+            var challenge = new Challenge(contents: sampleContent);
+            challenge.AddRule(ruleContext =>
             {
                 ruleContext.Fail("this rule failed because reasons");
             });
-            challenge1.OnCodeSubmitted(challengeContext =>
+            challenge.OnCodeSubmitted(challengeContext =>
             {
                 var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();
@@ -124,10 +123,9 @@ namespace Extension.Tests
                     }
                 }
             });
-            lesson.AddChallenge(challenge1);
 
             // teacher sends challenge
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             // student submit code
             await kernel.SubmitCodeAsync(sampleAnswer);

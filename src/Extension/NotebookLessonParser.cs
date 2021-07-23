@@ -48,7 +48,7 @@ namespace Extension
         }
         private static List<string> allDirectiveNames = null;
 
-        public static LessonBlueprint Parse(NotebookDocument document)
+        public static void Parse(NotebookDocument document, out LessonBlueprint lesson, out List <ChallengeBlueprint> challenges)
         {
             List<NotebookCell> rawSetup = new();
             List<List<NotebookCell>> rawChallenges = new();
@@ -91,7 +91,7 @@ namespace Extension
             }
             rawChallenges.Add(currentChallenge);
 
-            List<ChallengeBlueprint> challenges = new();
+            List<ChallengeBlueprint> challengeBlueprints = new();
             HashSet<string> challengeNamesSet = new();
             var index = 1;
             foreach (var item in challengeNames.Zip(rawChallenges))
@@ -105,18 +105,19 @@ namespace Extension
                     throw new ArgumentException($"{name} conflicts with an existing challenge name");
                 }
 
-                challenges.Add(ParseChallenge(challengeCells, name));
+                challengeBlueprints.Add(ParseChallenge(challengeCells, name));
 
                 index++;
             }
 
-            if (challenges.Count == 0)
+            if (challengeBlueprints.Count == 0)
             {
                 throw new ArgumentException($"This lesson has no challenges");
             }
 
+            challenges = challengeBlueprints;
             // todo: what is lesson name?
-            return new LessonBlueprint("", setup, challenges);
+            lesson = new LessonBlueprint("", setup);
         }
 
         private static ChallengeBlueprint ParseChallenge(List<NotebookCell> cells, string name)

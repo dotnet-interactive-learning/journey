@@ -13,22 +13,12 @@ namespace Extension
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
         public IReadOnlyList<SubmitCode> Setup { get; private set; }
-        
-        private List<Challenge> _challenges = new();
+        private Func<string, Task<Challenge>> _challengeLookup;
 
         public Lesson(string name = null, IReadOnlyList<SubmitCode> setup = null)
         {
             Name = name;
             Setup = setup;
-        }
-
-        public void AddChallenge(Challenge challenge)
-        {
-            if (string.IsNullOrWhiteSpace(challenge.Name))
-            {
-                challenge.Name = $"Challenge {_challenges.Count + 1}";
-            }
-            _challenges.Add(challenge);
         }
 
         public Task StartChallengeAsync(Challenge challenge)
@@ -37,42 +27,32 @@ namespace Extension
             {
                 return Task.CompletedTask;
             }
-
-            if (!_challenges.Contains(challenge))
-            {
-                _challenges.Add(challenge);
-            }
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
             return Task.CompletedTask;
         }
 
-        public Task StartLessonAsync()
-        {
-            var challenge = _challenges.FirstOrDefault();
-            return StartChallengeAsync(challenge);
-        }
-
         public async Task StartChallengeAsync(string name)
         {
-            var challenge = _challenges.FirstOrDefault(c => c.Name == name);
+            var challenge = await _challengeLookup(name);
             if (challenge is not null)
             {
                 await StartChallengeAsync(challenge);
             }
         }
 
-        public async Task StartNextChallengeAsync()
+        public void SetChallengeLookup(Func<string, Challenge> handler) 
         {
-            var index = _challenges.FindIndex(c => c == CurrentChallenge);
-            index++;
-            if (index < 0 || index >= _challenges.Count)
+            _challengeLookup = name =>
             {
-                CurrentChallenge = null;
-                return;
-            }
-            await StartChallengeAsync(_challenges[index]);
+                return Task.FromResult(handler(name));
+            };
+        }
+
+        public void SetChallengeLookup(Func<string, Task<Challenge>> handler)
+        {
+            _challengeLookup = handler;
         }
     }
 }
