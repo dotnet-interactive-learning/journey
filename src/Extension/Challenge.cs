@@ -66,7 +66,7 @@ namespace Extension
             {
                 await OnCodeSubmittedHandler(_context);
             }
-            else
+            else if (DefaultOnCodeSubmittedHandler is not null)
             {
                 await DefaultOnCodeSubmittedHandler(_context);
             }

@@ -151,7 +151,8 @@ namespace Extension.Tests
                 new SubmitCode("var b = 3;"),
                 new SubmitCode("a = 4;")
             };
-            await lesson.StartChallengeAsync(new Challenge(environmentSetup: setup));
+            var challenge = new Challenge(environmentSetup: setup);
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
 
