@@ -40,7 +40,7 @@ namespace Extension
 
         public async Task StartNextChallengeAsync()
         {
-            await Lesson.StartNextChallengeAsync();
+            await Challenge.DefaultOnCodeSubmittedHandler(this);
         }
     }
 }

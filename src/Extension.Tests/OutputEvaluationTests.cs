@@ -24,8 +24,7 @@ namespace Extension.Tests
             {
                 context.SetMessage("123", 3);
             });
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -40,8 +39,7 @@ namespace Extension.Tests
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.Fail("abc", 3));
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -57,8 +55,7 @@ namespace Extension.Tests
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.Pass("abc", 3));
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -74,8 +71,8 @@ namespace Extension.Tests
             using var kernel = CreateKernel(lesson);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.PartialPass("abc", 3));
-            lesson.AddChallenge(challenge);
-            await lesson.StartLessonAsync();
+            await lesson.StartChallengeAsync(challenge);
+
 
             await kernel.SubmitCodeAsync("1 + 1");
 

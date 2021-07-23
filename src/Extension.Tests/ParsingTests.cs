@@ -30,30 +30,30 @@ namespace Extension.Tests
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
-            var lesson = NotebookLessonParser.Parse(document);
+            NotebookLessonParser.Parse(document, out var lesson, out var challenges);
 
             lesson.Setup.Select(sc => sc.Code).Join("\r\n").Should().ContainAll("lessonSetupCell1", "lessonSetupCell2");
 
-            lesson.Challenges[0].Name.Should().Be("Challenge1Name");
+            challenges[0].Name.Should().Be("Challenge1Name");
 
-            lesson.Challenges[0].Setup.Select(sc => sc.Code).Join("\r\n")
+            challenges[0].Setup.Select(sc => sc.Code).Join("\r\n")
                 .Should().ContainAll("challenge1SetupCell1", "challenge1SetupCell2");
 
-            lesson.Challenges[0].EnvironmentSetup.Select(sc => sc.Code).Join("\r\n")
+            challenges[0].EnvironmentSetup.Select(sc => sc.Code).Join("\r\n")
                 .Should().ContainAll("challenge1EnvironmentSetupCell1", "challenge1EnvironmentSetupCell2");
 
-            lesson.Challenges[0].Contents.Select(sec => sec.Code).Join("\r\n")
+            challenges[0].Contents.Select(sec => sec.Code).Join("\r\n")
                 .Should().ContainAll("challenge1QuestionCell1", "challenge1QuestionCell2");
 
-            lesson.Challenges[1].Name.Should().Be("Challenge2Name");
+            challenges[1].Name.Should().Be("Challenge2Name");
 
-            lesson.Challenges[1].Setup.Select(sc => sc.Code).Join("\r\n")
+            challenges[1].Setup.Select(sc => sc.Code).Join("\r\n")
                 .Should().ContainAll("challenge2SetupCell1", "challenge2SetupCell2");
 
-            lesson.Challenges[1].EnvironmentSetup.Select(sc => sc.Code).Join("\r\n")
+            challenges[1].EnvironmentSetup.Select(sc => sc.Code).Join("\r\n")
                 .Should().ContainAll("challenge2EnvironmentSetupCell1", "challenge2EnvironmentSetupCell2");
 
-            lesson.Challenges[1].Contents.Select(sec => sec.Code).Join("\r\n")
+            challenges[1].Contents.Select(sec => sec.Code).Join("\r\n")
                 .Should().ContainAll("challenge2QuestionCell1", "challenge2QuestionCell2");
         }
 
@@ -65,7 +65,7 @@ namespace Extension.Tests
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
-            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
             parsingDuplicateChallengeName
                 .Should().Throw<ArgumentException>()
@@ -79,7 +79,7 @@ namespace Extension.Tests
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
-            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
             parsingDuplicateChallengeName
                 .Should().Throw<ArgumentException>()
@@ -93,7 +93,7 @@ namespace Extension.Tests
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
-            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document);
+            Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
             parsingDuplicateChallengeName
                 .Should().Throw<ArgumentException>()
