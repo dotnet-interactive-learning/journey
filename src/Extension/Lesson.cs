@@ -22,7 +22,7 @@ namespace Extension
             Setup = setup;
         }
 
-        internal void AddChallenge(Challenge challenge)
+        public void AddChallenge(Challenge challenge)
         {
             if (string.IsNullOrWhiteSpace(challenge.Name))
             {
