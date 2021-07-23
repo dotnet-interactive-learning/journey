@@ -22,7 +22,7 @@ namespace Extension
             Setup = setup;
         }
 
-        public void AddChallenge(Challenge challenge)
+        internal void AddChallenge(Challenge challenge)
         {
             if (string.IsNullOrWhiteSpace(challenge.Name))
             {
@@ -40,7 +40,7 @@ namespace Extension
 
             if (!_challenges.Contains(challenge))
             {
-                throw new ArgumentException("Cannot start a challenge that is not part of this lesson", nameof(challenge));
+                _challenges.Add(challenge);
             }
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
