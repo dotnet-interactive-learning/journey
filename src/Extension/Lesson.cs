@@ -23,10 +23,6 @@ namespace Extension
 
         public Task StartChallengeAsync(Challenge challenge)
         {
-            if (challenge == null)
-            {
-                return Task.CompletedTask;
-            }
             CurrentChallenge = challenge;
             CurrentChallenge.Revealed = true;
             CurrentChallenge.Lesson = this;
