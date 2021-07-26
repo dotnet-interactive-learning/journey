@@ -56,19 +56,23 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
-            var challenge1 = new Challenge(contents: GetSendEditableCode("1"), name: "1");
-            challenge1.OnCodeSubmittedAsync(async context =>
+            var challenges = new Challenge[]
+            {
+                new Challenge(contents: GetSendEditableCode("1"), name: "1"),
+                new Challenge(contents: GetSendEditableCode("2"), name: "2"),
+                new Challenge(contents: GetSendEditableCode("3"), name: "3")
+            }.ToList();
+            challenges[0].OnCodeSubmittedAsync(async context =>
             {
                 await context.StartChallengeAsync("3");
             });
-            var challenge2 = new Challenge(contents: GetSendEditableCode("2"), name: "2");
-            var challenge3 = new Challenge(contents: GetSendEditableCode("3"), name: "3");
-            challenge1.SetDefaultProgression(challenge2).SetDefaultProgression(challenge3);
-            await lesson.StartChallengeAsync(challenge1);
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
+            lesson.SetChallengeLookup(name => challenges.FirstOrDefault(c => c.Name == name));
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenge3);
+            lesson.CurrentChallenge.Should().Be(challenges[2]);
         }
 
         [Fact]
@@ -76,19 +80,22 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
-            var challenge1 = GetChallenge("1");
-            challenge1.OnCodeSubmittedAsync(async context =>
+            var challenges = new Challenge[]
+            {
+                GetChallenge("1"),
+                GetChallenge("2"),
+                GetChallenge("3")
+            }.ToList();
+            challenges[0].OnCodeSubmittedAsync(async context =>
             {
                 await context.StartNextChallengeAsync();
             });
-            var challenge2 = GetChallenge("2");
-            var challenge3 = GetChallenge("3");
-            challenge1.SetDefaultProgression(challenge2).SetDefaultProgression(challenge3);
-            await lesson.StartChallengeAsync(challenge1);
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenge2);
+            lesson.CurrentChallenge.Should().Be(challenges[1]);
         }
 
         [Fact]
@@ -113,15 +120,18 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
-            var challenge1 = GetChallenge("1");
-            var challenge2 = GetChallenge("2");
-            var challenge3 = GetChallenge("3");
-            challenge1.SetDefaultProgression(challenge2).SetDefaultProgression(challenge3);
-            await lesson.StartChallengeAsync(challenge1);
+            var challenges = new Challenge[]
+            {
+                GetChallenge("1"),
+                GetChallenge("2"),
+                GetChallenge("3")
+            }.ToList();
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenge2);
+            lesson.CurrentChallenge.Should().Be(challenges[1]);
         }
 
         [Fact]
@@ -129,10 +139,13 @@ namespace Extension.Tests
         {
             var lesson = new Lesson();
             using var kernel = CreateKernel(lesson);
-            var challenge1 = GetChallenge("1");
-            var challenge2 = GetChallenge("2");
-            challenge1.SetDefaultProgression(challenge2);
-            await lesson.StartChallengeAsync(challenge1);
+            var challenges = new Challenge[]
+            {
+                GetChallenge("1"),
+                GetChallenge("2")
+            }.ToList();
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
             await kernel.SubmitCodeAsync("2+1");
@@ -153,6 +166,7 @@ namespace Extension.Tests
             };
             var challenge = new Challenge(environmentSetup: setup);
             await lesson.StartChallengeAsync(challenge);
+            await kernel.InitializeChallenge(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
 
@@ -177,7 +191,9 @@ namespace Extension.Tests
                 new SendEditableCode("csharp", "var b = 3;"),
                 new SendEditableCode("csharp", "a = 4;")
             };
-            await lesson.StartChallengeAsync(new Challenge(contents: contents));
+            Challenge challenge = new Challenge(contents: contents);
+            await lesson.StartChallengeAsync(challenge);
+            await kernel.InitializeChallenge(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
 
@@ -195,10 +211,13 @@ namespace Extension.Tests
                 new SubmitCode("var b = 3;"),
                 new SubmitCode("a = 4;")
             };
-            var challenge1 = new Challenge();
-            var challenge2 = new Challenge(environmentSetup: setup);
-            challenge1.SetDefaultProgression(challenge2);
-            await lesson.StartChallengeAsync(challenge1);
+            var challenges = new Challenge[]
+            {
+                new Challenge(),
+                new Challenge(environmentSetup: setup)
+            }.ToList();
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
             await kernel.SubmitCodeAsync("a + b");
@@ -224,10 +243,13 @@ namespace Extension.Tests
                 new SendEditableCode("csharp", "var b = 3;"),
                 new SendEditableCode("csharp", "a = 4;")
             };
-            var challenge1 = new Challenge();
-            var challenge2 = new Challenge(contents: contents);
-            challenge1.SetDefaultProgression(challenge2);
-            await lesson.StartChallengeAsync(challenge1);
+            var challenges = new Challenge[]
+            {
+                new Challenge(),
+                new Challenge(contents: contents)
+            }.ToList();
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
             await kernel.SubmitCodeAsync("a + b");

@@ -40,9 +40,9 @@ namespace Extension
 
         public async Task StartNextChallengeAsync()
         {
-            if (Challenge.DefaultOnCodeSubmittedHandler is not null)
+            if (Challenge.DefaultProgressionHandler is not null)
             {
-                await Challenge.DefaultOnCodeSubmittedHandler(this);
+                await Challenge.DefaultProgressionHandler(this);
             }
             else
             {

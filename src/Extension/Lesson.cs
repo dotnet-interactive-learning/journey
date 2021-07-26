@@ -24,8 +24,11 @@ namespace Extension
         public Task StartChallengeAsync(Challenge challenge)
         {
             CurrentChallenge = challenge;
-            CurrentChallenge.Revealed = true;
-            CurrentChallenge.Lesson = this;
+            if (CurrentChallenge is not null)
+            {
+                CurrentChallenge.Revealed = true;
+                CurrentChallenge.Lesson = this;
+            }
             return Task.CompletedTask;
         }
 
@@ -38,7 +41,7 @@ namespace Extension
             }
         }
 
-        public void SetChallengeLookup(Func<string, Challenge> handler) 
+        public void SetChallengeLookup(Func<string, Challenge> handler)
         {
             _challengeLookup = name =>
             {
