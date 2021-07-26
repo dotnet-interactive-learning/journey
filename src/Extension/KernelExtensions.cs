@@ -70,7 +70,7 @@ namespace Extension
                 fromUrlOption
             };
 
-            startCommand.Handler = CommandHandler.Create<string, FileInfo, KernelInvocationContext>(async (fromUrl, fromFile, context) =>
+            startCommand.Handler = CommandHandler.Create<Uri, FileInfo, KernelInvocationContext>(async (fromUrl, fromFile, context) =>
             {
                 byte[] rawData = null;
                 var name = "";
@@ -85,7 +85,7 @@ namespace Extension
                     var response = await client.GetAsync(fromUrl);
                     response.EnsureSuccessStatusCode();
                     rawData = await response.Content.ReadAsByteArrayAsync();
-                    name = new Uri(fromUrl).Segments.Last();
+                    name = fromUrl.Segments.Last();
                 }
 
                 // todo: NotebookFileFormatHandler.Parse what are its last two arguments
