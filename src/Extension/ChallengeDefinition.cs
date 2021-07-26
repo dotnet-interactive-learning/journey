@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Extension
 {
-    public class ChallengeBlueprint
+    public class ChallengeDefinition
     {
         public string Name { get; }
         public IReadOnlyList<SubmitCode> Setup { get; }
         public IReadOnlyList<SendEditableCode> Contents { get; }
         public IReadOnlyList<SubmitCode> EnvironmentSetup { get; }
 
-        public ChallengeBlueprint(string name, IReadOnlyList<SubmitCode> setup, IReadOnlyList<SendEditableCode> contents, IReadOnlyList<SubmitCode> environmentSetup)
+        public ChallengeDefinition(string name, IReadOnlyList<SubmitCode> setup, IReadOnlyList<SendEditableCode> contents, IReadOnlyList<SubmitCode> environmentSetup)
         {
             Name = name;
             Setup = setup;
@@ -25,24 +25,6 @@ namespace Extension
         public Challenge ToChallenge()
         {
             return new Challenge(Setup,Contents,EnvironmentSetup, Name);
-        }
-    }
-
-    public class LessonBlueprint
-    {
-        public string Name { get; }
-        public IReadOnlyList<SubmitCode> Setup { get; }
-
-        public LessonBlueprint(string name, IReadOnlyList<SubmitCode> setup)
-        {
-            Name = name;
-            Setup = setup;
-        }
-
-        public Lesson ToLesson()
-        {
-            Lesson lesson = new(Name, Setup);
-            return lesson;
         }
     }
 }

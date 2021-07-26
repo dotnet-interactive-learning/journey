@@ -37,10 +37,10 @@ namespace Extension
                 var rawData = await File.ReadAllBytesAsync(file.FullName);
                 // todo: NotebookFileFormatHandler.Parse what are its last two arguments
                 var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
-                NotebookLessonParser.Parse(document, out var lessonBlueprint, out var challengeBlueprints);
-                var challenges = challengeBlueprints.Select(b => b.ToChallenge()).ToList();
+                NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
+                var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
                 challenges.SetDefaultProgressionHandlers();
-                var lesson = lessonBlueprint.ToLesson();
+                var lesson = lessonDefinition.ToLesson();
                 lesson.SetChallengeLookup(name =>
                 {
                     return challenges.FirstOrDefault(c => c.Name == name);

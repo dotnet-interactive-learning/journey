@@ -22,19 +22,6 @@ namespace Extension
 
     public class NotebookLessonParser
     {
-
-        private static Dictionary<string, LessonDirective> _stringToLessonDirectiveMap = new Dictionary<string, LessonDirective>
-        {
-            { "Challenge", LessonDirective.Challenge }
-        };
-
-        private static Dictionary<string, ChallengeDirective> _stringToChallengeDirectiveMap = new Dictionary<string, ChallengeDirective>
-        {
-            { "ChallengeSetup", ChallengeDirective.ChallengeSetup },
-            { "Question", ChallengeDirective.Question },
-            { "Scratchpad", ChallengeDirective.Scratchpad }
-        };
-
         public static List<string> AllDirectiveNames
         {
             get
@@ -46,9 +33,20 @@ namespace Extension
                 return allDirectiveNames;
             }
         }
+
+        private static Dictionary<string, LessonDirective> _stringToLessonDirectiveMap = new Dictionary<string, LessonDirective>
+        {
+            { "Challenge", LessonDirective.Challenge }
+        };
+        private static Dictionary<string, ChallengeDirective> _stringToChallengeDirectiveMap = new Dictionary<string, ChallengeDirective>
+        {
+            { "ChallengeSetup", ChallengeDirective.ChallengeSetup },
+            { "Question", ChallengeDirective.Question },
+            { "Scratchpad", ChallengeDirective.Scratchpad }
+        };
         private static List<string> allDirectiveNames = null;
 
-        public static void Parse(NotebookDocument document, out LessonBlueprint lesson, out List <ChallengeBlueprint> challenges)
+        public static void Parse(NotebookDocument document, out LessonDefinition lesson, out List <ChallengeDefinition> challenges)
         {
             List<NotebookCell> rawSetup = new();
             List<List<NotebookCell>> rawChallenges = new();
@@ -91,7 +89,7 @@ namespace Extension
             }
             rawChallenges.Add(currentChallenge);
 
-            List<ChallengeBlueprint> challengeBlueprints = new();
+            List<ChallengeDefinition> challengeDefinitions = new();
             HashSet<string> challengeNamesSet = new();
             var index = 1;
             foreach (var item in challengeNames.Zip(rawChallenges))
@@ -105,22 +103,22 @@ namespace Extension
                     throw new ArgumentException($"{name} conflicts with an existing challenge name");
                 }
 
-                challengeBlueprints.Add(ParseChallenge(challengeCells, name));
+                challengeDefinitions.Add(ParseChallenge(challengeCells, name));
 
                 index++;
             }
 
-            if (challengeBlueprints.Count == 0)
+            if (challengeDefinitions.Count == 0)
             {
                 throw new ArgumentException($"This lesson has no challenges");
             }
 
-            challenges = challengeBlueprints;
+            challenges = challengeDefinitions;
             // todo: what is lesson name?
-            lesson = new LessonBlueprint("", setup);
+            lesson = new LessonDefinition("", setup);
         }
 
-        private static ChallengeBlueprint ParseChallenge(List<NotebookCell> cells, string name)
+        private static ChallengeDefinition ParseChallenge(List<NotebookCell> cells, string name)
         {
             List<NotebookCell> rawSetup = new();
             List<NotebookCell> rawEnvironmentSetup = new();
@@ -166,7 +164,7 @@ namespace Extension
             var contents = rawContents.Select(c => new SendEditableCode(c.Language, c.Contents)).ToList();
             var environmentSetup = rawEnvironmentSetup.Select(c => new SubmitCode(c.Contents)).ToList();
 
-            return new ChallengeBlueprint(name, setup, contents, environmentSetup);
+            return new ChallengeDefinition(name, setup, contents, environmentSetup);
 
             void AddChallengeComponent(string directiveName, NotebookCell cell)
             {

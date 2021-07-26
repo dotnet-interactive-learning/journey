@@ -57,7 +57,6 @@ namespace Extension.Tests
                 .Should().ContainAll("challenge2QuestionCell1", "challenge2QuestionCell2");
         }
 
-
         [Fact]
         public async Task duplicate_challenge_name_causes_parser_to_throw_exception()
         {
