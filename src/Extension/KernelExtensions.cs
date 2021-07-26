@@ -38,8 +38,8 @@ namespace Extension
                 // todo: NotebookFileFormatHandler.Parse what are its last two arguments
                 var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
                 NotebookLessonParser.Parse(document, out var lessonBlueprint, out var challengeBlueprints);
-                var challenges = challengeBlueprints.Select(b => b.ToChallenge());
-                challenges.SetDefaultProgression();
+                var challenges = challengeBlueprints.Select(b => b.ToChallenge()).ToList();
+                challenges.SetDefaultProgressionHandlers();
                 var lesson = lessonBlueprint.ToLesson();
                 lesson.SetChallengeLookup(name =>
                 {
@@ -52,7 +52,7 @@ namespace Extension
 
                 await Bootstrapping(lesson);
 
-                await InitializeChallenge(lesson.CurrentChallenge);
+                await InitializeChallenge(kernel, lesson.CurrentChallenge);
 
                 kernel.UseProgressiveLearningMiddleware<T>(lesson);
             });
@@ -89,7 +89,7 @@ namespace Extension
 
                         if (lesson.CurrentChallenge != currentChallenge)
                         {
-                            await InitializeChallenge(lesson.CurrentChallenge);
+                            await InitializeChallenge(kernel, lesson.CurrentChallenge);
                         }
 
                         break;
@@ -102,7 +102,7 @@ namespace Extension
             return kernel;
         }
 
-        private static async Task InitializeChallenge(Challenge challengeToInit)
+        public static async Task InitializeChallenge(this Kernel kernel, Challenge challengeToInit)
         {
             if (challengeToInit is null)
             {
@@ -113,18 +113,18 @@ namespace Extension
             {
                 foreach (var setup in challengeToInit.Setup)
                 {
-                    await Kernel.Root.SendAsync(setup);
+                    await kernel.SendAsync(setup);
                 }
                 challengeToInit.IsSetup = true;
             }
 
             foreach (var content in challengeToInit.Contents)
             {
-                await Kernel.Root.SendAsync(content);
+                await kernel.SendAsync(content);
             }
             foreach (var setup in challengeToInit.EnvironmentSetup)
             {
-                await Kernel.Root.SendAsync(setup);
+                await kernel.SendAsync(setup);
             }
         }
 

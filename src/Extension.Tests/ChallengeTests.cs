@@ -26,7 +26,7 @@ namespace Extension.Tests
             {
                 await context.StartChallengeAsync(challenge2);
             });
-            challenge1.SetDefaultProgression(challenge2);
+            challenge1.SetDefaultProgressionHandler(challenge2);
             await lesson.StartChallengeAsync(challenge1);
 
             await challenge1.Evaluate();
