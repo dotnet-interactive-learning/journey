@@ -12,16 +12,11 @@ namespace Extension
     { 
         public static Task OnLoadAsync(Kernel kernel)
         {
-            //RegisterEvents();
-
-            //var evaluator = new Evaluator();
-            //kernel
-            //    .UseQuestionMagicCommand(evaluator)
-            //    .UseEvaluateMagicCommand(evaluator);
+            kernel.UseProgressiveLearning();
 
             if (KernelInvocationContext.Current is { } context)
             {
-                context.DisplayAs("Hello world! EducationExtension loaded!", "text/markdown");
+                context.DisplayAs("Hello world! EducationExtension loaded!!!", "text/markdown");
             }
              
             return Task.CompletedTask;

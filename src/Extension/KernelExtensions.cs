@@ -2,6 +2,7 @@
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
 using Microsoft.DotNet.Interactive.Notebook;
+using Microsoft.DotNet.Interactive.Parsing;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -23,10 +24,10 @@ namespace Extension
             return kernel;
         }
 
-        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel, IKernelCommandHandler<ParseNotebook>
+        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel
         {
             var argument = new Argument<FileInfo>("file");
-            
+
             var startCommand = new Command("#!start-lesson")
             {
                 argument
@@ -46,9 +47,9 @@ namespace Extension
                     return challenges.FirstOrDefault(c => c.Name == name);
                 });
 
-                await InitializeLesson(lesson);
-
                 await lesson.StartChallengeAsync(challenges.First());
+
+                await InitializeLesson(lesson);
 
                 await Bootstrapping(lesson);
 
