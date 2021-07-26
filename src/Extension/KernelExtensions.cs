@@ -34,7 +34,7 @@ namespace Extension
 
         public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel, IKernelCommandHandler<ParseNotebook>
         {
-            Option<string> fromUrlOption = new Option<string>(
+            Option<Uri> fromUrlOption = new Option<Uri>(
                 "--from-url",
                 "Specify lesson source URL" );
 
