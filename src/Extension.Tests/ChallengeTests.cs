@@ -15,7 +15,6 @@ namespace Extension.Tests
 {
     public class ChallengeTests : ProgressiveLearningTestBase
     {
-        // todo:  this test should be changed to use end to end, this is prob too artificial
         [Fact]
         public async Task teacher_can_start_another_challenge_when_evaluating_a_challenge()
         {
@@ -227,4 +226,3 @@ namespace Extension.Tests
         }
     }
 }
-
