@@ -48,7 +48,7 @@ namespace Extension
 
                     if (fromUrlResult is not null)
                     {
-                        result.ErrorMessage = $"The {fromUrlResult.Token.Value} and {(result.Parent as OptionResult).Token.Value} cannot be used together";
+                        result.ErrorMessage = $"The {fromUrlResult.Token.Value} and {(result.Parent as OptionResult).Token.Value} options cannot be used together";
                         return null;
                     }
 
