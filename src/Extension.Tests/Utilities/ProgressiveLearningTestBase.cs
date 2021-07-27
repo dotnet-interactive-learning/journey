@@ -17,7 +17,7 @@ namespace Extension.Tests.Utilities
             return new Challenge();
         }
 
-        protected async Task<CompositeKernel> CreateKernel(Lesson lesson, bool isTeacherMode)
+        protected async Task<CompositeKernel> CreateBootstrappedKernel(Lesson lesson, bool isTeacherMode)
         {
             var kernel = new CompositeKernel
             {
@@ -25,26 +25,10 @@ namespace Extension.Tests.Utilities
                 new FakeKernel("vscode")
             };
 
-            if (lesson is not null)
-            {
-                lesson.IsTeacherMode = isTeacherMode;
-                if (kernel.RootKernel.FindKernel("csharp") is DotNetKernel dotNetKernel)
-                {
-                    await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-                    await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
-                    await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
-                }
-                else
-                {
-                    throw new Exception("Not dotnet kernel");
-                }
-                kernel.UseProgressiveLearning(lesson)
-                    .UseModelAnswerValidation(lesson);
-            }
-            else
-            {
-                kernel.UseProgressiveLearning();
-            }
+            lesson.IsTeacherMode = isTeacherMode;
+            await kernel.Bootstrapping(lesson);
+            kernel.UseProgressiveLearning(lesson)
+                .UseModelAnswerValidation(lesson);
 
             kernel.DefaultKernelName = "csharp";
             return kernel;

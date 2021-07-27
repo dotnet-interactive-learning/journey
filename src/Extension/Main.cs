@@ -18,21 +18,11 @@ namespace Extension
             {
                 compositeKernel.UseProgressiveLearning(lesson)
                     .UseModelAnswerValidation(lesson);
+                await compositeKernel.Bootstrapping(lesson);
             }
             else
             {
                 throw new Exception("Not composite kernel");
-            }
-
-            if (kernel.RootKernel.FindKernel("csharp") is DotNetKernel dotNetKernel)
-            {
-                await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-                await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
-                await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
-            }
-            else
-            {
-                throw new Exception("Not dotnet kernel");
             }
 
             if (KernelInvocationContext.Current is { } context)

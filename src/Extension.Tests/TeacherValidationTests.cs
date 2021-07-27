@@ -32,7 +32,7 @@ namespace Extension.Tests
             var file = new FileInfo(GetNotebookPath($@"Notebooks\{filename}"));
             var document = await File.ReadAllBytesAsync(file.FullName);
             var lesson = new Lesson();
-            var kernel = await CreateKernel(lesson, true);
+            var kernel = await CreateBootstrappedKernel(lesson, true);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             await RunAllCells(filename, document, kernel);
@@ -60,5 +60,7 @@ namespace Extension.Tests
                             "Challenge math message")
                 });
         }
+
+        
     }
 }

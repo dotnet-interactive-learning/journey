@@ -22,22 +22,7 @@ namespace Extension
 
         public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel, Lesson lesson)
         {
-            var modelAnswerCommand = new Command(_modelAnswerCommandName)
-            {
-                //Handler = CommandHandler.Create<KernelInvocationContext>(context =>
-                //{
-                //    var events = context.KernelEvents.ToSubscribedList();
-                //    context.OnComplete(async invocationContext =>
-                //    {
-                //        if (context.Command is SubmitCode submitCode)
-                //        {
-                //            await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
-                //            var view = lesson.CurrentChallenge.CurrentEvaluation.FormatAsHtml();
-                //            context.Display(view);
-                //        }
-                //    });
-                //})
-            };
+            var modelAnswerCommand = new Command(_modelAnswerCommandName);
             kernel.AddDirective(modelAnswerCommand);
             return kernel;
         }
@@ -75,7 +60,7 @@ namespace Extension
 
                 await InitializeLesson(lesson);
 
-                await Bootstrapping(lesson);
+                await kernel.Bootstrapping(lesson);
 
                 await InitializeChallenge(kernel, lesson.CurrentChallenge);
 
@@ -163,12 +148,12 @@ namespace Extension
             }
         }
 
-        private static async Task Bootstrapping(Lesson lesson)
+        public static async Task Bootstrapping(this CompositeKernel kernel, Lesson lesson)
         {
-            var kernel = Kernel.Root.FindKernel("csharp");
-            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
-            if (kernel is DotNetKernel dotNetKernel)
+            var k = kernel.RootKernel.FindKernel("csharp");
+            await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
+            await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
+            if (k is DotNetKernel dotNetKernel)
             {
                 await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
             }

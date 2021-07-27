@@ -94,7 +94,6 @@ namespace Extension.Tests
                     "// write your answer to LinkedList question below");
         }
 
-
         [Fact]
         public async Task when_starting_a_lesson_the_shown_challenge_contents_do_not_contain_directives()
         {

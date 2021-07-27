@@ -59,7 +59,7 @@ namespace Extension.Tests
         {
             var capturedCode = new List<string>();
             var lesson = new Lesson();
-            using var kernel = await CreateKernel(lesson, true);
+            using var kernel = await CreateBootstrappedKernel(lesson, true);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
