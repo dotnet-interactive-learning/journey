@@ -18,6 +18,30 @@ namespace Extension
 {
     public static class KernelExtensions
     {
+        private static string _modelAnswerCommandName = "#!model-answer";
+
+        public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel, Lesson lesson)
+        {
+            var modelAnswerCommand = new Command(_modelAnswerCommandName)
+            {
+                //Handler = CommandHandler.Create<KernelInvocationContext>(context =>
+                //{
+                //    var events = context.KernelEvents.ToSubscribedList();
+                //    context.OnComplete(async invocationContext =>
+                //    {
+                //        if (context.Command is SubmitCode submitCode)
+                //        {
+                //            await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
+                //            var view = lesson.CurrentChallenge.CurrentEvaluation.FormatAsHtml();
+                //            context.Display(view);
+                //        }
+                //    });
+                //})
+            };
+            kernel.AddDirective(modelAnswerCommand);
+            return kernel;
+        }
+
         public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel, Lesson lesson)
         {
             kernel.UseProgressiveLearningMiddleware(lesson);
@@ -69,24 +93,38 @@ namespace Extension
                 switch (command)
                 {
                     case SubmitCode submitCode:
-                        if (lesson.IsSetupCommand(submitCode))
+                        var isSetupCommand = lesson.IsSetupCommand(submitCode);
+                        var isModelAnswer = submitCode.Parent is not null
+                            && submitCode.Parent is SubmitCode submitCodeParent
+                            && submitCodeParent.Code.TrimStart().StartsWith(_modelAnswerCommandName);
+
+                        if ((!lesson.IsTeacherMode && isSetupCommand)
+                            || (lesson.IsTeacherMode && !isModelAnswer))
                         {
                             await next(command, context);
                             break;
                         }
+
                         var currentChallenge = lesson.CurrentChallenge;
 
                         var events = context.KernelEvents.ToSubscribedList();
 
                         await next(command, context);
-                        
+
                         await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
                         var view = currentChallenge.CurrentEvaluation.FormatAsHtml();
                         context.Display(view);
 
                         if (lesson.CurrentChallenge != currentChallenge)
                         {
-                            await InitializeChallenge(kernel, lesson.CurrentChallenge);
+                            if (lesson.IsTeacherMode)
+                            {
+                                await lesson.StartChallengeAsync(currentChallenge);
+                            }
+                            else
+                            {
+                                await InitializeChallenge(kernel, lesson.CurrentChallenge);
+                            }
                         }
 
                         break;
@@ -139,6 +177,7 @@ namespace Extension
         private static async Task InitializeLesson(Lesson lesson)
         {
             lesson.ClearResetChallengeAction();
+            lesson.IsTeacherMode = false;
             foreach (var setup in lesson.Setup)
             {
                 await Kernel.Root.SendAsync(setup);

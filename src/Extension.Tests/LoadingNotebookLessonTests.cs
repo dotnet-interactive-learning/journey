@@ -16,13 +16,6 @@ namespace Extension.Tests
 {
     public class LoadingNotebookLessonTests : ProgressiveLearningTestBase
     {
-        private string GetNotebookPath(string relativeFilePath)
-        {
-            var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
-        }
-
-
         [Fact]
         public async Task teacher_can_execute_lesson_setup_code()
         {

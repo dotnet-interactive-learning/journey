@@ -2,8 +2,6 @@
 using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Extension
@@ -14,6 +12,7 @@ namespace Extension
         public Challenge CurrentChallenge { get; private set; }
         public IReadOnlyList<SubmitCode> Setup { get; private set; }
         public Action ResetChallenge { get; private set; }
+        public bool IsTeacherMode { get; set; } = false;
 
         private Func<string, Task<Challenge>> _challengeLookup;
 
@@ -24,6 +23,7 @@ namespace Extension
             ResetChallenge = () =>
             {
                 CurrentChallenge = new Challenge();
+                CurrentChallenge.Lesson = this;
             };
         }
 

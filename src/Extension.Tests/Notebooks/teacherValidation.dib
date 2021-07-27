@@ -1,22 +1,3 @@
-#!csharp
-
-#r "nuget: FluentAssertions, *-*"
-
-#!csharp
-
-#r "nuget: EducationExtension, *-*"
-
-#!csharp
-
-using Extension;
-using FluentAssertions;
-using Microsoft.DotNet.Interactive;
-using Microsoft.DotNet.Interactive.Commands;
-using Microsoft.DotNet.Interactive.CSharp;
-using Microsoft.DotNet.Interactive.Events;
-
-var Lesson = new Lesson();
-
 #!markdown
 
 # [Challenge] func
@@ -28,34 +9,19 @@ Func<double, double, double> CalculateTriangleArea = (double x, double y) => 0.0
 #!csharp
 
 Lesson.ResetChallenge();
-
-Lesson.CurrentChallenge.AddRule("[Challenge Function] Normal test cases", context =>
+Lesson.CurrentChallenge.AddRule("Challenge func rule", context =>
 {
-    CalculateTriangleArea(1.5, 2).Should().Be(1.5);
-    CalculateTriangleArea(100, 250.5).Should().Be(12525);
-    context.Pass("All tests passed");
-});
+    var a = CalculateTriangleArea(1.5, 2) == 1.5;
+    var b = CalculateTriangleArea(100, 250.5) == 12525;
 
-Lesson.CurrentChallenge.AddRule("[Challenge Function] Edge test cases", context =>
-{
-    if (!CalculateTriangleArea(0, 0).Equals(0))
+    if (a & b)
     {
-        context.Fail("You missed an edge case!", "Hint: Double values might be zero!");
-        return;
+        context.Pass("Challenge func rule passed");
     }
-    
-    Action negativeTest = () => CalculateTriangleArea(-1, 5);
-    try
+    else
     {
-        negativeTest.Should().Throw<ArgumentException>();
+        context.Fail("Challenge func rule failed");
     }
-    catch (Exception _)
-    {
-        context.Fail("You missed an edge case!", "Hint: Double values might be negative! You should throw a suitable exception");
-        return;
-    }
-
-    context.Pass("All tests passed!");
 });
 
 Lesson.CurrentChallenge.OnCodeSubmittedAsync(async context =>
@@ -64,12 +30,12 @@ Lesson.CurrentChallenge.OnCodeSubmittedAsync(async context =>
         var total = context.RuleEvaluations.Count();
         if (total == numPassed)
         {
-            context.SetMessage("[Challenge Function] You have completed this challenge! \r\n You will move on to the next challenge.");
+            context.SetMessage("Challenge func completed");
             await context.StartNextChallengeAsync();
         }
         else
         {
-            context.SetMessage("You must pass all tests before moving on to the next challenge.");
+            context.SetMessage("Challenge func not done");
         }
     });
 
@@ -98,17 +64,25 @@ In this challenge, you will need to create a function which calculates the area 
 
 #!csharp
 
+#!model-answer
+
 CalculateTriangleArea = (double x, double y) => 
 {
-    if (x < 0 || y < 0)
-        throw new ArgumentException();
+    return x * y;
+};
 
+#!csharp
+
+#!model-answer
+
+CalculateTriangleArea = (double x, double y) => 
+{
     return 0.5 * x * y;
 };
 
 #!markdown
 
-# [Challenge] Math
+# [Challenge] math
 
 #!csharp
 
@@ -116,17 +90,23 @@ var pi = 3.1415926535;
 
 #!csharp
 
-Lesson.CurrentChallenge.AddRule("[Challenge Math] Checking output value", context => 
+Lesson.ResetChallenge();
+Lesson.CurrentChallenge.AddRule("Challenge math rule", context => 
 {
     var correctanswer = Math.Sqrt(pi);
-    context.EventsProduced.Should().ContainSingle(e => e is ReturnValueProduced).Subject.Should()
-        .BeOfType<ReturnValueProduced>().Which.Value.Should().Be(correctanswer);
-    context.Pass("All tests passed!");
+    if (context.EventsProduced.OfType<DisplayValueProduced>().First().Value == correctanswer)
+    {
+        context.Pass("Challenge math passed");
+    }
+    else
+    {
+        context.Fail("Challenge math failed");
+    }
 });
 
 Lesson.CurrentChallenge.OnCodeSubmitted(context => 
 {
-    context.SetMessage("You have completed this lesson!");    
+    context.SetMessage("Challenge math message");    
 });
 
 #!markdown
@@ -159,4 +139,12 @@ Hint: Bing is your friend!
 
 #!csharp
 
+#!model-answer
+
 Math.Sqrt(pi)
+
+#!csharp
+
+#!model-answer
+
+1
