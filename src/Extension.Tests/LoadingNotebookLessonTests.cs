@@ -249,5 +249,22 @@ namespace Extension.Tests
             capturedCommands.Select(c => c.Code).Join("\r\n")
                 .Should().NotContainAny("// random scratchpad stuff");
         }
+
+        [Fact]
+        public async Task when_a_user_accesses_a_file_using_fromurl_then_fromfile_is_not_accessible_at_the_same_time()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var result = await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")} --from-url http://bing.com");
+            
+            result.KernelEvents
+                .ToSubscribedList()
+                .Should()
+                .ContainSingle<CommandFailed>()
+                .Which
+                .Message
+                .Should()
+                .Be("The --from-url and --from-file options cannot be used together");
+        }
     }
 }
