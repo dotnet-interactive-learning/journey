@@ -1,5 +1,14 @@
 #!csharp
 
+#r "nuget: EducationExtension, *-*"
+
+#!csharp
+
+using Extension;
+var Lesson = new Lesson();
+
+#!csharp
+
 var lessonSetupVar = 666;
 
 #!markdown
@@ -8,6 +17,7 @@ var lessonSetupVar = 666;
 
 #!csharp
 
+Lesson.ResetChallenge();
 Lesson.CurrentChallenge.AddRule("failrule", context => context.Fail("reasons"));
 Lesson.CurrentChallenge.AddRule("passrule", context => context.Pass("reasons"));
 
@@ -53,6 +63,7 @@ This is the LinkedList question.
 
 #!csharp
 
+Lesson.ResetChallenge();
 Lesson.CurrentChallenge.AddRule("dfsrule1", context => context.Fail("dfsfailreasons"));
 Lesson.CurrentChallenge.AddRule("dfsrule2", context => context.Pass("dfspassreasons"));
 
@@ -74,6 +85,14 @@ var anotherChallengeSetupVar = 10;
 
 #!markdown
 
+## [Scratchpad]
+
+#!csharp
+
+// random scratchpad
+
+#!markdown
+
 ## [Question]
 
 #!csharp
@@ -83,11 +102,3 @@ var anotherChallengeSetupVar = 10;
 #!markdown
 
 This is the DFS question.
-
-#!markdown
-
-## [Scratchpad]
-
-#!csharp
-
-// random scratchpad

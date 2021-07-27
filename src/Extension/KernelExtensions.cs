@@ -18,13 +18,13 @@ namespace Extension
 {
     public static class KernelExtensions
     {
-        public static T UseProgressiveLearning<T>(this T kernel, Lesson lesson) where T : Kernel
+        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel, Lesson lesson)
         {
-            kernel.UseProgressiveLearningMiddleware<T>(lesson);
+            kernel.UseProgressiveLearningMiddleware(lesson);
             return kernel;
         }
 
-        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel
+        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel)
         {
             var argument = new Argument<FileInfo>("file");
 
@@ -36,9 +36,9 @@ namespace Extension
             startCommand.Handler = CommandHandler.Create<FileInfo, KernelInvocationContext>(async (file, context) =>
             {
                 var rawData = await File.ReadAllBytesAsync(file.FullName);
-                // todo: NotebookFileFormatHandler.Parse what are its last two arguments
-                var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+                var document = kernel.ParseNotebook(file.Name, rawData);
                 NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
+
                 var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
                 challenges.SetDefaultProgressionHandlers();
                 var lesson = lessonDefinition.ToLesson();
@@ -55,14 +55,14 @@ namespace Extension
 
                 await InitializeChallenge(kernel, lesson.CurrentChallenge);
 
-                kernel.UseProgressiveLearningMiddleware<T>(lesson);
+                kernel.UseProgressiveLearningMiddleware(lesson);
             });
 
             kernel.AddDirective(startCommand);
             return kernel;
         }
 
-        private static T UseProgressiveLearningMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        private static CompositeKernel UseProgressiveLearningMiddleware(this CompositeKernel kernel, Lesson lesson)
         {
             kernel.AddMiddleware(async (command, context, next) =>
             {
@@ -76,17 +76,13 @@ namespace Extension
                         }
                         var currentChallenge = lesson.CurrentChallenge;
 
-                        await next(command, context);
-
                         var events = context.KernelEvents.ToSubscribedList();
+
+                        await next(command, context);
+                        
                         await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
                         var view = currentChallenge.CurrentEvaluation.FormatAsHtml();
-                        var formattedValues = FormattedValue.FromObject(view);
-                        context.Publish(
-                            new DisplayedValueProduced(
-                                view,
-                                command,
-                                formattedValues));
+                        context.Display(view);
 
                         if (lesson.CurrentChallenge != currentChallenge)
                         {
@@ -142,6 +138,7 @@ namespace Extension
 
         private static async Task InitializeLesson(Lesson lesson)
         {
+            lesson.ClearResetChallengeAction();
             foreach (var setup in lesson.Setup)
             {
                 await Kernel.Root.SendAsync(setup);

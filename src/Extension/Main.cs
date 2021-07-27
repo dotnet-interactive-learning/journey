@@ -12,7 +12,14 @@ namespace Extension
     { 
         public static Task OnLoadAsync(Kernel kernel)
         {
-            kernel.UseProgressiveLearning();
+            if (kernel is CompositeKernel compositeKernel)
+            {
+                compositeKernel.UseProgressiveLearning();
+            }
+            else
+            {
+                throw new Exception("Not composite kernel");
+            }
 
             if (KernelInvocationContext.Current is { } context)
             {

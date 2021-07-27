@@ -1,0 +1,162 @@
+#!csharp
+
+#r "nuget: FluentAssertions, *-*"
+
+#!csharp
+
+#r "nuget: EducationExtension, *-*"
+
+#!csharp
+
+using Extension;
+using FluentAssertions;
+using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
+using Microsoft.DotNet.Interactive.CSharp;
+using Microsoft.DotNet.Interactive.Events;
+
+var Lesson = new Lesson();
+
+#!markdown
+
+# [Challenge] func
+
+#!csharp
+
+Func<double, double, double> CalculateTriangleArea = (double x, double y) => 0.0;
+
+#!csharp
+
+Lesson.ResetChallenge();
+
+Lesson.CurrentChallenge.AddRule("[Challenge Function] Normal test cases", context =>
+{
+    CalculateTriangleArea(1.5, 2).Should().Be(1.5);
+    CalculateTriangleArea(100, 250.5).Should().Be(12525);
+    context.Pass("All tests passed");
+});
+
+Lesson.CurrentChallenge.AddRule("[Challenge Function] Edge test cases", context =>
+{
+    if (!CalculateTriangleArea(0, 0).Equals(0))
+    {
+        context.Fail("You missed an edge case!", "Hint: Double values might be zero!");
+        return;
+    }
+    
+    Action negativeTest = () => CalculateTriangleArea(-1, 5);
+    try
+    {
+        negativeTest.Should().Throw<ArgumentException>();
+    }
+    catch (Exception _)
+    {
+        context.Fail("You missed an edge case!", "Hint: Double values might be negative! You should throw a suitable exception");
+        return;
+    }
+
+    context.Pass("All tests passed!");
+});
+
+Lesson.CurrentChallenge.OnCodeSubmittedAsync(async context =>
+    {
+        var numPassed = context.RuleEvaluations.Count(e => e.Passed);
+        var total = context.RuleEvaluations.Count();
+        if (total == numPassed)
+        {
+            context.SetMessage("[Challenge Function] You have completed this challenge! \r\n You will move on to the next challenge.");
+            await context.StartNextChallengeAsync();
+        }
+        else
+        {
+            context.SetMessage("You must pass all tests before moving on to the next challenge.");
+        }
+    });
+
+#!markdown
+
+## [Question]
+
+#!markdown
+
+# Challenge: Function
+
+In this challenge, you will need to create a function which calculates the area of triangles! These are the specs, read them carefully before getting started.
+
+* Takes two inputs of type `Double`
+* Returns `Double`
+* Method name should be `CalculateTriangleArea`
+* Throw ArgumentException if any of the arguments are negative
+
+#!csharp
+
+// type your answer below
+
+#!markdown
+
+## [Scratchpad]
+
+#!csharp
+
+CalculateTriangleArea = (double x, double y) => 
+{
+    if (x < 0 || y < 0)
+        throw new ArgumentException();
+
+    return 0.5 * x * y;
+};
+
+#!markdown
+
+# [Challenge] Math
+
+#!csharp
+
+var pi = 3.1415926535;
+
+#!csharp
+
+Lesson.CurrentChallenge.AddRule("[Challenge Math] Checking output value", context => 
+{
+    var correctanswer = Math.Sqrt(pi);
+    context.EventsProduced.Should().ContainSingle(e => e is ReturnValueProduced).Subject.Should()
+        .BeOfType<ReturnValueProduced>().Which.Value.Should().Be(correctanswer);
+    context.Pass("All tests passed!");
+});
+
+Lesson.CurrentChallenge.OnCodeSubmitted(context => 
+{
+    context.SetMessage("You have completed this lesson!");    
+});
+
+#!markdown
+
+## [ChallengeSetup]
+
+#!csharp
+
+var pi = 3.1415926535;
+
+#!markdown
+
+## [Question]
+
+#!markdown
+
+# Challenge: Math
+
+In this challenge, you will need to utilize the math library to make a calculation. Use the variable `pi` and display its square root.
+
+Hint: Bing is your friend!
+
+#!csharp
+
+// type your answer below
+
+#!markdown
+
+## [Scratchpad]
+
+#!csharp
+
+Math.Sqrt(pi)

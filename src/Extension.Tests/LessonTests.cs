@@ -99,6 +99,61 @@ namespace Extension.Tests
         }
 
         [Fact]
+        public async Task teacher_can_stay_at_the_current_challenge()
+        {
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            var challenges = new Challenge[]
+            {
+                GetChallenge("1"),
+                GetChallenge("2"),
+                GetChallenge("3")
+            }.ToList();
+            challenges[0].OnCodeSubmitted(context =>
+            {
+                context.SetMessage("hi");
+            });
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
+
+            await kernel.SubmitCodeAsync("1+1");
+
+            lesson.CurrentChallenge.Should().Be(challenges[0]);
+        }
+
+        [Fact]
+        public async Task when_teacher_chooses_to_stay_at_the_current_challenge_the_next_challenge_is_not_revealed()
+        {
+            var capturedCommands = new List<SendEditableCode>();
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            var vscodeKernel = kernel.FindKernel("vscode");
+            vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
+            {
+                capturedCommands.Add(command);
+                return Task.CompletedTask;
+            });
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var contents = new SendEditableCode[] {
+                new SendEditableCode("csharp", "var a = 2;"),
+                new SendEditableCode("csharp", "var b = 3;"),
+                new SendEditableCode("csharp", "a = 4;")
+            };
+            var challenges = new Challenge[]
+            {
+                new Challenge(),
+                new Challenge(contents: contents)
+            }.ToList();
+            challenges[0].OnCodeSubmitted(context => { });
+            challenges.SetDefaultProgressionHandlers();
+            await lesson.StartChallengeAsync(challenges[0]);
+
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+
+            capturedCommands.Should().BeEmpty();
+        }
+
+        [Fact]
         public async Task explicitly_starting_the_next_challenge_at_last_challenge_does_nothing()
         {
             var lesson = new Lesson();
