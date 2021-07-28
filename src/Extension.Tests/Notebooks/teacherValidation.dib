@@ -1,3 +1,8 @@
+#!csharp
+
+using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Events;
+
 #!markdown
 
 # [Challenge] func
@@ -94,7 +99,7 @@ Lesson.ResetChallenge();
 Lesson.CurrentChallenge.AddRule("Challenge math rule", context => 
 {
     var correctanswer = Math.Sqrt(pi);
-    if (context.EventsProduced.OfType<DisplayValueProduced>().First().Value == correctanswer)
+    if (Convert.ToDouble(context.EventsProduced.OfType<ReturnValueProduced>().First().Value).Equals(correctanswer))
     {
         context.Pass("Challenge math passed");
     }
