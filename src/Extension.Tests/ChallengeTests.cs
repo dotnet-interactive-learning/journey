@@ -55,6 +55,27 @@ namespace Extension.Tests
         }
 
         [Fact]
+        public async Task teacher_can_access_code_from_submission_history_when_evaluating_a_model_answer()
+        {
+            var capturedCode = new List<string>();
+            var lesson = new Lesson();
+            using var kernel = await CreateBootstrappedKernel(lesson, true);
+            var challenge = GetEmptyChallenge();
+            challenge.OnCodeSubmitted(context =>
+            {
+                capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
+            });
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync(ToModelAnswer("1 + 1"));
+            await kernel.SubmitCodeAsync(ToModelAnswer("1 + 2"));
+            await kernel.SubmitCodeAsync(ToModelAnswer("1 + 3"));
+
+            capturedCode.Should().BeEquivalentTo("1 + 2", "1 + 1");
+            capturedCode.Should().NotContain("1 + 3");
+        }
+
+        [Fact]
         public async Task challenge_tracks_submitted_code_in_submission_history()
         {
             var lesson = new Lesson();

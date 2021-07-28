@@ -2,8 +2,6 @@
 using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Extension
@@ -13,12 +11,20 @@ namespace Extension
         public string Name { get; }
         public Challenge CurrentChallenge { get; private set; }
         public IReadOnlyList<SubmitCode> Setup { get; private set; }
+        public Action ResetChallenge { get; private set; }
+        public bool IsTeacherMode { get; set; } = false;
+
         private Func<string, Task<Challenge>> _challengeLookup;
 
         public Lesson(string name = null, IReadOnlyList<SubmitCode> setup = null)
         {
             Name = name;
             Setup = setup;
+            ResetChallenge = () =>
+            {
+                CurrentChallenge = new Challenge();
+                CurrentChallenge.Lesson = this;
+            };
         }
 
         public Task StartChallengeAsync(Challenge challenge)
@@ -52,6 +58,11 @@ namespace Extension
         public void SetChallengeLookup(Func<string, Task<Challenge>> handler)
         {
             _challengeLookup = handler;
+        }
+
+        public void ClearResetChallengeAction()
+        {
+            ResetChallenge = () => { };
         }
     }
 }

@@ -17,12 +17,6 @@ namespace Extension.Tests
 {
     public class ParsingTests : ProgressiveLearningTestBase
     {
-        private string GetNotebookPath(string relativeFilePath)
-        {
-            var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
-        }
-
         [Fact]
         public async Task parser_can_parse_teacher_notebook_with_two_challenges_with_all_components_defined()
         {

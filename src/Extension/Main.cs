@@ -10,21 +10,25 @@ namespace Extension
 {
     public static class Main
     { 
-        public static Task OnLoadAsync(Kernel kernel)
+        public static async Task OnLoadAsync(Kernel kernel)
         {
-            //RegisterEvents();
-
-            //var evaluator = new Evaluator();
-            //kernel
-            //    .UseQuestionMagicCommand(evaluator)
-            //    .UseEvaluateMagicCommand(evaluator);
+            var lesson = new Lesson();
+            lesson.IsTeacherMode = true;
+            if (kernel is CompositeKernel compositeKernel)
+            {
+                compositeKernel.UseProgressiveLearning(lesson)
+                    .UseModelAnswerValidation();
+                await compositeKernel.Bootstrapping(lesson);
+            }
+            else
+            {
+                throw new Exception("Not composite kernel");
+            }
 
             if (KernelInvocationContext.Current is { } context)
             {
                 context.DisplayAs("Hello world! EducationExtension loaded!", "text/markdown");
             }
-             
-            return Task.CompletedTask;
         }
 
         public static void RegisterEvents()

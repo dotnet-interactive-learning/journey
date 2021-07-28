@@ -8,6 +8,7 @@ using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.CSharp;
+using Microsoft.DotNet.Interactive.Events;
 using Xunit;
 
 namespace Extension.Tests
@@ -79,6 +80,36 @@ namespace Extension.Tests
             challenge.CurrentEvaluation.RuleEvaluations.Single().Outcome.Should().Be(Outcome.PartialSuccess);
             challenge.CurrentEvaluation.RuleEvaluations.Single().Reason.Should().Be("abc");
             challenge.CurrentEvaluation.RuleEvaluations.Single().Hint.Should().Be(3);
+        }
+
+        [Fact(Skip = "requires a dotnet interactive fix")]
+        public async Task teacher_can_check_for_command_failed_as_a_rule()
+        {
+            var lesson = new Lesson();
+            using var kernel = CreateKernel(lesson);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenge = GetEmptyChallenge();
+            challenge.AddRule(c =>
+            {
+                foreach (var e in c.EventsProduced)
+                {
+                    if (e is CommandFailed)
+                    {
+                        c.Fail("Compilation failed. Try again!");
+                        return;
+                    }
+                }
+                c.Pass("Success");
+            });
+            await lesson.StartChallengeAsync(challenge);
+
+            await kernel.SubmitCodeAsync("asjfl");
+
+            events
+                .Should()
+                .ContainSingle<DisplayedValueProduced>(
+                    e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                        .Value.Contains("Compilation failed. Try again!"));
         }
     }
 }

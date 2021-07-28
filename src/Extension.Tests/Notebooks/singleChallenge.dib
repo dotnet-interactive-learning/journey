@@ -1,3 +1,9 @@
+#!csharp
+
+#r "nuget: EducationExtension"
+using Extension;
+var Lesson = new Lesson();
+
 #!markdown
 
 # [Challenge] LinkedList
