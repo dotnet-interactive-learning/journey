@@ -12,17 +12,20 @@ namespace Extension
     { 
         public static async Task OnLoadAsync(Kernel kernel)
         {
-            var lesson = new Lesson();
-            lesson.IsTeacherMode = true;
+            var lesson = new Lesson
+            {
+                IsTeacherMode = true
+            };
+
             if (kernel is CompositeKernel compositeKernel)
             {
+                await compositeKernel.Bootstrapping(lesson);
                 compositeKernel.UseProgressiveLearning(lesson)
                     .UseModelAnswerValidation();
-                await compositeKernel.Bootstrapping(lesson);
             }
             else
             {
-                throw new Exception("Not composite kernel");
+                throw new ArgumentException("Not composite kernel");
             }
 
             if (KernelInvocationContext.Current is { } context)

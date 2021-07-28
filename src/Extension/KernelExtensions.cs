@@ -39,7 +39,7 @@ namespace Extension
         {
             Option<Uri> fromUrlOption = new Option<Uri>(
                 "--from-url",
-                "Specify lesson source URL" );
+                "Specify lesson source URL");
 
             Option<FileInfo> fromFileOption = new Option<FileInfo>(
                 "--from-file",
@@ -196,11 +196,18 @@ namespace Extension
         public static async Task Bootstrapping(this CompositeKernel kernel, Lesson lesson)
         {
             var k = kernel.RootKernel.FindKernel("csharp");
+
             await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-            await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
+
+            k.DeferCommand(new SetVariableAsyncCommand("Lesson", lesson));
+
             if (k is DotNetKernel dotNetKernel)
             {
                 await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
+            }
+            else
+            {
+                throw new ArgumentException("no dotnet kernel");
             }
 
             if (lesson.IsTeacherMode)
@@ -217,6 +224,25 @@ namespace Extension
             {
                 await kernel.SendAsync(setup);
             }
+        }
+    }
+
+    public class SetVariableAsyncCommand : KernelCommand
+    {
+        public SetVariableAsyncCommand(string name, object value, Type declaredType = null)
+            : base(null, null)
+        {
+            Handler = async (command, context) =>
+            {
+                if (context.HandlingKernel is DotNetKernel k)
+                {
+                    await k.SetVariableAsync(name, value, declaredType);
+                }
+                else
+                {
+                    throw new Exception("Not dotnet kernel");
+                }
+            };
         }
     }
 }
