@@ -50,9 +50,9 @@ namespace Extension
         {
             var outcomeDivStyle = Outcome switch
             {
-                Outcome.Success => "background:green",
-                Outcome.PartialSuccess => "background:#eb6f00",
-                Outcome.Failure => "background:red",
+                Outcome.Success => "background:#49B83461",
+                Outcome.PartialSuccess => "background:#FF00008A",
+                Outcome.Failure => "background:#FF00008A",
                 _ => throw new NotImplementedException()
             };
 
