@@ -101,8 +101,6 @@ namespace Extension
                     return challenges.FirstOrDefault(c => c.Name == name);
                 });
 
-                await InitializeLesson(lesson);
-
                 await lesson.StartChallengeAsync(challenges.First());
 
                 await InitializeLesson(kernel, lesson);

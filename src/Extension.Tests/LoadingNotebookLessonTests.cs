@@ -248,7 +248,7 @@ namespace Extension.Tests
         {
             var kernel = CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\variableReplacing.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\variableReplacing.dib")}");
 
             await kernel.SubmitCodeAsync(@"
 CalcTrigArea = (double x, double y) => 0.5 * x * y;

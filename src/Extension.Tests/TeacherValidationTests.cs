@@ -63,7 +63,7 @@ namespace Extension.Tests
         {
             var kernel = CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
 
             await kernel.SubmitCodeAsync("1");
 
@@ -79,7 +79,7 @@ namespace Extension.Tests
         {
             var kernel = CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
 
             await kernel.SubmitCodeAsync("1");
 
@@ -94,7 +94,7 @@ namespace Extension.Tests
         {
             var kernel = CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
             await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
@@ -111,7 +111,7 @@ namespace Extension.Tests
         {
             var kernel = CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
             await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
