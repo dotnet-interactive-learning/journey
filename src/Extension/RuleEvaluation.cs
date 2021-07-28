@@ -75,7 +75,7 @@ namespace Extension
             }
             else
             {
-                PocketView header = summary[style: outcomeDivStyle](b($"[ {Name} ] "), b(outcomeMessage));
+                PocketView header = summary[style: outcomeDivStyle](($"[ {Name} ]: "), b(outcomeMessage));
 
                 elements.Add(header);
             }
@@ -87,7 +87,7 @@ namespace Extension
 
             if (Hint is not null)
             {
-                var hintElement = div[@class: "hint"](Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
+                var hintElement = div[@class: "hint"](b("Hint: "), Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
                 elements.Add(hintElement);
             }
 

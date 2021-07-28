@@ -25,7 +25,7 @@ namespace Extension.Tests
 
             summary.InnerText
                 .Should()
-                .Be("[ Code compiles ] Success");
+                .Be("[ Code compiles ]: Success");
 
             var p = htmlDoc.DocumentNode
                 .SelectSingleNode("//details[@class='ruleEvaluation']/p");
