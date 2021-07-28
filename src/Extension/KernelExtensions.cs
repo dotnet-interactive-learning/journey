@@ -58,7 +58,7 @@ namespace Extension
 
                 await lesson.StartChallengeAsync(challenges.First());
 
-                await InitializeLesson(lesson);
+                await InitializeLesson(kernel, lesson);
 
                 await kernel.Bootstrapping(lesson);
 
@@ -164,13 +164,13 @@ namespace Extension
             }
         }
 
-        private static async Task InitializeLesson(Lesson lesson)
+        private static async Task InitializeLesson(Kernel kernel, Lesson lesson)
         {
             lesson.ClearResetChallengeAction();
             lesson.IsTeacherMode = false;
             foreach (var setup in lesson.Setup)
             {
-                await Kernel.Root.SendAsync(setup);
+                await kernel.SendAsync(setup);
             }
         }
     }
