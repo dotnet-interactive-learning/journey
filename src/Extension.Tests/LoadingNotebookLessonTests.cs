@@ -16,13 +16,6 @@ namespace Extension.Tests
 {
     public class LoadingNotebookLessonTests : ProgressiveLearningTestBase
     {
-        private string GetNotebookPath(string relativeFilePath)
-        {
-            var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
-        }
-
-
         [Fact]
         public async Task teacher_can_execute_lesson_setup_code()
         {
@@ -100,7 +93,6 @@ namespace Extension.Tests
                     "This is the LinkedList question.",
                     "// write your answer to LinkedList question below");
         }
-
 
         [Fact]
         public async Task when_starting_a_lesson_the_shown_challenge_contents_do_not_contain_directives()
@@ -231,7 +223,8 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task when_progressing_the_student_to_different_challenge_the_shown_challenge_contents_do_not_contain_scratchpad_material()
+        public async Task
+            when_progressing_the_student_to_different_challenge_the_shown_challenge_contents_do_not_contain_scratchpad_material()
         {
             var capturedCommands = new List<SendEditableCode>();
             var kernel = CreateKernel();
@@ -248,6 +241,24 @@ namespace Extension.Tests
 
             capturedCommands.Select(c => c.Code).Join("\r\n")
                 .Should().NotContainAny("// random scratchpad stuff");
+        }
+
+        [Fact]
+        public async Task teacher_can_declare_identifiers_and_let_it_become_replaced_by_the_students_answer()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\variableReplacing.dib")}");
+
+            await kernel.SubmitCodeAsync(@"
+CalcTrigArea = (double x, double y) => 0.5 * x * y;
+");
+
+            events
+                .Should()
+                .ContainSingle<DisplayedValueProduced>(
+                    e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                        .Value.Contains("You passed"));
         }
 
         [Fact]

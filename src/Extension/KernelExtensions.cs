@@ -2,6 +2,7 @@
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
 using Microsoft.DotNet.Interactive.Notebook;
+using Microsoft.DotNet.Interactive.Parsing;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
@@ -19,13 +20,22 @@ namespace Extension
 {
     public static class KernelExtensions
     {
-        public static T UseProgressiveLearning<T>(this T kernel, Lesson lesson) where T : Kernel
+        private static string _modelAnswerCommandName = "#!model-answer";
+
+        public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel)
         {
-            kernel.UseProgressiveLearningMiddleware<T>(lesson);
+            var modelAnswerCommand = new Command(_modelAnswerCommandName);
+            kernel.AddDirective(modelAnswerCommand);
             return kernel;
         }
 
-        public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel, IKernelCommandHandler<ParseNotebook>
+        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel, Lesson lesson)
+        {
+            kernel.UseProgressiveLearningMiddleware(lesson);
+            return kernel;
+        }
+
+        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel)
         {
             Option<Uri> fromUrlOption = new Option<Uri>(
                 "--from-url",
@@ -91,50 +101,60 @@ namespace Extension
                     return challenges.FirstOrDefault(c => c.Name == name);
                 });
 
-                await InitializeLesson(lesson);
-
                 await lesson.StartChallengeAsync(challenges.First());
 
-                await Bootstrapping(lesson);
+                await InitializeLesson(kernel, lesson);
+
+                await kernel.Bootstrapping(lesson);
 
                 await InitializeChallenge(kernel, lesson.CurrentChallenge);
 
-                kernel.UseProgressiveLearningMiddleware<T>(lesson);
+                kernel.UseProgressiveLearningMiddleware(lesson);
             });
 
             kernel.AddDirective(startCommand);
             return kernel;
         }
 
-        private static T UseProgressiveLearningMiddleware<T>(this T kernel, Lesson lesson) where T : Kernel
+        private static CompositeKernel UseProgressiveLearningMiddleware(this CompositeKernel kernel, Lesson lesson)
         {
             kernel.AddMiddleware(async (command, context, next) =>
             {
                 switch (command)
                 {
                     case SubmitCode submitCode:
-                        if (lesson.IsSetupCommand(submitCode))
+                        var isSetupCommand = lesson.IsSetupCommand(submitCode);
+                        var isModelAnswer = submitCode.Parent is not null
+                            && submitCode.Parent is SubmitCode submitCodeParent
+                            && submitCodeParent.Code.TrimStart().StartsWith(_modelAnswerCommandName);
+
+                        if ((!lesson.IsTeacherMode && isSetupCommand)
+                            || (lesson.IsTeacherMode && !isModelAnswer))
                         {
                             await next(command, context);
                             break;
                         }
+
                         var currentChallenge = lesson.CurrentChallenge;
+
+                        var events = context.KernelEvents.ToSubscribedList();
 
                         await next(command, context);
 
-                        var events = context.KernelEvents.ToSubscribedList();
                         await lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
                         var view = currentChallenge.CurrentEvaluation.FormatAsHtml();
-                        var formattedValues = FormattedValue.FromObject(view);
-                        context.Publish(
-                            new DisplayedValueProduced(
-                                view,
-                                command,
-                                formattedValues));
+                        context.Display(view);
 
                         if (lesson.CurrentChallenge != currentChallenge)
                         {
-                            await InitializeChallenge(kernel, lesson.CurrentChallenge);
+                            if (lesson.IsTeacherMode)
+                            {
+                                await lesson.StartChallengeAsync(currentChallenge);
+                            }
+                            else
+                            {
+                                await InitializeChallenge(kernel, lesson.CurrentChallenge);
+                            }
                         }
 
                         break;
@@ -173,22 +193,29 @@ namespace Extension
             }
         }
 
-        private static async Task Bootstrapping(Lesson lesson)
+        public static async Task Bootstrapping(this CompositeKernel kernel, Lesson lesson)
         {
-            var kernel = Kernel.Root.FindKernel("csharp");
-            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-            await kernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
-            if (kernel is DotNetKernel dotNetKernel)
+            var k = kernel.RootKernel.FindKernel("csharp");
+            await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
+            await k.SubmitCodeAsync($"#r \"{typeof(Lesson).Namespace}\"");
+            if (k is DotNetKernel dotNetKernel)
             {
                 await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
             }
+
+            if (lesson.IsTeacherMode)
+            {
+                lesson.ResetChallenge();
+            }
         }
 
-        private static async Task InitializeLesson(Lesson lesson)
+        private static async Task InitializeLesson(Kernel kernel, Lesson lesson)
         {
+            lesson.ClearResetChallengeAction();
+            lesson.IsTeacherMode = false;
             foreach (var setup in lesson.Setup)
             {
-                await Kernel.Root.SendAsync(setup);
+                await kernel.SendAsync(setup);
             }
         }
     }
