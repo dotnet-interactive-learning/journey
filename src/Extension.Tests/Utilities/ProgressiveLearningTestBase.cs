@@ -28,7 +28,7 @@ namespace Extension.Tests.Utilities
             lesson.IsTeacherMode = isTeacherMode;
             await kernel.Bootstrapping(lesson);
             kernel.UseProgressiveLearning(lesson)
-                .UseModelAnswerValidation(lesson);
+                .UseModelAnswerValidation();
 
             kernel.DefaultKernelName = "csharp";
             return kernel;

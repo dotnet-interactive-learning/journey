@@ -17,7 +17,7 @@ namespace Extension
             if (kernel is CompositeKernel compositeKernel)
             {
                 compositeKernel.UseProgressiveLearning(lesson)
-                    .UseModelAnswerValidation(lesson);
+                    .UseModelAnswerValidation();
                 await compositeKernel.Bootstrapping(lesson);
             }
             else

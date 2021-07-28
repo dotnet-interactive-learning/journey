@@ -13,7 +13,6 @@ Func<double, double, double> CalculateTriangleArea = (double x, double y) => 0.0
 
 #!csharp
 
-Lesson.ResetChallenge();
 Lesson.CurrentChallenge.AddRule("Challenge func rule", context =>
 {
     var a = CalculateTriangleArea(1.5, 2) == 1.5;

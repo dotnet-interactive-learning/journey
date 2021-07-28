@@ -3,15 +3,12 @@ using Extension.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
-using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
-using Microsoft.DotNet.Interactive.Notebook;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
+
 namespace Extension.Tests
 {
     public class TeacherValidationTests : ProgressiveLearningTestBase
@@ -61,6 +58,68 @@ namespace Extension.Tests
                 });
         }
 
-        
+        [Fact]
+        public async Task teacher_can_use_add_rule_when_starting_a_lesson()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+
+            await kernel.SubmitCodeAsync("1");
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.ContainsAll(
+                        "Challenge func rule",
+                        "Challenge func rule failed"));
+        }
+
+        [Fact]
+        public async Task teacher_can_use_on_code_submitted_when_starting_a_lesson()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+
+            await kernel.SubmitCodeAsync("1");
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.ContainsAll(
+                        "Challenge func not done"));
+        }
+
+        [Fact]
+        public async Task teacher_can_use_add_rule_when_progressing_the_student_to_different_challenge()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
+
+            await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.ContainsAll(
+                        "Challenge math rule",
+                        "Challenge math passed"));
+        }
+
+        [Fact]
+        public async Task teacher_can_use_on_code_submitted_when_progressing_the_student_to_different_challenge()
+        {
+            var kernel = CreateKernel();
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
+
+            await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.ContainsAll(
+                        "Challenge math message"));
+        }
     }
 }

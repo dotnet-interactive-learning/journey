@@ -20,7 +20,7 @@ namespace Extension
     {
         private static string _modelAnswerCommandName = "#!model-answer";
 
-        public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel, Lesson lesson)
+        public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel)
         {
             var modelAnswerCommand = new Command(_modelAnswerCommandName);
             kernel.AddDirective(modelAnswerCommand);
@@ -156,6 +156,11 @@ namespace Extension
             if (k is DotNetKernel dotNetKernel)
             {
                 await dotNetKernel.SetVariableAsync<Lesson>("Lesson", lesson);
+            }
+
+            if (lesson.IsTeacherMode)
+            {
+                lesson.ResetChallenge();
             }
         }
 
