@@ -19,6 +19,7 @@ namespace Extension
         public IReadOnlyList<SendEditableCode> Contents { get; private set; }
         public IReadOnlyList<SubmitCode> EnvironmentSetup { get; private set; }
         public bool Revealed { get; internal set; } = false;
+        public Func<ChallengeContext, Task> DefaultProgressionHandler { get; set; }
         public Func<ChallengeContext, Task> OnCodeSubmittedHandler { get; private set; }
         public ChallengeEvaluation CurrentEvaluation => CurrentSubmission?.Evaluation;
         public ChallengeSubmission CurrentSubmission => _submissionHistory.Count == 0 ? null : _submissionHistory.Peek();
@@ -34,11 +35,6 @@ namespace Extension
             Contents = contents ?? new SendEditableCode[] { };
             EnvironmentSetup = environmentSetup ?? new SubmitCode[] { };
             Name = name;
-            OnCodeSubmittedHandler = (context) =>
-            {
-                KernelInvocationContext.Current?.Display(CurrentEvaluation);
-                return Lesson.StartNextChallengeAsync();
-            };
         }
 
         public async Task Evaluate(string submittedCode = null, IEnumerable<KernelEvent> events = null)
@@ -69,6 +65,10 @@ namespace Extension
             if (OnCodeSubmittedHandler is not null)
             {
                 await OnCodeSubmittedHandler(_context);
+            }
+            else if (DefaultProgressionHandler is not null)
+            {
+                await DefaultProgressionHandler(_context);
             }
         }
 

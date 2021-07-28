@@ -10,7 +10,7 @@ namespace Extension
         public ChallengeEvaluation Evaluation { get; }
         public Lesson Lesson => Challenge.Lesson;
         public IEnumerable<ChallengeSubmission> SubmissionHistory => Challenge.SubmissionHistory;
-        public IEnumerable<RuleEvaluation> RuleEvaluations  => Evaluation.RuleEvaluations;
+        public IEnumerable<RuleEvaluation> RuleEvaluations => Evaluation.RuleEvaluations;
 
         public ChallengeContext(Challenge challenge)
         {
@@ -40,7 +40,14 @@ namespace Extension
 
         public async Task StartNextChallengeAsync()
         {
-            await Lesson.StartNextChallengeAsync();
+            if (Challenge.DefaultProgressionHandler is not null)
+            {
+                await Challenge.DefaultProgressionHandler(this);
+            }
+            else
+            {
+                await StartChallengeAsync(null as Challenge);
+            }
         }
     }
 }

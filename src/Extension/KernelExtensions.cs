@@ -21,13 +21,6 @@ namespace Extension
     {
         public static T UseProgressiveLearning<T>(this T kernel, Lesson lesson) where T : Kernel
         {
-            var startCommand = new Command("#!start-lesson");
-            startCommand.Handler = CommandHandler.Create<KernelInvocationContext>(async context =>
-            {
-                await lesson.StartLessonAsync();
-                await InitializeChallenge(lesson.CurrentChallenge);
-            });
-            kernel.AddDirective(startCommand);
             kernel.UseProgressiveLearningMiddleware<T>(lesson);
             return kernel;
         }
@@ -88,18 +81,23 @@ namespace Extension
                     name = fromUrl.Segments.Last();
                 }
 
-                // todo: NotebookFileFormatHandler.Parse what are its last two arguments
                 var document = NotebookFileFormatHandler.Parse(name, rawData, "csharp", new Dictionary<string, string>());
-                var lessonBlueprint = NotebookLessonParser.Parse(document);
-                var lesson = lessonBlueprint.ToLesson();
+                NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
+                var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
+                challenges.SetDefaultProgressionHandlers();
+                var lesson = lessonDefinition.ToLesson();
+                lesson.SetChallengeLookup(name =>
+                {
+                    return challenges.FirstOrDefault(c => c.Name == name);
+                });
 
                 await InitializeLesson(lesson);
 
-                await lesson.StartLessonAsync();
+                await lesson.StartChallengeAsync(challenges.First());
 
                 await Bootstrapping(lesson);
 
-                await InitializeChallenge(lesson.CurrentChallenge);
+                await InitializeChallenge(kernel, lesson.CurrentChallenge);
 
                 kernel.UseProgressiveLearningMiddleware<T>(lesson);
             });
@@ -136,7 +134,7 @@ namespace Extension
 
                         if (lesson.CurrentChallenge != currentChallenge)
                         {
-                            await InitializeChallenge(lesson.CurrentChallenge);
+                            await InitializeChallenge(kernel, lesson.CurrentChallenge);
                         }
 
                         break;
@@ -149,7 +147,7 @@ namespace Extension
             return kernel;
         }
 
-        private static async Task InitializeChallenge(Challenge challengeToInit)
+        public static async Task InitializeChallenge(this Kernel kernel, Challenge challengeToInit)
         {
             if (challengeToInit is null)
             {
@@ -160,18 +158,18 @@ namespace Extension
             {
                 foreach (var setup in challengeToInit.Setup)
                 {
-                    await Kernel.Root.SendAsync(setup);
+                    await kernel.SendAsync(setup);
                 }
                 challengeToInit.IsSetup = true;
             }
 
             foreach (var content in challengeToInit.Contents)
             {
-                await Kernel.Root.SendAsync(content);
+                await kernel.SendAsync(content);
             }
             foreach (var setup in challengeToInit.EnvironmentSetup)
             {
-                await Kernel.Root.SendAsync(setup);
+                await kernel.SendAsync(setup);
             }
         }
 
