@@ -1,5 +1,10 @@
 #!csharp
 
+#r "nuget: EducationExtension"
+using Extension;
+
+#!csharp
+
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Events;
 
