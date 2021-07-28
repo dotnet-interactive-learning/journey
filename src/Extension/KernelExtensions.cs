@@ -6,8 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -25,18 +27,61 @@ namespace Extension
 
         public static T UseProgressiveLearning<T>(this T kernel) where T : Kernel, IKernelCommandHandler<ParseNotebook>
         {
-            var argument = new Argument<FileInfo>("file");
-            
+            Option<Uri> fromUrlOption = new Option<Uri>(
+                "--from-url",
+                "Specify lesson source URL" );
+
+            Option<FileInfo> fromFileOption = new Option<FileInfo>(
+                "--from-file",
+                description: "Specify lesson source file",
+                parseArgument: result =>
+                {
+                    var filePath = result.Tokens.Single().Value;
+                    var fromUrlResult = result.FindResultFor(fromUrlOption);
+
+                    if (fromUrlResult is not null)
+                    {
+                        result.ErrorMessage = $"The {fromUrlResult.Token.Value} and {(result.Parent as OptionResult).Token.Value} options cannot be used together";
+                        return null;
+                    }
+
+                    else if (!File.Exists(filePath))
+                    {
+                        result.ErrorMessage = Resources.Instance.FileDoesNotExist(filePath);
+                        return null;
+                    }
+
+                    else
+                    {
+                        return new FileInfo(filePath);
+                    }
+                });
+
             var startCommand = new Command("#!start-lesson")
             {
-                argument
+                fromFileOption,
+                fromUrlOption
             };
 
-            startCommand.Handler = CommandHandler.Create<FileInfo, KernelInvocationContext>(async (file, context) =>
+            startCommand.Handler = CommandHandler.Create<Uri, FileInfo, KernelInvocationContext>(async (fromUrl, fromFile, context) =>
             {
-                var rawData = await File.ReadAllBytesAsync(file.FullName);
-                // todo: NotebookFileFormatHandler.Parse what are its last two arguments
-                var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+                byte[] rawData = null;
+                var name = "";
+                if (fromFile is not null)
+                {
+                    rawData = await File.ReadAllBytesAsync(fromFile.FullName);
+                    name = fromFile.Name;
+                }
+                else
+                {
+                    var client = new HttpClient();
+                    var response = await client.GetAsync(fromUrl);
+                    response.EnsureSuccessStatusCode();
+                    rawData = await response.Content.ReadAsByteArrayAsync();
+                    name = fromUrl.Segments.Last();
+                }
+
+                var document = NotebookFileFormatHandler.Parse(name, rawData, "csharp", new Dictionary<string, string>());
                 NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
                 var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
                 challenges.SetDefaultProgressionHandlers();

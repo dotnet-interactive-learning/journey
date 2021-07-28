@@ -46,7 +46,7 @@ namespace Extension
             }
             else
             {
-                PocketView header = summary[@class: "challengeSummary"](b($"[ {this.label} ] "), b(message));
+                PocketView header = summary[@class: "challengeSummary"](($"[ {this.label} ]: "), b(message));
 
                 elements.Add(header);
             }
