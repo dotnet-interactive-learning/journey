@@ -15,12 +15,12 @@ namespace Extension.Tests
     {
         private IReadOnlyList<SendEditableCode> sampleContent = new SendEditableCode[]
         {
-            new SendEditableCode("markdown",
+            new("markdown",
 @"# Challenge 1
 
 ## Add 1 with 2 and return it"),
 
-            new SendEditableCode("csharp",
+            new("csharp",
 @"// write your answer here")
         };
 
@@ -30,13 +30,13 @@ namespace Extension.Tests
 
         private IReadOnlyList<SendEditableCode> sampleContent2 = new SendEditableCode[]
         {
-            new SendEditableCode("markdown",
+            new("markdown",
 @"# Challenge 2
 
 ## Times 1 with 2 and return it
 "),
 
-            new SendEditableCode("csharp", @"
+            new("csharp", @"
 // write your answer here
 ")
         };
@@ -44,8 +44,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_evaluate_a_challenge()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
@@ -56,7 +55,7 @@ namespace Extension.Tests
             });
             challenge.OnCodeSubmitted(challengeContext =>
             {
-                var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
+                double numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();
                 if (numPassed / total >= 0.5)
                 { }
@@ -67,7 +66,7 @@ namespace Extension.Tests
             });
 
             // teacher sends challenge
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             // student submit code
             await kernel.SubmitCodeAsync("1+1");
@@ -84,8 +83,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_access_challenge_submission_history_for_challenge_evaluation()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
@@ -96,7 +94,7 @@ namespace Extension.Tests
             });
             challenge.OnCodeSubmitted(challengeContext =>
             {
-                var numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
+                double numPassed = challengeContext.RuleEvaluations.Count(e => e.Passed);
                 var total = challengeContext.RuleEvaluations.Count();
                 if (numPassed / total >= 0.5)
                 {
@@ -113,19 +111,12 @@ namespace Extension.Tests
                         if (numPassed / total < 0.5) pastFailures++;
                     }
 
-                    if (pastFailures > 2)
-                    {
-                        challengeContext.SetMessage("Enough! Try something else.");
-                    }
-                    else
-                    {
-                        challengeContext.SetMessage("Keep working!");
-                    }
+                    challengeContext.SetMessage(pastFailures > 2 ? "Enough! Try something else." : "Keep working!");
                 }
             });
 
             // teacher sends challenge
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             // student submit code
             await kernel.SubmitCodeAsync(sampleAnswer);

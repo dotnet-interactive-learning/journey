@@ -1,3 +1,7 @@
+#!csharp
+
+using Extension;
+
 #!markdown
 
 # [Challenge] LinkedList

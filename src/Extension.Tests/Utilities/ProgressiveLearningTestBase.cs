@@ -17,7 +17,7 @@ namespace Extension.Tests.Utilities
             return new Challenge();
         }
 
-        protected async Task<CompositeKernel> CreateBootstrappedKernel(Lesson lesson, bool isTeacherMode)
+        protected async Task<CompositeKernel> CreateKernel(LessonMode mode)
         {
             var kernel = new CompositeKernel
             {
@@ -25,33 +25,10 @@ namespace Extension.Tests.Utilities
                 new FakeKernel("vscode")
             };
 
-            lesson.IsTeacherMode = isTeacherMode;
-            await kernel.Bootstrapping(lesson);
-            kernel.UseProgressiveLearning(lesson)
-                .UseModelAnswerValidation();
+            Lesson.Mode = mode;
 
-            kernel.DefaultKernelName = "csharp";
-            return kernel;
-        }
+            await Main.OnLoadAsync(kernel);
 
-        protected CompositeKernel CreateKernel(Lesson lesson = null)
-        {
-            var kernel = new CompositeKernel
-            {
-                new CSharpKernel(),
-                new FakeKernel("vscode")
-            };
-
-            if (lesson is not null)
-            {
-                kernel.UseProgressiveLearning(lesson);
-            }
-            else
-            {
-                kernel.UseProgressiveLearning();
-            }
-
-            kernel.DefaultKernelName = "csharp";
             return kernel;
         }
 

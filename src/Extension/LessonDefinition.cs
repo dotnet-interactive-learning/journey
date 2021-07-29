@@ -17,11 +17,5 @@ namespace Extension
             Name = name;
             Setup = setup;
         }
-
-        public Lesson ToLesson()
-        {
-            Lesson lesson = new(Name, Setup);
-            return lesson;
-        }
     }
 }

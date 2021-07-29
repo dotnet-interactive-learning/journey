@@ -18,7 +18,6 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_start_another_challenge_when_evaluating_a_challenge()
         {
-            var lesson = new Lesson();
             var challenge1 = GetEmptyChallenge();
             var challenge2 = GetEmptyChallenge();
             challenge1.OnCodeSubmittedAsync(async (context) =>
@@ -26,25 +25,24 @@ namespace Extension.Tests
                 await context.StartChallengeAsync(challenge2);
             });
             challenge1.SetDefaultProgressionHandler(challenge2);
-            await lesson.StartChallengeAsync(challenge1);
+            await Lesson.StartChallengeAsync(challenge1);
 
             await challenge1.Evaluate();
 
-            lesson.CurrentChallenge.Should().Be(challenge2);
+            Lesson.CurrentChallenge.Should().Be(challenge2);
         }
 
         [Fact]
         public async Task teacher_can_access_code_from_submission_history_when_evaluating_a_challenge()
         {
             var capturedCode = new List<string>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
                 capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -58,14 +56,13 @@ namespace Extension.Tests
         public async Task teacher_can_access_code_from_submission_history_when_evaluating_a_model_answer()
         {
             var capturedCode = new List<string>();
-            var lesson = new Lesson();
-            using var kernel = await CreateBootstrappedKernel(lesson, true);
+            using var kernel = await CreateKernel(LessonMode.TeacherMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
                 capturedCode = context.SubmissionHistory.Select(h => h.SubmittedCode).ToList();
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync(ToModelAnswer("1 + 1"));
             await kernel.SubmitCodeAsync(ToModelAnswer("1 + 2"));
@@ -78,11 +75,10 @@ namespace Extension.Tests
         [Fact]
         public async Task challenge_tracks_submitted_code_in_submission_history()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -95,67 +91,59 @@ namespace Extension.Tests
         public async Task challenge_tracks_events_in_submission_history()
         {
             var capturedEvents = new List<List<KernelEvent>>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("alsjl");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
 
             capturedEvents = challenge.SubmissionHistory.Select(s => s.EventsProduced.ToList()).ToList();
-            capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
-            {
-                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3),
-                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
-                evts => evts.Should().ContainSingle<CommandFailed>()
-            });
+            capturedEvents.Should().SatisfyRespectively(
+                events => events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3),
+                events => events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
+                events => events.Should().ContainSingle<CommandFailed>());
         }
 
         [Fact]
         public async Task challenge_tracks_evaluations_in_submission_history()
         {
-            var capturedEvaluation = new List<ChallengeEvaluation>();
-            int numberOfSubmission = 1;
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            var numberOfSubmission = 1;
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
                 context.SetMessage($"{numberOfSubmission}");
                 numberOfSubmission++;
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 1");
 
-            capturedEvaluation = challenge.SubmissionHistory.Select(h => h.Evaluation).ToList();
+            var capturedEvaluation = challenge.SubmissionHistory.Select(h => h.Evaluation).ToList();
 
-            capturedEvaluation.Should().SatisfyRespectively(new Action<ChallengeEvaluation>[]
-            {
+            capturedEvaluation.Should().SatisfyRespectively(
                 e => e.Message.Should().Be("3"),
                 e => e.Message.Should().Be("2"),
-                e => e.Message.Should().Be("1")
-            });
+                e => e.Message.Should().Be("1"));
         }
 
         [Fact]
         public async Task teacher_can_access_code_when_evaluating_a_rule()
         {
             var capturedCode = new List<string>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context =>
             {
                 capturedCode.Add(context.SubmittedCode);
             });
             challenge.OnCodeSubmitted(_ => { });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
@@ -168,39 +156,35 @@ namespace Extension.Tests
         public async Task teacher_can_access_events_when_evaluating_a_rule()
         {
             var capturedEvents = new List<List<KernelEvent>>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context =>
             {
                 capturedEvents.Add(context.EventsProduced.ToList());
             });
             challenge.OnCodeSubmitted(_ => { });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("alsjkdf");
             await kernel.SubmitCodeAsync("1 + 1");
             await kernel.SubmitCodeAsync("1 + 2");
 
-            capturedEvents.Should().SatisfyRespectively(new Action<List<KernelEvent>>[]
-            {
-                evts => evts.Should().ContainSingle<CommandFailed>(),
-                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
-                evts => evts.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3)
-            });
+            capturedEvents.Should().SatisfyRespectively(
+                events => events.Should().ContainSingle<CommandFailed>(),
+                events => events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(2),
+                events => events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(3));
         }
 
         [Fact]
         public async Task teacher_can_use_assertion_libraries_in_rule_definitions()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
                 3.Should().Be(10);
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -210,14 +194,11 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_exceptions_to_fail_evaluation()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
-            challenge.AddRule(c =>
-            {
-                throw new ArgumentException($"Students should write better than {c.SubmittedCode}");
-            });
-            await lesson.StartChallengeAsync(challenge);
+            challenge.AddRule(
+                c => throw new ArgumentException($"Students should write better than {c.SubmittedCode}"));
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -227,8 +208,7 @@ namespace Extension.Tests
         [Fact]
         public async Task unhandled_exception_will_cause_rule_to_fail()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
@@ -239,7 +219,7 @@ namespace Extension.Tests
                     c.Pass("Good job");
                 }
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 

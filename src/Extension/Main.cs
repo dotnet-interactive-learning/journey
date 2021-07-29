@@ -10,17 +10,14 @@ namespace Extension
 {
     public static class Main
     { 
-        public static async Task OnLoadAsync(Kernel kernel)
+        public static Task OnLoadAsync(Kernel kernel)
         {
-            var lesson = new Lesson
-            {
-                IsTeacherMode = true
-            };
-
+            Lesson.Clear();
             if (kernel is CompositeKernel compositeKernel)
             {
-                await compositeKernel.Bootstrapping(lesson);
-                compositeKernel.UseProgressiveLearning(lesson)
+                Lesson.ResetChallenge();
+                compositeKernel.UseProgressiveLearning()
+                    .UseProgressiveLearningMiddleware()
                     .UseModelAnswerValidation();
             }
             else
@@ -32,6 +29,8 @@ namespace Extension
             {
                 context.DisplayAs("Hello world! EducationExtension loaded!", "text/markdown");
             }
+
+            return Task.CompletedTask;
         }
 
         public static void RegisterEvents()

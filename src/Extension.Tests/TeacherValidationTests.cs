@@ -28,8 +28,8 @@ namespace Extension.Tests
             var filename = "teacherValidation.dib";
             var file = new FileInfo(GetNotebookPath($@"Notebooks\{filename}"));
             var document = await File.ReadAllBytesAsync(file.FullName);
-            var lesson = new Lesson();
-            var kernel = await CreateBootstrappedKernel(lesson, true);
+            
+            var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             await RunAllCells(filename, document, kernel);
@@ -37,8 +37,7 @@ namespace Extension.Tests
             events
                 .OfType<DisplayedValueProduced>()
                 .Should()
-                .SatisfyRespectively(new Action<DisplayedValueProduced>[]
-                {
+                .SatisfyRespectively(
                     e => e.FormattedValues.Single(v => v.MimeType == "text/html")
                         .Value.ContainsAll(
                             "Challenge func rule failed",
@@ -54,14 +53,13 @@ namespace Extension.Tests
                     e => e.FormattedValues.Single(v => v.MimeType == "text/html")
                         .Value.ContainsAll(
                             "Challenge math rule failed",
-                            "Challenge math message")
-                });
+                            "Challenge math message"));
         }
 
         [Fact]
         public async Task teacher_can_use_add_rule_when_starting_a_lesson()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
 
@@ -77,7 +75,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_starting_a_lesson()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
 
@@ -92,7 +90,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_add_rule_when_progressing_the_student_to_different_challenge()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
@@ -109,7 +107,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_progressing_the_student_to_different_challenge()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");

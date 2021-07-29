@@ -12,18 +12,19 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
+[assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Extension.Tests
 {
     public class LessonTests : ProgressiveLearningTestBase
     {
         private Challenge GetChallenge(string name = null)
         {
-            return new Challenge(name: name);
+            return new(name: name);
         }
 
         private List<SendEditableCode> GetSendEditableCode(string code)
         {
-            return new List<SendEditableCode>
+            return new()
             {
                 new SendEditableCode("csharp", code)
             };
@@ -32,10 +33,9 @@ namespace Extension.Tests
         [Fact]
         public async Task starting_to_an_unrevealed_challenge_directly_reveals_it()
         {
-            var lesson = new Lesson();
             var challenge = GetChallenge();
 
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             challenge.Revealed.Should().BeTrue();
         }
@@ -43,44 +43,41 @@ namespace Extension.Tests
         [Fact]
         public async Task starting_a_challenge_sets_the_current_challenge_to_it()
         {
-            var lesson = new Lesson();
             var challenge = GetChallenge();
 
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
-            lesson.CurrentChallenge.Should().Be(challenge);
+            Lesson.CurrentChallenge.Should().Be(challenge);
         }
 
         [Fact]
         public async Task teacher_can_start_a_challenge_using_challenge_name()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new Challenge[]
             {
-                new Challenge(contents: GetSendEditableCode("1"), name: "1"),
-                new Challenge(contents: GetSendEditableCode("2"), name: "2"),
-                new Challenge(contents: GetSendEditableCode("3"), name: "3")
+                new(contents: GetSendEditableCode("1"), name: "1"),
+                new(contents: GetSendEditableCode("2"), name: "2"),
+                new(contents: GetSendEditableCode("3"), name: "3")
             }.ToList();
             challenges[0].OnCodeSubmittedAsync(async context =>
             {
                 await context.StartChallengeAsync("3");
             });
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
-            lesson.SetChallengeLookup(name => challenges.FirstOrDefault(c => c.Name == name));
+            await Lesson.StartChallengeAsync(challenges[0]);
+            Lesson.SetChallengeLookup(name => challenges.FirstOrDefault(c => c.Name == name));
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenges[2]);
+            Lesson.CurrentChallenge.Should().Be(challenges[2]);
         }
 
         [Fact]
         public async Task teacher_can_explicitly_start_the_next_challenge()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
-            var challenges = new Challenge[]
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            var challenges = new[]
             {
                 GetChallenge("1"),
                 GetChallenge("2"),
@@ -91,19 +88,18 @@ namespace Extension.Tests
                 await context.StartNextChallengeAsync();
             });
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenges[1]);
+            Lesson.CurrentChallenge.Should().Be(challenges[1]);
         }
 
         [Fact]
         public async Task teacher_can_stay_at_the_current_challenge()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
-            var challenges = new Challenge[]
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            var challenges = new[]
             {
                 GetChallenge("1"),
                 GetChallenge("2"),
@@ -114,19 +110,18 @@ namespace Extension.Tests
                 context.SetMessage("hi");
             });
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenges[0]);
+            Lesson.CurrentChallenge.Should().Be(challenges[0]);
         }
 
         [Fact]
         public async Task when_teacher_chooses_to_stay_at_the_current_challenge_the_next_challenge_is_not_revealed()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -135,18 +130,18 @@ namespace Extension.Tests
             });
             using var events = kernel.KernelEvents.ToSubscribedList();
             var contents = new SendEditableCode[] {
-                new SendEditableCode("csharp", "var a = 2;"),
-                new SendEditableCode("csharp", "var b = 3;"),
-                new SendEditableCode("csharp", "a = 4;")
+                new("csharp", "var a = 2;"),
+                new("csharp", "var b = 3;"),
+                new("csharp", "a = 4;")
             };
             var challenges = new Challenge[]
             {
-                new Challenge(),
-                new Challenge(contents: contents)
+                new(),
+                new(contents: contents)
             }.ToList();
             challenges[0].OnCodeSubmitted(context => { });
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
@@ -156,71 +151,67 @@ namespace Extension.Tests
         [Fact]
         public async Task explicitly_starting_the_next_challenge_at_last_challenge_does_nothing()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetChallenge("1");
             challenge.OnCodeSubmittedAsync(async context =>
             {
                 await context.StartNextChallengeAsync();
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(null);
+            Lesson.CurrentChallenge.Should().Be(null);
         }
 
         [Fact]
         public async Task when_a_student_submits_code_to_a_challenge_they_move_to_the_next_challenge()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
-            var challenges = new Challenge[]
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            var challenges = new[]
             {
                 GetChallenge("1"),
                 GetChallenge("2"),
                 GetChallenge("3")
             }.ToList();
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
 
-            lesson.CurrentChallenge.Should().Be(challenges[1]);
+            Lesson.CurrentChallenge.Should().Be(challenges[1]);
         }
 
         [Fact]
-        public async Task when_a_student_completes_the_last_challenge_then_the_lesson_is_completed()
+        public async Task when_a_student_completes_the_last_challenge_then_the_Lesson_is_completed()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
-            var challenges = new Challenge[]
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            var challenges = new[]
             {
                 GetChallenge("1"),
                 GetChallenge("2")
             }.ToList();
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
 
             await kernel.SubmitCodeAsync("1+1");
             await kernel.SubmitCodeAsync("2+1");
 
-            lesson.CurrentChallenge.Should().Be(null);
+            Lesson.CurrentChallenge.Should().Be(null);
         }
 
         [Fact]
-        public async Task teacher_can_run_challenge_environment_setup_code_when_starting_a_lesson()
+        public async Task teacher_can_run_challenge_environment_setup_code_when_starting_a_Lesson()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             var setup = new SubmitCode[] {
-                new SubmitCode("var a = 2;"),
-                new SubmitCode("var b = 3;"),
-                new SubmitCode("a = 4;")
+                new("var a = 2;"),
+                new("var b = 3;"),
+                new("a = 4;")
             };
             var challenge = new Challenge(environmentSetup: setup);
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
             await kernel.InitializeChallenge(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
@@ -229,11 +220,10 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_show_challenge_contents_when_starting_a_lesson()
+        public async Task teacher_can_show_challenge_contents_when_starting_a_Lesson()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -242,12 +232,12 @@ namespace Extension.Tests
             });
             using var events = kernel.KernelEvents.ToSubscribedList();
             var contents = new SendEditableCode[] {
-                new SendEditableCode("csharp", "var a = 2;"),
-                new SendEditableCode("csharp", "var b = 3;"),
-                new SendEditableCode("csharp", "a = 4;")
+                new("csharp", "var a = 2;"),
+                new("csharp", "var b = 3;"),
+                new("csharp", "a = 4;")
             };
-            Challenge challenge = new Challenge(contents: contents);
-            await lesson.StartChallengeAsync(challenge);
+            var challenge = new Challenge(contents: contents);
+            await Lesson.StartChallengeAsync(challenge);
             await kernel.InitializeChallenge(challenge);
 
             await kernel.SubmitCodeAsync("a+b");
@@ -258,21 +248,20 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_run_challenge_environment_setup_code_when_progressing_the_student_to_a_new_challenge()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             var setup = new SubmitCode[] {
-                new SubmitCode("var a = 2;"),
-                new SubmitCode("var b = 3;"),
-                new SubmitCode("a = 4;")
+                new("var a = 2;"),
+                new("var b = 3;"),
+                new("a = 4;")
             };
             var challenges = new Challenge[]
             {
-                new Challenge(),
-                new Challenge(environmentSetup: setup)
+                new(),
+                new(environmentSetup: setup)
             }.ToList();
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
             await kernel.SubmitCodeAsync("a + b");
@@ -284,8 +273,7 @@ namespace Extension.Tests
         public async Task teacher_can_show_challenge_contents_when_progressing_the_student_to_a_new_challenge()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -294,22 +282,100 @@ namespace Extension.Tests
             });
             using var events = kernel.KernelEvents.ToSubscribedList();
             var contents = new SendEditableCode[] {
-                new SendEditableCode("csharp", "var a = 2;"),
-                new SendEditableCode("csharp", "var b = 3;"),
-                new SendEditableCode("csharp", "a = 4;")
+                new("csharp", "var a = 2;"),
+                new("csharp", "var b = 3;"),
+                new("csharp", "a = 4;")
             };
             var challenges = new Challenge[]
             {
-                new Challenge(),
-                new Challenge(contents: contents)
+                new(),
+                new(contents: contents)
             }.ToList();
             challenges.SetDefaultProgressionHandlers();
-            await lesson.StartChallengeAsync(challenges[0]);
+            await Lesson.StartChallengeAsync(challenges[0]);
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
             await kernel.SubmitCodeAsync("a + b");
 
             capturedCommands.Should().BeEquivalentTo(contents);
+        }
+
+        [Fact]
+        public async Task after_starting_a_lesson_the_student_can_submit_multiple_times_to_the_same_challenge_and_see_evaluation_feedback_for_the_latest_submission()
+        {
+            var correctAnswer = "1 + 1";
+            var incorrectAnswer = "1 + 2";
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenge = new Challenge();
+            challenge.AddRule(context =>
+            {
+                if (context.SubmittedCode == correctAnswer)
+                {
+                    context.Pass("You passed");
+                }
+                else
+                {
+                    context.Fail("You failed");
+                }
+            });
+            challenge.OnCodeSubmittedAsync(async context =>
+            {
+                var numRules = context.RuleEvaluations.Count();
+                var numPassedRules = context.RuleEvaluations.Count(e => e.Passed);
+                if (numRules == numPassedRules)
+                {
+                    await context.StartNextChallengeAsync();
+                }
+            });
+            await Lesson.StartChallengeAsync(challenge);
+            await kernel.SubmitCodeAsync(incorrectAnswer);
+
+            await kernel.SubmitCodeAsync(correctAnswer);
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.Contains("You passed"));
+        }
+
+        [Fact]
+        public async Task after_progressing_to_a_new_challenge_the_student_can_submit_multiple_times_to_the_same_challenge_and_see_evaluation_feedback_for_the_latest_submission()
+        {
+            var correctAnswer = "1 + 1";
+            var incorrectAnswer = "1 + 2";
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenges = new List<Challenge> { new(), new() };
+            challenges[1].AddRule(context =>
+            {
+                if (context.SubmittedCode == correctAnswer)
+                {
+                    context.Pass("You passed");
+                }
+                else
+                {
+                    context.Fail("You failed");
+                }
+            });
+            challenges[1].OnCodeSubmittedAsync(async context =>
+            {
+                var numRules = context.RuleEvaluations.Count();
+                var numPassedRules = context.RuleEvaluations.Count(e => e.Passed);
+                if (numRules == numPassedRules)
+                {
+                    await context.StartNextChallengeAsync();
+                }
+            });
+            challenges.SetDefaultProgressionHandlers();
+            await Lesson.StartChallengeAsync(challenges[0]);
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            await kernel.SubmitCodeAsync(incorrectAnswer);
+
+            await kernel.SubmitCodeAsync(correctAnswer);
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.Contains("You passed"));
         }
     }
 }

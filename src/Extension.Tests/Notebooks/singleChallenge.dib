@@ -1,8 +1,10 @@
 #!csharp
 
 #r "nuget: EducationExtension"
+
+#!csharp
+
 using Extension;
-var Lesson = new Lesson();
 
 #!markdown
 
