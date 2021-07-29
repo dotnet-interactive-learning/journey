@@ -220,10 +220,10 @@ It should output the list of values for each node in tree. The order should be d
 
 #!csharp
 
-IEnumerable<int> DepthFirstTraverse(BinaryTree root)
+DepthFirstTraverse = root => 
 {
     throw new NotImplementedException(); // write your answer here
-}
+};
 
 #!markdown
 
