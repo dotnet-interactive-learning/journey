@@ -14,9 +14,9 @@ namespace Extension
             Name = name;
             evaluateRuleContextHandler = ruleContraints;
         }
-        internal void Evaluate(RuleContext context)
+        internal async Task Evaluate(RuleContext context)
         {
-            evaluateRuleContextHandler.Invoke(context);
+            await evaluateRuleContextHandler.Invoke(context);
         }
     }
 }
