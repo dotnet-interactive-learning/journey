@@ -36,7 +36,7 @@ namespace Extension.Tests
         public async Task teacher_can_access_code_from_submission_history_when_evaluating_a_challenge()
         {
             var capturedCode = new List<string>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
@@ -75,7 +75,7 @@ namespace Extension.Tests
         [Fact]
         public async Task challenge_tracks_submitted_code_in_submission_history()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
             await Lesson.StartChallengeAsync(challenge);
@@ -91,7 +91,7 @@ namespace Extension.Tests
         public async Task challenge_tracks_events_in_submission_history()
         {
             var capturedEvents = new List<List<KernelEvent>>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(_ => { });
             await Lesson.StartChallengeAsync(challenge);
@@ -111,7 +111,7 @@ namespace Extension.Tests
         public async Task challenge_tracks_evaluations_in_submission_history()
         {
             int numberOfSubmission = 1;
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
@@ -136,7 +136,7 @@ namespace Extension.Tests
         public async Task teacher_can_access_code_when_evaluating_a_rule()
         {
             var capturedCode = new List<string>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context =>
             {
@@ -156,7 +156,7 @@ namespace Extension.Tests
         public async Task teacher_can_access_events_when_evaluating_a_rule()
         {
             var capturedEvents = new List<List<KernelEvent>>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context =>
             {
@@ -178,7 +178,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_assertion_libraries_in_rule_definitions()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {
@@ -194,7 +194,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_exceptions_to_fail_evaluation()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(
                 c => throw new ArgumentException($"Students should write better than {c.SubmittedCode}"));
@@ -208,7 +208,7 @@ namespace Extension.Tests
         [Fact]
         public async Task unhandled_exception_will_cause_rule_to_fail()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
             {

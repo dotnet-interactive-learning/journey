@@ -17,7 +17,7 @@ namespace Extension.Tests.Utilities
             return new Challenge();
         }
 
-        protected async Task<CompositeKernel> CreateKernel(LessonMode mode = LessonMode.StudentMode)
+        protected async Task<CompositeKernel> CreateKernel(LessonMode mode)
         {
             var kernel = new CompositeKernel
             {

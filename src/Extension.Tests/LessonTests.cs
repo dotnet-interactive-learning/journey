@@ -53,7 +53,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_start_a_challenge_using_challenge_name()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new Challenge[]
             {
                 new(contents: GetSendEditableCode("1"), name: "1"),
@@ -76,7 +76,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_explicitly_start_the_next_challenge()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new[]
             {
                 GetChallenge("1"),
@@ -98,7 +98,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_stay_at_the_current_challenge()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new[]
             {
                 GetChallenge("1"),
@@ -121,7 +121,7 @@ namespace Extension.Tests
         public async Task when_teacher_chooses_to_stay_at_the_current_challenge_the_next_challenge_is_not_revealed()
         {
             var capturedCommands = new List<SendEditableCode>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -151,7 +151,7 @@ namespace Extension.Tests
         [Fact]
         public async Task explicitly_starting_the_next_challenge_at_last_challenge_does_nothing()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetChallenge("1");
             challenge.OnCodeSubmittedAsync(async context =>
             {
@@ -167,7 +167,7 @@ namespace Extension.Tests
         [Fact]
         public async Task when_a_student_submits_code_to_a_challenge_they_move_to_the_next_challenge()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new[]
             {
                 GetChallenge("1"),
@@ -185,7 +185,7 @@ namespace Extension.Tests
         [Fact]
         public async Task when_a_student_completes_the_last_challenge_then_the_Lesson_is_completed()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenges = new[]
             {
                 GetChallenge("1"),
@@ -203,7 +203,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_run_challenge_environment_setup_code_when_starting_a_Lesson()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             var setup = new SubmitCode[] {
                 new("var a = 2;"),
@@ -223,7 +223,7 @@ namespace Extension.Tests
         public async Task teacher_can_show_challenge_contents_when_starting_a_Lesson()
         {
             var capturedCommands = new List<SendEditableCode>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -248,7 +248,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_run_challenge_environment_setup_code_when_progressing_the_student_to_a_new_challenge()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
             var setup = new SubmitCode[] {
                 new("var a = 2;"),
@@ -273,7 +273,7 @@ namespace Extension.Tests
         public async Task teacher_can_show_challenge_contents_when_progressing_the_student_to_a_new_challenge()
         {
             var capturedCommands = new List<SendEditableCode>();
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {

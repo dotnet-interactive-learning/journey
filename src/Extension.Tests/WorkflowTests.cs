@@ -44,7 +44,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_evaluate_a_challenge()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
@@ -83,7 +83,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_access_challenge_submission_history_for_challenge_evaluation()
         {
-            using var kernel = await CreateKernel();
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
             // teacher defines challenge
