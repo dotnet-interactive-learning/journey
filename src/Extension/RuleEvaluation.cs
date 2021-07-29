@@ -50,9 +50,9 @@ namespace Extension
         {
             var outcomeDivStyle = Outcome switch
             {
-                Outcome.Success => "background:#49B83461",
-                Outcome.PartialSuccess => "background:#FF00008A",
-                Outcome.Failure => "background:#FF00008A",
+                Outcome.Success => "background:#49B83461; border-width:thin; border-color:#49B83461",
+                Outcome.PartialSuccess => "background:#FF00008A; border-width:thin; border-color:#FF00008A",
+                Outcome.Failure => "background:#FF00008A; border-width:thin; border-color:#FF00008A",
                 _ => throw new NotImplementedException()
             };
 
@@ -82,7 +82,7 @@ namespace Extension
 
             if (!string.IsNullOrWhiteSpace(Reason))
             {
-                elements.Add(p(Reason)); 
+                elements.Add(div(Reason)); 
             }
 
             if (Hint is not null)
