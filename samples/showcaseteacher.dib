@@ -1,6 +1,7 @@
 #!csharp
 
 #r "nuget: EducationExtension"
+#r "nuget: SixLabors.ImageSharp.Interactive, *-*"
 
 #!csharp
 
@@ -9,6 +10,8 @@ using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
+using SixLabors.ImageSharp;
+using System.IO;
 
 #!csharp
 
@@ -86,9 +89,7 @@ In this challenge, you will be writing an algorithm for traversing the nodes of 
 
 The type you will be working with is `BinaryTree`. It represents the root node of the binary tree rooted at that node. It has an integer property `Value` representing the node's value. It also has the properties `Left` and `Right` that represents the left and right subtrees.
 
-Your method signature should be
-
-`IEnumerable<int> Traverse(BinaryTree root)`.
+Your will write your answer as a lambda and assign it to `Traverse`. The lambda should have type `Func<BinaryTree, IEnumerable<int>>`.
 
 It should output the list of values for each node in the tree. The order does not matter.
 
@@ -164,20 +165,27 @@ Func<BinaryTree, IEnumerable<int>> DepthFirstTraverse = root => Enumerable.Empty
 
 #!csharp
 
-Lesson.CurrentChallenge.AddRule("Checking DF traversal", context =>
+Lesson.CurrentChallenge.AddRuleAsync("Checking depth first traversal", async context =>
 {
     var sampleLeft = new BinaryTree(2, new BinaryTree(3, null, null), new BinaryTree(4, null, null));
     var sampleRight = new BinaryTree(5, null, new BinaryTree(6, null, null));
     var sample = new BinaryTree(1, sampleLeft, sampleRight);
     var correctans = new int[] { 1, 2, 3, 4, 5, 6 };
+    var bfsans = new int[] { 1, 2, 5, 3, 4, 6 };
     var ans = DepthFirstTraverse(sample);
     if (correctans.SequenceEqual(ans))
     {
-        context.Pass("DF Traversal correct");
+        context.Pass("Depth first traversal correct");
+    }
+    else if (bfsans.SequenceEqual(ans))
+    {
+        var data = await File.ReadAllBytesAsync("bfs_vs_dfs.png");
+        var image = Image.Load(data);
+        context.Fail("Depth first traversal incorrect. You performed breadth first traversal", image);
     }
     else
     {
-        context.Fail("DF Traversal incorrect");
+        context.Fail("Depth first traversal incorrect");
     }
 });
 
@@ -212,9 +220,7 @@ In this challenge, you will be writing an algorithm for traversing the nodes of 
 
 The type you will be working with is the same as the last challenge.
 
-Your method signature should be
-
-`IEnumerable<int> DepthFirstTraverse(BinaryTree root)`.
+Your will write your answer as a lambda and assign it to `DepthFirstTraverse`. The lambda should have type `Func<BinaryTree, IEnumerable<int>>`.
 
 It should output the list of values for each node in tree. The order should be depth first.
 
@@ -262,6 +268,30 @@ DepthFirstTraverse = root =>
     ans.Add(root.Value);
     ans.AddRange(DepthFirstTraverse(root.Right));
     ans.AddRange(DepthFirstTraverse(root.Left));
+    return ans;
+};
+
+#!csharp
+
+#!model-answer
+// this should fail with hint
+
+DepthFirstTraverse = root => 
+{
+    var ans = new List<int>();
+    var q = new Queue<BinaryTree>();
+    q.Enqueue(root);
+    while (q.Count > 0)
+    {
+        var curr = q.Dequeue();
+        if (curr is null)
+        {
+            continue;
+        }
+        ans.Add(curr.Value);
+        q.Enqueue(curr.Left);
+        q.Enqueue(curr.Right);
+    }
     return ans;
 };
 
