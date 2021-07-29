@@ -32,6 +32,8 @@ namespace Extension
 
         public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel)
         {
+            kernel.Bootstrapping();
+
             var fromUrlOption = new Option<Uri>(
                 "--from-url",
                 "Specify lesson source URL");
@@ -99,8 +101,6 @@ namespace Extension
                 await kernel.StartLesson();
 
                 await Lesson.StartChallengeAsync(challenges.First());
-
-                await kernel.Bootstrapping();
 
                 await kernel.InitializeChallenge(Lesson.CurrentChallenge);
             }
@@ -182,12 +182,11 @@ namespace Extension
             }
         }
 
-        private static Task Bootstrapping(this CompositeKernel kernel)
+        private static void Bootstrapping(this Kernel kernel)
         {
             var csharpKernel = kernel.RootKernel.FindKernel("csharp") as CSharpKernel;
             csharpKernel.DeferCommand(new SubmitCode($"#r \"{typeof(Lesson).Assembly.Location}\"", csharpKernel.Name));
             csharpKernel.DeferCommand(new SubmitCode($"using {typeof(Lesson).Namespace};", csharpKernel.Name));
-            return Task.CompletedTask;
         }
 
         private static async Task StartLesson(this Kernel kernel)
