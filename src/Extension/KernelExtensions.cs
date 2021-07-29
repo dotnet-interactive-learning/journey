@@ -43,23 +43,18 @@ namespace Extension
                 {
                     var filePath = result.Tokens.Single().Value;
                     var fromUrlResult = result.FindResultFor(fromUrlOption);
-
                     if (fromUrlResult is not null)
                     {
                         result.ErrorMessage = $"The {fromUrlResult.Token.Value} and {(result.Parent as OptionResult).Token.Value} options cannot be used together";
                         return null;
                     }
 
-                    else if (!File.Exists(filePath))
+                    if (!File.Exists(filePath))
                     {
                         result.ErrorMessage = Resources.Instance.FileDoesNotExist(filePath);
                         return null;
                     }
-
-                    else
-                    {
-                        return new FileInfo(filePath);
-                    }
+                    return new FileInfo(filePath);
                 });
 
             var startCommand = new Command("#!start-lesson")
@@ -187,7 +182,7 @@ namespace Extension
             }
         }
 
-        public static async Task Bootstrapping(this CompositeKernel kernel)
+        private static async Task Bootstrapping(this CompositeKernel kernel)
         {
             var csharpKernel = kernel.RootKernel.FindKernel("csharp") as CSharpKernel;
             await csharpKernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");

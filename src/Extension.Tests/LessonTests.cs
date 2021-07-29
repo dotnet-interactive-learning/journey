@@ -299,5 +299,83 @@ namespace Extension.Tests
 
             capturedCommands.Should().BeEquivalentTo(contents);
         }
+
+        [Fact]
+        public async Task after_starting_a_lesson_the_student_can_submit_multiple_times_to_the_same_challenge_and_see_evaluation_feedback_for_the_latest_submission()
+        {
+            var correctAnswer = "1 + 1";
+            var incorrectAnswer = "1 + 2";
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenge = new Challenge();
+            challenge.AddRule(context =>
+            {
+                if (context.SubmittedCode == correctAnswer)
+                {
+                    context.Pass("You passed");
+                }
+                else
+                {
+                    context.Fail("You failed");
+                }
+            });
+            challenge.OnCodeSubmittedAsync(async context =>
+            {
+                var numRules = context.RuleEvaluations.Count();
+                var numPassedRules = context.RuleEvaluations.Count(e => e.Passed);
+                if (numRules == numPassedRules)
+                {
+                    await context.StartNextChallengeAsync();
+                }
+            });
+            await Lesson.StartChallengeAsync(challenge);
+            await kernel.SubmitCodeAsync(incorrectAnswer);
+
+            await kernel.SubmitCodeAsync(correctAnswer);
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.Contains("You passed"));
+        }
+
+        [Fact]
+        public async Task after_progressing_to_a_new_challenge_the_student_can_submit_multiple_times_to_the_same_challenge_and_see_evaluation_feedback_for_the_latest_submission()
+        {
+            var correctAnswer = "1 + 1";
+            var incorrectAnswer = "1 + 2";
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenges = new List<Challenge> { new(), new() };
+            challenges[1].AddRule(context =>
+            {
+                if (context.SubmittedCode == correctAnswer)
+                {
+                    context.Pass("You passed");
+                }
+                else
+                {
+                    context.Fail("You failed");
+                }
+            });
+            challenges[1].OnCodeSubmittedAsync(async context =>
+            {
+                var numRules = context.RuleEvaluations.Count();
+                var numPassedRules = context.RuleEvaluations.Count(e => e.Passed);
+                if (numRules == numPassedRules)
+                {
+                    await context.StartNextChallengeAsync();
+                }
+            });
+            challenges.SetDefaultProgressionHandlers();
+            await Lesson.StartChallengeAsync(challenges[0]);
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            await kernel.SubmitCodeAsync(incorrectAnswer);
+
+            await kernel.SubmitCodeAsync(correctAnswer);
+
+            events.Should().ContainSingle<DisplayedValueProduced>(
+                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
+                    .Value.Contains("You passed"));
+        }
     }
 }
