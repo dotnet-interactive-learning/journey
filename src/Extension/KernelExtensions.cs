@@ -182,11 +182,12 @@ namespace Extension
             }
         }
 
-        private static async Task Bootstrapping(this CompositeKernel kernel)
+        private static Task Bootstrapping(this CompositeKernel kernel)
         {
             var csharpKernel = kernel.RootKernel.FindKernel("csharp") as CSharpKernel;
-            await csharpKernel.SubmitCodeAsync($"#r \"{typeof(Lesson).Assembly.Location}\"");
-            await csharpKernel.SubmitCodeAsync($"using {typeof(Lesson).Namespace};");
+            csharpKernel.DeferCommand(new SubmitCode($"#r \"{typeof(Lesson).Assembly.Location}\"", csharpKernel.Name));
+            csharpKernel.DeferCommand(new SubmitCode($"using {typeof(Lesson).Namespace};", csharpKernel.Name));
+            return Task.CompletedTask;
         }
 
         private static async Task StartLesson(this Kernel kernel)

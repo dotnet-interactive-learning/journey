@@ -29,7 +29,6 @@ namespace Extension.Tests.Utilities
 
             await Main.OnLoadAsync(kernel);
 
-
             return kernel;
         }
 
