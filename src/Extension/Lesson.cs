@@ -2,43 +2,38 @@
 using Microsoft.DotNet.Interactive.Commands;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Extension
 {
+    public enum LessonMode
+    {
+        TeacherMode,
+        StudentMode
+    }
+
     public class Lesson
     {
-        public string Name { get; }
-        public Challenge CurrentChallenge { get; private set; }
-        public IReadOnlyList<SubmitCode> Setup { get; private set; }
-        public Action ResetChallenge { get; private set; }
-        public bool IsTeacherMode { get; set; } = false;
+        public static string Name { get; private set; }
+        public static Challenge CurrentChallenge { get; private set; }
+        public static IReadOnlyList<SubmitCode> Setup { get; private set; }
+        public static LessonMode Mode { get; internal set; } = LessonMode.TeacherMode;
 
-        private Func<string, Task<Challenge>> _challengeLookup;
+        private static Func<string, Task<Challenge>> _challengeLookup;
 
-        public Lesson(string name = null, IReadOnlyList<SubmitCode> setup = null)
-        {
-            Name = name;
-            Setup = setup;
-            ResetChallenge = () =>
-            {
-                CurrentChallenge = new Challenge();
-                CurrentChallenge.Lesson = this;
-            };
-        }
-
-        public Task StartChallengeAsync(Challenge challenge)
+        public static Task StartChallengeAsync(Challenge challenge)
         {
             CurrentChallenge = challenge;
             if (CurrentChallenge is not null)
             {
                 CurrentChallenge.Revealed = true;
-                CurrentChallenge.Lesson = this;
             }
+
             return Task.CompletedTask;
         }
 
-        public async Task StartChallengeAsync(string name)
+        public static async Task StartChallengeAsync(string name)
         {
             var challenge = await _challengeLookup(name);
             if (challenge is not null)
@@ -47,22 +42,45 @@ namespace Extension
             }
         }
 
-        public void SetChallengeLookup(Func<string, Challenge> handler)
+        public static void SetChallengeLookup(Func<string, Challenge> handler)
         {
-            _challengeLookup = name =>
-            {
-                return Task.FromResult(handler(name));
-            };
+            _challengeLookup = name => Task.FromResult(handler(name));
         }
 
-        public void SetChallengeLookup(Func<string, Task<Challenge>> handler)
+        public static void SetChallengeLookup(Func<string, Task<Challenge>> handler)
         {
             _challengeLookup = handler;
         }
 
-        public void ClearResetChallengeAction()
+        public static void ResetChallenge()
         {
-            ResetChallenge = () => { };
+            switch (Mode)
+            {
+                case LessonMode.StudentMode:
+                    break;
+                case LessonMode.TeacherMode:
+                    CurrentChallenge = new Challenge();
+                    break;
+            }
+        }
+
+        public static void From(LessonDefinition definition)
+        {
+            Name = definition.Name;
+            Setup = definition.Setup;
+        }
+
+        public static bool IsSetupCommand(KernelCommand command)
+        {
+            return (CurrentChallenge?.EnvironmentSetup?.Any(s => s == command || s == command.Parent) ?? false)
+                   || (CurrentChallenge?.Setup?.Any(s => s == command || s == command.Parent) ?? false)
+                   || (Setup?.Any(s => s == command || s == command.Parent) ?? false);
+        }
+
+        public static void Clear()
+        {
+            Name = "";
+            CurrentChallenge = null;
         }
     }
 }

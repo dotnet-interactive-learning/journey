@@ -18,14 +18,13 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_provide_challenge_evaluation_feedback()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel();
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>
             {
                 context.SetMessage("123", 3);
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -36,11 +35,10 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_fail_rule_evaluation_and_provide_feedback_and_hint()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel();
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.Fail("abc", 3));
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -52,11 +50,10 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel();
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.Pass("abc", 3));
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -68,12 +65,10 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_partially_pass_rule_evaluation_and_provide_feedback_and_hint()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel();
             var challenge = GetEmptyChallenge();
             challenge.AddRule(context => context.PartialPass("abc", 3));
-            await lesson.StartChallengeAsync(challenge);
-
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("1 + 1");
 
@@ -85,8 +80,7 @@ namespace Extension.Tests
         [Fact(Skip = "requires a dotnet interactive fix")]
         public async Task teacher_can_check_for_command_failed_as_a_rule()
         {
-            var lesson = new Lesson();
-            using var kernel = CreateKernel(lesson);
+            using var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             var challenge = GetEmptyChallenge();
             challenge.AddRule(c =>
@@ -101,7 +95,7 @@ namespace Extension.Tests
                 }
                 c.Pass("Success");
             });
-            await lesson.StartChallengeAsync(challenge);
+            await Lesson.StartChallengeAsync(challenge);
 
             await kernel.SubmitCodeAsync("asjfl");
 

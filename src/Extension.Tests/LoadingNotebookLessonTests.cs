@@ -19,7 +19,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_execute_lesson_setup_code()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")}");
 
@@ -31,7 +31,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_add_rule_when_starting_a_lesson()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\singleChallenge.dib")}");
 
@@ -49,7 +49,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_starting_a_lesson()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\singleChallenge.dib")}");
 
@@ -64,7 +64,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_run_challenge_environment_setup_code_when_starting_a_lesson()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\singleChallenge.dib")}");
 
@@ -77,7 +77,7 @@ namespace Extension.Tests
         public async Task teacher_can_show_challenge_contents_when_starting_a_lesson()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -98,7 +98,7 @@ namespace Extension.Tests
         public async Task when_starting_a_lesson_the_shown_challenge_contents_do_not_contain_directives()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -117,7 +117,7 @@ namespace Extension.Tests
         public async Task when_starting_a_lesson_the_shown_challenge_contents_do_not_contain_scratchpad_material()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -135,7 +135,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_add_rule_when_progressing_the_student_to_different_challenge()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
@@ -154,7 +154,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_progressing_the_student_to_different_challenge()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
@@ -170,7 +170,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_run_challenge_environment_setup_code_when_progressing_the_student_to_different_challenge()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
@@ -184,7 +184,7 @@ namespace Extension.Tests
         public async Task teacher_can_show_challenge_contents_when_progressing_the_student_to_different_challenge()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -206,7 +206,7 @@ namespace Extension.Tests
         public async Task when_progressing_the_student_to_different_challenge_the_shown_challenge_contents_do_not_contain_directives()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -227,7 +227,7 @@ namespace Extension.Tests
             when_progressing_the_student_to_different_challenge_the_shown_challenge_contents_do_not_contain_scratchpad_material()
         {
             var capturedCommands = new List<SendEditableCode>();
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             var vscodeKernel = kernel.FindKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
             {
@@ -246,7 +246,7 @@ namespace Extension.Tests
         [Fact]
         public async Task teacher_can_declare_identifiers_and_let_it_become_replaced_by_the_students_answer()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\variableReplacing.dib")}");
 
@@ -264,7 +264,7 @@ CalcTrigArea = (double x, double y) => 0.5 * x * y;
         [Fact]
         public async Task when_a_user_accesses_a_file_using_fromurl_then_fromfile_is_not_accessible_at_the_same_time()
         {
-            var kernel = CreateKernel();
+            var kernel = await CreateKernel();
             using var events = kernel.KernelEvents.ToSubscribedList();
             var result = await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\twoChallenges.dib")} --from-url http://bing.com");
             
