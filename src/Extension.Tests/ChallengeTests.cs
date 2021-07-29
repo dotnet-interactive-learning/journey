@@ -110,7 +110,7 @@ namespace Extension.Tests
         [Fact]
         public async Task challenge_tracks_evaluations_in_submission_history()
         {
-            int numberOfSubmission = 1;
+            var numberOfSubmission = 1;
             using var kernel = await CreateKernel(LessonMode.StudentMode);
             var challenge = GetEmptyChallenge();
             challenge.OnCodeSubmitted(context =>

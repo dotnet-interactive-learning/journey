@@ -91,14 +91,14 @@ namespace Extension
                     name = fromUrl.Segments.Last();
                 }
 
-                var document = NotebookFileFormatHandler.Parse(name, rawData, "csharp", new Dictionary<string, string>());
+                var document = kernel.ParseNotebook(name, rawData);
                 NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
                 var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
                 challenges.SetDefaultProgressionHandlers();
                 Lesson.From(lessonDefinition);
-                Lesson.SetChallengeLookup(name =>
+                Lesson.SetChallengeLookup(queryName =>
                 {
-                    return challenges.FirstOrDefault(c => c.Name == name);
+                    return challenges.FirstOrDefault(c => c.Name == queryName);
                 });
 
                 await kernel.StartLesson();

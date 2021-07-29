@@ -88,10 +88,9 @@ namespace Extension.Tests
 
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\singleChallenge.dib")}");
 
-            capturedCommands.Select(c => c.Code).Join("\r\n")
-                .Should().ContainAll(
-                    "This is the LinkedList question.",
-                    "// write your answer to LinkedList question below");
+            capturedCommands.Should().SatisfyRespectively(
+                e => e.Code.Should().Contain("This is the LinkedList question."),
+                e => e.Code.Should().Contain("// write your answer to LinkedList question below"));
         }
 
         [Fact]
@@ -196,10 +195,9 @@ namespace Extension.Tests
 
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
-            var x = capturedCommands.Select(c => c.Code).Join("\r\n");
-                x.Should().ContainAll(
-                    "This is the DFS question.",
-                    "// write your answer to DFS below");
+            capturedCommands.GetRange(2, 2).Should().SatisfyRespectively(
+                e => e.Code.Should().Contain("// write your answer to DFS below"),
+                e => e.Code.Should().Contain("This is the DFS question."));
         }
 
         [Fact]
@@ -262,7 +260,7 @@ CalcTrigArea = (double x, double y) => 0.5 * x * y;
         }
 
         [Fact]
-        public async Task when_a_user_accesses_a_file_using_fromurl_then_fromfile_is_not_accessible_at_the_same_time()
+        public async Task for_start_lesson_command_from_url_and_from_file_options_cannot_be_used_together()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();

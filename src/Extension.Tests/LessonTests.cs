@@ -236,7 +236,7 @@ namespace Extension.Tests
                 new("csharp", "var b = 3;"),
                 new("csharp", "a = 4;")
             };
-            Challenge challenge = new Challenge(contents: contents);
+            var challenge = new Challenge(contents: contents);
             await Lesson.StartChallengeAsync(challenge);
             await kernel.InitializeChallenge(challenge);
 

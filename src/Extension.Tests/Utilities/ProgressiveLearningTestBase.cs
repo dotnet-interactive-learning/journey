@@ -25,9 +25,10 @@ namespace Extension.Tests.Utilities
                 new FakeKernel("vscode")
             };
 
+            Lesson.Mode = mode;
+
             await Main.OnLoadAsync(kernel);
 
-            Lesson.Mode = mode;
 
             return kernel;
         }

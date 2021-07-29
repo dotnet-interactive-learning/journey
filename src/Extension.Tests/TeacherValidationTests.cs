@@ -37,8 +37,7 @@ namespace Extension.Tests
             events
                 .OfType<DisplayedValueProduced>()
                 .Should()
-                .SatisfyRespectively(new Action<DisplayedValueProduced>[]
-                {
+                .SatisfyRespectively(
                     e => e.FormattedValues.Single(v => v.MimeType == "text/html")
                         .Value.ContainsAll(
                             "Challenge func rule failed",
@@ -54,8 +53,7 @@ namespace Extension.Tests
                     e => e.FormattedValues.Single(v => v.MimeType == "text/html")
                         .Value.ContainsAll(
                             "Challenge math rule failed",
-                            "Challenge math message")
-                });
+                            "Challenge math message"));
         }
 
         [Fact]
