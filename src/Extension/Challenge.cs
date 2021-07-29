@@ -46,7 +46,7 @@ namespace Extension
                 var ruleContext = new RuleContext(_context, submittedCode, events, rule.Name);
                 try
                 {
-                    rule.Evaluate(ruleContext);
+                    await rule.Evaluate(ruleContext);
                 }
                 catch (Exception e)
                 {
