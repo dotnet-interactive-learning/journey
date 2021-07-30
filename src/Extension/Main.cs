@@ -3,6 +3,7 @@ using Microsoft.DotNet.Interactive.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,13 +11,13 @@ namespace Extension
 {
     public static class Main
     { 
-        public static Task OnLoadAsync(Kernel kernel)
+        public static Task OnLoadAsync(Kernel kernel, HttpClient httpClient = null)
         {
             Lesson.Clear();
             if (kernel is CompositeKernel compositeKernel)
             {
                 Lesson.ResetChallenge();
-                compositeKernel.UseProgressiveLearning()
+                compositeKernel.UseProgressiveLearning(httpClient)
                     .UseProgressiveLearningMiddleware()
                     .UseModelAnswerValidation();
             }

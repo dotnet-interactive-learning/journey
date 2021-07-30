@@ -30,7 +30,7 @@ namespace Extension
             return kernel;
         }
 
-        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel)
+        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel, HttpClient httpClient = null)
         {
             kernel.Bootstrapping();
 
@@ -81,7 +81,7 @@ namespace Extension
                 }
                 else
                 {
-                    var client = new HttpClient();
+                    var client = httpClient ?? new HttpClient();
                     var response = await client.GetAsync(fromUrl);
                     response.EnsureSuccessStatusCode();
                     rawData = await response.Content.ReadAsByteArrayAsync();
