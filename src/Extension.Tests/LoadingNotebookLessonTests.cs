@@ -8,6 +8,7 @@ using Microsoft.DotNet.Interactive.Notebook;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xunit;
@@ -16,6 +17,28 @@ namespace Extension.Tests
 {
     public class LoadingNotebookLessonTests : ProgressiveLearningTestBase
     {
+        [Fact]
+        public async Task teacher_can_load_notebook_from_url()
+        {
+            var capturedCommands = new List<SendEditableCode>();
+            var client = new HttpClient(new FakeHttpMessageHandler());
+            var kernel = await CreateKernel(LessonMode.StudentMode, client);
+            var vscodeKernel = kernel.FindKernel("vscode");
+            vscodeKernel.RegisterCommandHandler<SendEditableCode>((command, _) =>
+            {
+                capturedCommands.Add(command);
+                return Task.CompletedTask;
+            });
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync(@"#!start-lesson --from-url ""http://wat.com/Notebooks/twoChallenges.dib""");
+
+            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+
+            capturedCommands.GetRange(2, 2).Should().SatisfyRespectively(
+                e => e.Code.Should().Contain("// write your answer to DFS below"),
+                e => e.Code.Should().Contain("This is the DFS question."));
+        }
+
         [Fact]
         public async Task teacher_can_execute_lesson_setup_code()
         {
