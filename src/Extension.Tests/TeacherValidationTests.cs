@@ -26,7 +26,7 @@ namespace Extension.Tests
         public async Task teacher_can_use_scratchpad_to_validate_their_material()
         {
             var filename = "teacherValidation.dib";
-            var file = new FileInfo(GetNotebookPath($@"Notebooks\{filename}"));
+            var file = new FileInfo(GetNotebookPath(filename));
             var document = await File.ReadAllBytesAsync(file.FullName);
             
             var kernel = await CreateKernel(LessonMode.TeacherMode);
@@ -61,7 +61,7 @@ namespace Extension.Tests
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
 
             await kernel.SubmitCodeAsync("1");
 
@@ -77,7 +77,7 @@ namespace Extension.Tests
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
 
             await kernel.SubmitCodeAsync("1");
 
@@ -92,7 +92,7 @@ namespace Extension.Tests
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
             await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
@@ -109,7 +109,7 @@ namespace Extension.Tests
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
-            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath(@"Notebooks\teacherValidation.dib")}");
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
             await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
