@@ -12,20 +12,20 @@ using System.Threading.Tasks;
 
 namespace Extension.Tests.Utilities
 {
-    public class FakeHttpMessageHandler : HttpMessageHandler
+    public class FakeHttpMessageHandlerForNotebookLoading : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var suffix = request?.RequestUri?.AbsolutePath;
+            var notebookName = request?.RequestUri?.AbsolutePath;
 
-            if (suffix is null)
+            if (notebookName is null)
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest));
             }
-            suffix = suffix.Replace("/", "\\");
-            suffix = suffix.Remove(0, 1);
-            var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var filePath = Path.Combine(prefix, suffix);
+
+            notebookName = notebookName.Remove(0, 1);
+
+            var filePath = PathUtilities.GetNotebookPath(notebookName);
             if (!File.Exists(filePath))
             {
                 return Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));

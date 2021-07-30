@@ -38,10 +38,9 @@ namespace Extension.Tests.Utilities
             return $"#!model-answer\r\n{answer}";
         }
 
-        protected string GetNotebookPath(string relativeFilePath)
+        protected string GetNotebookPath(string notebookName)
         {
-            var prefix = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            return Path.GetFullPath(Path.Combine(prefix, relativeFilePath));
+            return PathUtilities.GetNotebookPath(notebookName);
         }
     }
 }

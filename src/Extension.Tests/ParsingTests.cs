@@ -20,7 +20,7 @@ namespace Extension.Tests
         [Fact]
         public async Task parser_can_parse_teacher_notebook_with_two_challenges_with_all_components_defined()
         {
-            var file = new FileInfo(GetNotebookPath(@"Notebooks\forParsing1.dib"));
+            var file = new FileInfo(GetNotebookPath("forParsing1.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
@@ -54,7 +54,7 @@ namespace Extension.Tests
         [Fact]
         public async Task duplicate_challenge_name_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath(@"Notebooks\forParsing2DuplicateChallengeName.dib"));
+            var file = new FileInfo(GetNotebookPath("forParsing2DuplicateChallengeName.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
@@ -68,7 +68,7 @@ namespace Extension.Tests
         [Fact]
         public async Task notebook_with_no_challenge_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath(@"Notebooks\noChallenge.dib"));
+            var file = new FileInfo(GetNotebookPath("noChallenge.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
@@ -82,7 +82,7 @@ namespace Extension.Tests
         [Fact]
         public async Task a_challenge_with_no_question_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath(@"Notebooks\challengeWithNoQuestion.dib"));
+            var file = new FileInfo(GetNotebookPath("challengeWithNoQuestion.dib"));
             var rawData = await File.ReadAllBytesAsync(file.FullName);
             var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
 
