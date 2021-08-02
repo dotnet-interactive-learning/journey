@@ -64,6 +64,7 @@ Lesson.CurrentChallenge.OnCodeSubmitted(async context =>
 {
     var numPassed = context.RuleEvaluations.Count(e => e.Passed);
     var total = context.RuleEvaluations.Count();
+    // var history = context.SubmissionHistory ....
     if (total == numPassed)
     {
         context.SetMessage("Challenge 1 completed!");
