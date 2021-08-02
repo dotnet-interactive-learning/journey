@@ -40,7 +40,7 @@ namespace Extension.Tests
         }
 
         [Fact]
-        public async Task teacher_can_execute_lesson_setup_code()
+        public async Task teacher_can_run_lesson_setup_code()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
@@ -49,6 +49,18 @@ namespace Extension.Tests
             await kernel.SubmitCodeAsync("lessonSetupVar");
 
             events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(666);
+        }
+
+        [Fact]
+        public async Task teacher_can_run_lesson_setup_code_in_the_same_cell_as_package_import()
+        {
+            var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
+
+            await kernel.SubmitCodeAsync("lessonSetupVarInTheFirstCell");
+
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(333);
         }
 
         [Fact]

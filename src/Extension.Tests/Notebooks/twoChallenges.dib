@@ -1,11 +1,11 @@
 #!csharp
 
 #r "nuget: EducationExtension, *-*"
+var lessonSetupVarInTheFirstCell = 333;
 
 #!csharp
 
 using Extension;
-var Lesson = new Lesson();
 
 #!csharp
 
