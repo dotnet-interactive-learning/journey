@@ -1,0 +1,7 @@
+#!csharp
+
+#r "nuget: EducationExtension"
+
+#!csharp
+
+#!start-lesson --from-file "showcaseteacher.dib"
