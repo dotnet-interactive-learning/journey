@@ -1,7 +1,7 @@
 #!csharp
 
 #r "nuget: EducationExtension"
-#r "nuget: SixLabors.ImageSharp.Interactive, *-*"
+#r "nuget: Interactive.Extension.ImageSharp, *-*"
 
 #!csharp
 
