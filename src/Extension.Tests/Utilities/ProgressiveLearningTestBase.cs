@@ -1,4 +1,5 @@
 ﻿using Microsoft.DotNet.Interactive;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using System;
 using System.Collections.Generic;
@@ -20,10 +21,12 @@ namespace Extension.Tests.Utilities
 
         protected async Task<CompositeKernel> CreateKernel(LessonMode mode, HttpClient httpClient = null)
         {
+            var vscodeKernel = new FakeKernel("vscode");
+            vscodeKernel.RegisterCommandHandler<SendEditableCode>((_, _) => Task.CompletedTask);
             var kernel = new CompositeKernel
             {
                 new CSharpKernel().UseNugetDirective().UseKernelHelpers(),
-                new FakeKernel("vscode")
+                vscodeKernel
             };
 
             Lesson.Mode = mode;
