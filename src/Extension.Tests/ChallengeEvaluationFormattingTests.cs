@@ -3,7 +3,7 @@ using HtmlAgilityPack;
 using Microsoft.DotNet.Interactive.Formatting;
 using Xunit;
 
-namespace Extension.Tests
+namespace Interactive.Journey.Tests
 {
     public class ChallengeEvaluationFormattingTests
     {

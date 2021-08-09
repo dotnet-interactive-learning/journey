@@ -8,7 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension
+namespace Interactive.Journey
 {
     public class Challenge
     {

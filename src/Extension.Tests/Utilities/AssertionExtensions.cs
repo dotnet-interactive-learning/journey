@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.Tests.Utilities
+namespace Interactive.Journey.Tests.Utilities
 {
     public static class AssertionExtensions
     {

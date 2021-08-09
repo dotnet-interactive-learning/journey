@@ -1,7 +1,7 @@
 #!csharp
 
-#r "nuget: EducationExtension"
-using Extension;
+#r "nuget: Interactive.Journey"
+using Interactive.Journey;
 
 #!csharp
 

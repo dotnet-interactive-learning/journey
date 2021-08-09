@@ -6,7 +6,7 @@
 		<Version>0.0.1</Version>
 		<IsPackable>true</IsPackable>
 		<RepositoryUrl>https://github.com/dotnet-interactive-learning/intern2021</RepositoryUrl>
-		<PackageId>EducationExtension</PackageId>
+		<PackageId>Interactive.Journey</PackageId>
 		<Authors />
 		<ApplicationIcon />
 		<StartupObject />
@@ -19,7 +19,7 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-		<DocumentationFile>.\Extension.xml</DocumentationFile>
+		<DocumentationFile>.\interactive-journey.xml</DocumentationFile>
 	</PropertyGroup>
 
 	<PropertyGroup>
@@ -31,13 +31,17 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="extension.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
+		<None Include="interactive-journey.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-			<_Parameter1>Extension.Tests</_Parameter1>
+			<_Parameter1>Interactive.Journey.Tests</_Parameter1>
 		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <DocFileItem Remove="interactive-journey.xml" />
 	</ItemGroup>
 
 </Project>

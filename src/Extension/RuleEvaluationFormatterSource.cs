@@ -1,7 +1,7 @@
 ﻿using Microsoft.DotNet.Interactive.Formatting;
 using System.Collections.Generic;
 
-namespace Extension
+namespace Interactive.Journey
 {
     internal class RuleEvaluationFormatterSource : ITypeFormatterSource
     {

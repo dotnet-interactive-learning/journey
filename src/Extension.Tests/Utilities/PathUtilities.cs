@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Reflection;
 
-namespace Extension.Tests.Utilities
+namespace Interactive.Journey.Tests.Utilities
 {
     public class PathUtilities
     {

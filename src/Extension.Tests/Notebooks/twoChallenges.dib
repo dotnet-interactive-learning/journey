@@ -1,11 +1,11 @@
 #!csharp
 
-#r "nuget: EducationExtension, *-*"
+#r "nuget: Interactive.Journey, *-*"
 var lessonSetupVarInTheFirstCell = 333;
 
 #!csharp
 
-using Extension;
+using Interactive.Journey;
 
 #!csharp
 

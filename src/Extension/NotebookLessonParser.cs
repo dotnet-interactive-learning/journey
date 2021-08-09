@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Extension
+namespace Interactive.Journey
 {
     public enum LessonDirective
     {

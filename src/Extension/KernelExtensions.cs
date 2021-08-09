@@ -17,7 +17,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.DotNet.Interactive.CSharp;
 
-namespace Extension
+namespace Interactive.Journey
 {
     public static class KernelExtensions
     {

@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.Tests.Utilities
+namespace Interactive.Journey.Tests.Utilities
 {
     public abstract class ProgressiveLearningTestBase
     {

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Extension.Utilities
+namespace Interactive.Journey.Utilities
 {
     public class OrderedTable<T> : ICollection<T>
     {

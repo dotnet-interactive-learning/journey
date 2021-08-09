@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Extension.Tests.Utilities
+namespace Interactive.Journey.Tests.Utilities
 {
     public class FakeHttpMessageHandlerForNotebookLoading : HttpMessageHandler
     {
