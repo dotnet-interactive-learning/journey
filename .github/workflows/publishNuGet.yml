@@ -35,7 +35,7 @@ jobs:
       run: dotnet test --configuration Release --no-build --verbosity normal ./src
       
     - name: Pack
-      run: dotnet pack --configuration Release --no-build ./src/Extension -o ./packages
+      run: dotnet pack --configuration Release --no-build ./src/Interactive.Journey -o ./packages
       
     - name: Publish NuGet package to GitHub Package Registry
       run: dotnet nuget push .\packages\*.nupkg --skip-duplicate
