@@ -1,5 +1,5 @@
 ﻿
-using Extension.Tests.Utilities;
+using Interactive.Journey.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace Extension.Tests
+namespace Interactive.Journey.Tests
 {
     public class LessonTests : ProgressiveLearningTestBase
     {

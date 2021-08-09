@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.DotNet.Interactive;
 
-namespace Extension
+namespace Interactive.Journey
 {
     public class Rule
     {

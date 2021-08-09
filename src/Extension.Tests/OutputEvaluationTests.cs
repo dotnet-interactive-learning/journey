@@ -4,14 +4,14 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Extension.Tests.Utilities;
+using Interactive.Journey.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
 using Xunit;
 
-namespace Extension.Tests
+namespace Interactive.Journey.Tests
 {
     public class OutputEvaluationTests : ProgressiveLearningTestBase
     {

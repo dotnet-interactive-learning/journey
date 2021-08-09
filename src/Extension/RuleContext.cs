@@ -1,7 +1,7 @@
 ﻿using Microsoft.DotNet.Interactive.Events;
 using System.Collections.Generic;
 
-namespace Extension
+namespace Interactive.Journey
 {
     public class RuleContext
     {

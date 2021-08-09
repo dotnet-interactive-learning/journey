@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 
-namespace Extension.Tests.Utilities
+namespace Interactive.Journey.Tests.Utilities
 {
     public class FakeKernel :
         Kernel,

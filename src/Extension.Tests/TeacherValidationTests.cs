@@ -1,5 +1,5 @@
 ﻿using System;
-using Extension.Tests.Utilities;
+using Interactive.Journey.Tests.Utilities;
 using FluentAssertions;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace Extension.Tests
+namespace Interactive.Journey.Tests
 {
     public class TeacherValidationTests : ProgressiveLearningTestBase
     {
