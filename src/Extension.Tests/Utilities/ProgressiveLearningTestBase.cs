@@ -22,7 +22,7 @@ namespace Extension.Tests.Utilities
         {
             var kernel = new CompositeKernel
             {
-                new CSharpKernel(),
+                new CSharpKernel().UseNugetDirective().UseKernelHelpers(),
                 new FakeKernel("vscode")
             };
 
