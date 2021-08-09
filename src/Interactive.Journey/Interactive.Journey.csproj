@@ -27,7 +27,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="$(OutputPath)/Extension.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
+		<None Include="$(OutputPath)/Interactive.Journey.dll" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
 
 	<ItemGroup>
