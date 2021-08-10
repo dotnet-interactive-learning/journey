@@ -1,6 +1,6 @@
 #!csharp
 
-#r "nuget: EducationExtension"
+#r "nuget: Interactive.Journey"
 
 #!csharp
 

@@ -1,11 +1,11 @@
 #!csharp
 
-#r "nuget: EducationExtension"
+#r "nuget: Interactive.Journey"
 #r "nuget: Interactive.Extension.ImageSharp, *-*"
 
 #!csharp
 
-using Extension;
+using Microsoft.DotNet.Interactive.Journey;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
