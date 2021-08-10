@@ -21,9 +21,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
-        source-url: https://nuget.pkg.github.com/dotnet-interactive-learning/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Restore dependencies
       run: dotnet restore ./src
@@ -37,6 +34,8 @@ jobs:
     - name: Pack
       run: dotnet pack --configuration Release --no-build ./src/Microsoft.DotNet.Interactive.Journey -o ./packages
       
+    - name: Add Github registry as a nuget source
+      run: dotnet nuget sources add -name "GPR" -Source https://nuget.pkg.github.com/dotnet-interactive-learning/index.json -Username dotnet-interactive-learning -Password ${{ secrets.GITHUB_TOKEN }}
     - name: Publish NuGet package to GitHub Package Registry
       run: dotnet nuget push .\packages\*.nupkg --skip-duplicate
       
