@@ -35,10 +35,10 @@ jobs:
       run: dotnet pack --configuration Release --no-build ./src/Microsoft.DotNet.Interactive.Journey -o ./packages
       
     - name: Add Github Package Registry as a NuGet source
-      run: dotnet nuget add source https://nuget.pkg.github.com/dotnet-interactive-learning/index.json -n "GPR" -u dotnet-interactive-learning -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+      run: nuget add source https://nuget.pkg.github.com/dotnet-interactive-learning/index.json -n "GPR" -u dotnet-interactive-learning -p ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
     
     - name: Publish NuGet package to GitHub Package Registry
-      run: dotnet nuget push .\packages\*.nupkg -s "GPR" --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }}
+      run: nuget push .\packages\*.nupkg -s "GPR" --skip-duplicate --api-key ${{ secrets.GITHUB_TOKEN }}
       
     - run: echo "🍏 This job's status is ${{ job.status }}."
       
