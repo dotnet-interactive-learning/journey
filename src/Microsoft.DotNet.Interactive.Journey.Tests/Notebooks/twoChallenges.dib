@@ -5,7 +5,7 @@ var lessonSetupVarInTheFirstCell = 333;
 
 #!csharp
 
-using Interactive.Journey;
+using Microsoft.DotNet.Interactive.Journey;
 
 #!csharp
 

@@ -1,7 +1,7 @@
 #!csharp
 
 #r "nuget: Interactive.Journey"
-using Interactive.Journey;
+using Microsoft.DotNet.Interactive.Journey;
 
 #!csharp
 
