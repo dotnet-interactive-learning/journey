@@ -10,6 +10,6 @@ Currently, Journey supports the following features:
 - Open-ended learning progression
 
 ## Get Started
-To get started creating a learning journey, check out our [tutorial](link)!
+To get started creating a learning journey, check out our [tutorial](https://github.com/dotnet-interactive-learning/intern2021/blob/docs/tutorial.md)!
 
 ## Contribute
