@@ -33,7 +33,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="interactive-journey.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
+		<None Include="extension.dib" Pack="true" PackagePath="interactive-extensions/dotnet" />
 	</ItemGroup>
 
 	<ItemGroup>

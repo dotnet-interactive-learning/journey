@@ -28,7 +28,7 @@ namespace Microsoft.DotNet.Interactive.Journey
 
             if (KernelInvocationContext.Current is { } context)
             {
-                context.DisplayAs("Hello world! EducationExtension loaded!", "text/markdown");
+                context.DisplayAs("Interactive.Journey has loaded!", "text/markdown");
             }
 
             return Task.CompletedTask;
