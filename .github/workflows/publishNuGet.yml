@@ -37,6 +37,8 @@ jobs:
     - name: Add Github Package Registry as a NuGet source
       run: nuget sources add -Source https://nuget.pkg.github.com/dotnet-interactive-learning/index.json -name "GPR" -Username "dotnet-interactive-learning" -Password ${{ secrets.GITHUB_TOKEN }}
     
+    - name: Add API key
+      run: nuget setapikey GPRkey -source GPR
     - name: Publish NuGet package to GitHub Package Registry
       run: nuget push .\packages\*.nupkg -Source "GPR" -SkipDuplicate
       
