@@ -5,7 +5,7 @@
 
 #!csharp
 
-using Interactive.Journey;
+using Microsoft.DotNet.Interactive.Journey;
 using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;

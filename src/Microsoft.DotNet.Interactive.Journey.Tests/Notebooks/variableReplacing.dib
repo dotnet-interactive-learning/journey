@@ -1,6 +1,6 @@
 #!csharp
 
-using Interactive.Journey;
+using Microsoft.DotNet.Interactive.Journey;
 
 #!markdown
 
