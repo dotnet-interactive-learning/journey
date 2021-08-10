@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31521.260
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactive.Journey", "Interactive.Journey\Interactive.Journey.csproj", "{D21BFFAA-A795-4820-A5F4-8A3DC4B203D8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.DotNet.Interactive.Journey", "Microsoft.DotNet.Interactive.Journey\Microsoft.DotNet.Interactive.Journey.csproj", "{D21BFFAA-A795-4820-A5F4-8A3DC4B203D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interactive.Journey.Tests", "Interactive.Journey.Tests\Interactive.Journey.Tests.csproj", "{C075414C-D1B7-4A79-AAAB-6DFAFB35EAD4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.DotNet.Interactive.Journey.Tests", "Microsoft.DotNet.Interactive.Journey.Tests\Microsoft.DotNet.Interactive.Journey.Tests.csproj", "{C075414C-D1B7-4A79-AAAB-6DFAFB35EAD4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
