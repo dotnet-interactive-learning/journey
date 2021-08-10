@@ -8,6 +8,8 @@ dotnet_csproj:
   assembly_version: "{version}"
   file_version: "{version}"
   informational_version: "{version}"
+pull_requests:
+  do_not_increment_build_number: true
 branches:
   only:
     - main
