@@ -24,7 +24,7 @@ jobs:
     - name: Test
       run: dotnet test --configuration Release --no-build --verbosity normal ./src
     - name: Pack
-      run: dotnet pack --configuration Release --no-build ./src/Interactive.Journey -o ./package
+      run: dotnet pack --configuration Release --no-build ./src/Microsoft.DotNet.Interactive.Journey -o ./package
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
