@@ -1,15 +1,15 @@
 # Journey
-Journey is a learning experience running on [.NET Interactive Notebooks](https://github.com/dotnet/interactive) where teachers can design a step-by-step path for students. Along the student's journey, teachers can create challenges, provide customized feedback, and define rules to continue.
+Journey is a learning experience running on [.NET Interactive Notebooks](https://github.com/dotnet/interactive) where teachers can design a challenge-by-challenge path for students. To create a student's journey, a teacher will create a lesson in which they create challenges, provide customized feedback, and define rules to continue.
 
 ## About Journey
-We believe that the journey towards a goal is one of the most crucial aspects of learning. As students, we wanted to create an engaging notebook experience for the classroom that utilized this idea. 
+We model learning as a journey: personalized, interactive, and engaging. Powered by .NET Interactive notebooks, Journey empowers teachers to create learning journeys for their classroom.
 Currently, Journey supports the following features:
-- Defining rules and challenges
-- Programatic revealing of cells
-- Customized teacher feedback with support for visual libraries
-- Re-route a student's path based on their answer
-- Access to student submission history
+- One-step-at-a-time learning experience (i.e. challenges are revealed incrementally)
+- Rich answer evaluation
+- Customizable feedback
+- Open-ended learning progression
 
 ## Get Started
-For information on configuring Journey on your computer, please refer to our [tutorial page](link).
+To get started creating a learning journey, check out our [tutorial](link)!
 
+## Contribute
