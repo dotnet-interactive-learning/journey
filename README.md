@@ -14,4 +14,4 @@ To get started creating a learning journey, check out our [tutorial](docs/tutori
 
 ## Contributing
 
-We welcome community contributions. Feel free to visit our issues page. This project can be developed on any platform. For more information, check out our [developer guide](docs/developer-guide.md)
+We welcome community contributions. Feel free to visit our issues page. This project can be developed on any platform. For more information, check out our [developer guide](docs/developer-guide.md).
