@@ -9,8 +9,6 @@ This project supports Visual Studio. Any version, including the free Community E
 
 This project also supports using Visual Studio Code. Install the C# extension to get started.
 
----
-
 ## Build and test (command line)
 
 Navigate to the root directory of our solution, which is `src`. Then, use the .NET CLI to build or test our package:
@@ -22,8 +20,6 @@ or
 ```
 dotnet test
 ```
-
----
 
 ## Using a local build of our package in a notebook
 
@@ -50,9 +46,6 @@ dotnet test
     1. NuGet packages are installed in the global-packages folder, whose location can be found [here](https://docs.microsoft.com/en-us/nuget/consume-packages/managing-the-global-packages-and-cache-folders)
 
     2. Delete our package.
-
-
----
 
 ## More Information
 
