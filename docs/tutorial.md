@@ -14,4 +14,4 @@ using Microsoft.DotNet.Interactive.Journey;
 ```
 
 ## Sample Notebook
-To see sample notebooks, refer to [samples](samples).
+To see sample notebooks, refer to [samples](https://github.com/dotnet-interactive-learning/journey/tree/main/samples).
