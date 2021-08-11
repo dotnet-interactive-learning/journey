@@ -113,12 +113,13 @@ namespace Microsoft.DotNet.Interactive.Journey
                 switch (command)
                 {
                     case SubmitCode submitCode:
-                        var isSetupCommand = Lesson.IsSetupCommand(submitCode);
-                        var isModelAnswer = submitCode.Parent is SubmitCode submitCodeParent
+                        Func<bool> isSetupCommand = () => Lesson.IsSetupCommand(submitCode);
+                        Func<bool> isModelAnswer = () => submitCode.Parent is SubmitCode submitCodeParent
                             && submitCodeParent.Code.TrimStart().StartsWith(_modelAnswerCommandName);
 
-                        if (Lesson.Mode == LessonMode.StudentMode && isSetupCommand
-                            || Lesson.Mode == LessonMode.TeacherMode && !isModelAnswer)
+                        if (Lesson.CurrentChallenge is null
+                            || Lesson.Mode == LessonMode.StudentMode && isSetupCommand()
+                            || Lesson.Mode == LessonMode.TeacherMode && !isModelAnswer())
                         {
                             await next(command, context);
                             break;
