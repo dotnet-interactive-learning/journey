@@ -12,6 +12,7 @@ using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
 using SixLabors.ImageSharp;
 using System.IO;
+using System.Net.Http;
 
 #!csharp
 
@@ -180,7 +181,8 @@ Lesson.CurrentChallenge.AddRuleAsync("Checking depth first traversal", async con
     }
     else if (bfsans.SequenceEqual(ans))
     {
-        var data = await File.ReadAllBytesAsync("bfs_vs_dfs.png");
+        var client = new HttpClient();
+        var data = await client.GetByteArrayAsync("https://raw.githubusercontent.com/dotnet-interactive-learning/intern2021/main/samples/bfs_vs_dfs.png");
         var image = Image.Load(data);
         context.Fail("Depth first traversal incorrect. You performed breadth first traversal", image);
     }

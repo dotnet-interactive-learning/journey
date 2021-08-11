@@ -4,4 +4,4 @@
 
 #!csharp
 
-#!start-lesson --from-file "showcaseteacher.dib"
+#!start-lesson --from-url "https://raw.githubusercontent.com/dotnet-interactive-learning/intern2021/main/samples/showcaseteacher.dib"
