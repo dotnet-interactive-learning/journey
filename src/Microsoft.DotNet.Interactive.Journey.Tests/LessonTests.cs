@@ -165,6 +165,24 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         }
 
         [Fact]
+        public async Task after_finishing_lesson_student_can_still_use_notebook_normally()
+        {
+            using var kernel = await CreateKernel(LessonMode.StudentMode);
+            using var events = kernel.KernelEvents.ToSubscribedList();
+            var challenge = GetChallenge("1");
+            challenge.OnCodeSubmittedAsync(async context =>
+            {
+                await context.StartNextChallengeAsync();
+            });
+            await Lesson.StartChallengeAsync(challenge);
+            await kernel.SubmitCodeAsync("var x = 1;");
+
+            await kernel.SubmitCodeAsync("2+2");
+
+            events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(4);
+        }
+
+        [Fact]
         public async Task when_a_student_submits_code_to_a_challenge_they_move_to_the_next_challenge()
         {
             using var kernel = await CreateKernel(LessonMode.StudentMode);

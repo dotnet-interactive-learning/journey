@@ -72,8 +72,8 @@ namespace Microsoft.DotNet.Interactive.Journey
 
         public static bool IsSetupCommand(KernelCommand command)
         {
-            return (CurrentChallenge?.EnvironmentSetup?.Any(s => s == command || s == command.Parent) ?? false)
-                   || (CurrentChallenge?.Setup?.Any(s => s == command || s == command.Parent) ?? false)
+            return (CurrentChallenge.EnvironmentSetup?.Any(s => s == command || s == command.Parent) ?? false)
+                   || (CurrentChallenge.Setup?.Any(s => s == command || s == command.Parent) ?? false)
                    || (Setup?.Any(s => s == command || s == command.Parent) ?? false);
         }
 
