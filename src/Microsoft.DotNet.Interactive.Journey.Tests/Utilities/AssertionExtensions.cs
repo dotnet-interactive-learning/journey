@@ -14,10 +14,12 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests.Utilities
     {
         public static AndWhichConstraint<ObjectAssertions, T> ContainSingle<T>(
             this GenericCollectionAssertions<KernelEvent> should,
-            Func<T, bool> where = null)
+            Func<T, bool>? where = null)
             where T : KernelEvent
         {
             T subject;
+
+            where ??= (_ => true);
 
             if (where is null)
             {

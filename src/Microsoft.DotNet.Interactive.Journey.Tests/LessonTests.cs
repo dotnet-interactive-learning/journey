@@ -17,7 +17,7 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
 {
     public class LessonTests : ProgressiveLearningTestBase
     {
-        private Challenge GetChallenge(string name = null)
+        private Challenge GetChallenge(string? name = null)
         {
             return new(name: name);
         }

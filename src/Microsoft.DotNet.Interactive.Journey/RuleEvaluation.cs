@@ -6,24 +6,9 @@ using System.Linq;
 
 namespace Microsoft.DotNet.Interactive.Journey
 {
-    public enum Outcome
-    {
-        Failure,
-        PartialSuccess,
-        Success
-    };
     [TypeFormatterSource(typeof(RuleEvaluationFormatterSource))]
     public class RuleEvaluation
     {
-        public string Name { get; }
-
-        public Outcome Outcome { get; }
-
-        public string Reason { get; }
-
-        public object Hint { get; }
-
-        public bool Passed { get { return Outcome == Outcome.Success; } }
 
         public RuleEvaluation(Outcome outcome, string name = null, string reason = null, object hint = null)
         {
@@ -46,7 +31,17 @@ namespace Microsoft.DotNet.Interactive.Journey
             }
         }
 
-        public PocketView FormatAsHtml()
+        public string Name { get; }
+
+        public Outcome Outcome { get; }
+
+        public string Reason { get; }
+
+        public object Hint { get; }
+
+        public bool Passed => Outcome == Outcome.Success;
+
+        private PocketView FormatAsHtml()
         {
             var outcomeDivStyle = Outcome switch
             {
@@ -94,6 +89,20 @@ namespace Microsoft.DotNet.Interactive.Journey
             PocketView report = details[@class: "ruleEvaluation"](elements);
 
             return report;
+        }
+
+        private class RuleEvaluationFormatterSource : ITypeFormatterSource
+        {
+            public IEnumerable<ITypeFormatter> CreateTypeFormatters()
+            {
+                return new ITypeFormatter[] {
+                new HtmlFormatter<RuleEvaluation>((evaluation, context) =>
+                {
+                    var view = evaluation.FormatAsHtml();
+                    view.WriteTo(context);
+                })
+            };
+            }
         }
     }
 }

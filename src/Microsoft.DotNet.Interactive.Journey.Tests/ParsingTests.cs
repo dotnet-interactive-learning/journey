@@ -4,7 +4,7 @@ using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
 using Microsoft.DotNet.Interactive.Events;
-using Microsoft.DotNet.Interactive.Notebook;
+using Microsoft.DotNet.Interactive.Documents;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,9 +20,7 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         [Fact]
         public async Task parser_can_parse_teacher_notebook_with_two_challenges_with_all_components_defined()
         {
-            var file = new FileInfo(GetNotebookPath("forParsing1.dib"));
-            var rawData = await File.ReadAllBytesAsync(file.FullName);
-            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+            InteractiveDocument document = await ReadDibAsync("forParsing1.dib");
 
             NotebookLessonParser.Parse(document, out var lesson, out var challenges);
 
@@ -54,9 +52,7 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         [Fact]
         public async Task duplicate_challenge_name_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath("forParsing2DuplicateChallengeName.dib"));
-            var rawData = await File.ReadAllBytesAsync(file.FullName);
-            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+            InteractiveDocument document = await ReadDibAsync("forParsing2DuplicateChallengeName.dib");
 
             Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
@@ -68,9 +64,7 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         [Fact]
         public async Task notebook_with_no_challenge_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath("noChallenge.dib"));
-            var rawData = await File.ReadAllBytesAsync(file.FullName);
-            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+            InteractiveDocument document = await ReadDibAsync("noChallenge.dib");
 
             Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
@@ -82,15 +76,18 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         [Fact]
         public async Task a_challenge_with_no_question_causes_parser_to_throw_exception()
         {
-            var file = new FileInfo(GetNotebookPath("challengeWithNoQuestion.dib"));
-            var rawData = await File.ReadAllBytesAsync(file.FullName);
-            var document = NotebookFileFormatHandler.Parse(file.Name, rawData, "csharp", new Dictionary<string, string>());
+            InteractiveDocument document = await ReadDibAsync("challengeWithNoQuestion.dib");
 
             Action parsingDuplicateChallengeName = () => NotebookLessonParser.Parse(document, out var _, out var _);
 
             parsingDuplicateChallengeName
                 .Should().Throw<ArgumentException>()
                 .Which.Message.Should().Contain("empty question");
+        }
+     
+        private async Task<InteractiveDocument> ReadDibAsync(string notebookName)
+        {
+            return await NotebookLessonParser.ReadFileAsInteractiveDocument(new FileInfo(GetNotebookPath(notebookName)));
         }
     }
 }

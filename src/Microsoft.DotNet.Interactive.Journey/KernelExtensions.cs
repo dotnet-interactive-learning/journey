@@ -1,9 +1,4 @@
-﻿using Microsoft.DotNet.Interactive;
-using Microsoft.DotNet.Interactive.Commands;
-using Microsoft.DotNet.Interactive.Events;
-using Microsoft.DotNet.Interactive.Notebook;
-using Microsoft.DotNet.Interactive.Parsing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -11,17 +6,17 @@ using System.CommandLine.Parsing;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.CSharp;
+using Microsoft.DotNet.Interactive.Documents;
+using Microsoft.DotNet.Interactive.Events;
 
 namespace Microsoft.DotNet.Interactive.Journey
 {
     public static class KernelExtensions
     {
-        private static string _modelAnswerCommandName = "#!model-answer";
+        private static readonly string _modelAnswerCommandName = "#!model-answer";
 
         public static CompositeKernel UseModelAnswerValidation(this CompositeKernel kernel)
         {
@@ -30,7 +25,9 @@ namespace Microsoft.DotNet.Interactive.Journey
             return kernel;
         }
 
-        public static CompositeKernel UseProgressiveLearning(this CompositeKernel kernel, HttpClient httpClient = null)
+        public static CompositeKernel UseProgressiveLearning(
+            this CompositeKernel kernel,
+            HttpClient httpClient = null)
         {
             kernel.Bootstrapping();
 
@@ -56,6 +53,7 @@ namespace Microsoft.DotNet.Interactive.Journey
                         result.ErrorMessage = Resources.Instance.FileDoesNotExist(filePath);
                         return null;
                     }
+
                     return new FileInfo(filePath);
                 });
 
@@ -68,35 +66,23 @@ namespace Microsoft.DotNet.Interactive.Journey
             startCommand.Handler = CommandHandler.Create<Uri, FileInfo, KernelInvocationContext>(StartCommandHandler);
 
             kernel.AddDirective(startCommand);
+
             return kernel;
 
             async Task StartCommandHandler(Uri fromUrl, FileInfo fromFile, KernelInvocationContext context)
             {
-                byte[] rawData;
-                var name = "";
-                if (fromFile is not null)
+                InteractiveDocument document = fromFile switch
                 {
-                    rawData = await File.ReadAllBytesAsync(fromFile.FullName);
-                    name = fromFile.Name;
-                }
-                else
-                {
-                    var client = httpClient ?? new HttpClient();
-                    var response = await client.GetAsync(fromUrl);
-                    response.EnsureSuccessStatusCode();
-                    rawData = await response.Content.ReadAsByteArrayAsync();
-                    name = fromUrl.Segments.Last();
-                }
+                    { } => await NotebookLessonParser.ReadFileAsInteractiveDocument(fromFile, kernel),
+                    _ => await NotebookLessonParser.LoadNotebookFromUrl(fromUrl, httpClient)
+                };
 
-                var document = kernel.ParseNotebook(name, rawData);
                 NotebookLessonParser.Parse(document, out var lessonDefinition, out var challengeDefinitions);
+
                 var challenges = challengeDefinitions.Select(b => b.ToChallenge()).ToList();
                 challenges.SetDefaultProgressionHandlers();
                 Lesson.From(lessonDefinition);
-                Lesson.SetChallengeLookup(queryName =>
-                {
-                    return challenges.FirstOrDefault(c => c.Name == queryName);
-                });
+                Lesson.SetChallengeLookup(queryName => { return challenges.FirstOrDefault(c => c.Name == queryName); });
 
                 await kernel.StartLesson();
 
@@ -114,11 +100,13 @@ namespace Microsoft.DotNet.Interactive.Journey
                 {
                     case SubmitCode submitCode:
                         var isSetupCommand = Lesson.IsSetupCommand(submitCode);
-                        var isModelAnswer = submitCode.Parent is SubmitCode submitCodeParent
-                            && submitCodeParent.Code.TrimStart().StartsWith(_modelAnswerCommandName);
+                        var isModelAnswer = submitCode.Parent is SubmitCode submitCodeParent && 
+                                            submitCodeParent.Code.TrimStart().StartsWith(_modelAnswerCommandName);
 
-                        if (Lesson.Mode == LessonMode.StudentMode && isSetupCommand
-                            || Lesson.Mode == LessonMode.TeacherMode && !isModelAnswer)
+                        if (Lesson.Mode == LessonMode.StudentMode &&
+                            isSetupCommand ||
+                            Lesson.Mode == LessonMode.TeacherMode &&
+                            !isModelAnswer)
                         {
                             await next(command, context);
                             break;
@@ -126,13 +114,16 @@ namespace Microsoft.DotNet.Interactive.Journey
 
                         var currentChallenge = Lesson.CurrentChallenge;
 
-                        var events = context.KernelEvents.ToSubscribedList();
+                        List<KernelEvent> events = new();
 
-                        await next(command, context);
+                        using(context.KernelEvents.Subscribe(events.Add))
+                        {
+                            await next(command, context);
+                        }
 
                         await Lesson.CurrentChallenge.Evaluate(submitCode.Code, events);
-                        var view = currentChallenge.CurrentEvaluation.FormatAsHtml();
-                        context.Display(view);
+
+                        context.Display(currentChallenge.CurrentEvaluation);
 
                         if (Lesson.CurrentChallenge != currentChallenge)
                         {
@@ -146,6 +137,7 @@ namespace Microsoft.DotNet.Interactive.Journey
                                     break;
                             }
                         }
+
                         break;
                     default:
                         await next(command, context);
@@ -169,6 +161,7 @@ namespace Microsoft.DotNet.Interactive.Journey
                 {
                     await kernel.SendAsync(setup);
                 }
+
                 challengeToInit.IsSetup = true;
             }
 
@@ -176,6 +169,7 @@ namespace Microsoft.DotNet.Interactive.Journey
             {
                 await kernel.SendAsync(content);
             }
+
             foreach (var setup in challengeToInit.EnvironmentSetup)
             {
                 await kernel.SendAsync(setup);
@@ -184,9 +178,11 @@ namespace Microsoft.DotNet.Interactive.Journey
 
         private static void Bootstrapping(this Kernel kernel)
         {
-            var csharpKernel = kernel.RootKernel.FindKernel("csharp") as CSharpKernel;
-            csharpKernel.DeferCommand(new SubmitCode($"#r \"{typeof(Lesson).Assembly.Location}\"", csharpKernel.Name));
-            csharpKernel.DeferCommand(new SubmitCode($"using {typeof(Lesson).Namespace};", csharpKernel.Name));
+            if (kernel.RootKernel.FindKernel("csharp") is CSharpKernel csharpKernel)
+            {
+                csharpKernel.DeferCommand(new SubmitCode($"#r \"{typeof(Lesson).Assembly.Location}\"", csharpKernel.Name));
+                csharpKernel.DeferCommand(new SubmitCode($"using {typeof(Lesson).Namespace};", csharpKernel.Name));
+            }
         }
 
         private static async Task StartLesson(this Kernel kernel)

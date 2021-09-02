@@ -1,7 +1,6 @@
 ﻿using System;
 using Microsoft.DotNet.Interactive.Journey.Tests.Utilities;
 using FluentAssertions;
-using Microsoft.DotNet.Interactive;
 using Microsoft.DotNet.Interactive.Commands;
 using Microsoft.DotNet.Interactive.Events;
 using System.IO;
@@ -13,10 +12,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
 {
     public class TeacherValidationTests : ProgressiveLearningTestBase
     {
-        private async Task RunAllCells(string fileName, byte[] document, CompositeKernel kernel)
+        private async Task RunAllCells(FileInfo file, CompositeKernel kernel)
         {
-            var notebook = kernel.ParseNotebook(fileName, document);
-            foreach (var cell in notebook.Cells)
+            var notebook = await NotebookLessonParser.ReadFileAsInteractiveDocument(file, kernel);
+            
+            foreach (var cell in notebook.Elements.Where(e=> e.Language != "markdown"))
             {
                 await kernel.SendAsync(new SubmitCode(cell.Contents, cell.Language));
             }
@@ -27,15 +27,17 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         {
             var filename = "teacherValidation.dib";
             var file = new FileInfo(GetNotebookPath(filename));
-            var document = await File.ReadAllBytesAsync(file.FullName);
             
             var kernel = await CreateKernel(LessonMode.TeacherMode);
             using var events = kernel.KernelEvents.ToSubscribedList();
 
-            await RunAllCells(filename, document, kernel);
+            await RunAllCells(file, kernel);
 
-            events
+            var displayedValueProduceds = events
                 .OfType<DisplayedValueProduced>()
+                .Where(e => e.Value is ChallengeEvaluation);
+
+            displayedValueProduceds
                 .Should()
                 .SatisfyRespectively(
                     e => e.FormattedValues.Single(v => v.MimeType == "text/html")
