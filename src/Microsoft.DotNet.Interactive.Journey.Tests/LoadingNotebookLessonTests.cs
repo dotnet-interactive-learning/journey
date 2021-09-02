@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.DotNet.Interactive.Formatting;
 using Xunit;
 
 namespace Microsoft.DotNet.Interactive.Journey.Tests
@@ -62,33 +63,49 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_add_rule_when_starting_a_lesson()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
+
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("singleChallenge.dib")}");
 
-            await kernel.SubmitCodeAsync("1");
+            var result = await kernel.SubmitCodeAsync("1");
 
-            events.Should().ContainSingle<DisplayedValueProduced>(
-                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
-                    .Value.ContainsAll(
-                        "failrule",
-                        "fail reasons",
-                        "passrule",
-                        "pass reasons"));
+            var events = result.KernelEvents.ToSubscribedList();
+
+            events.Should()
+                  .ContainSingle<DisplayedValueProduced>()
+                  .Which
+                  .FormattedValues
+                  .Should()
+                  .ContainSingle(v => v.MimeType == HtmlFormatter.MimeType)
+                  .Which
+                  .Value
+                  .Should()
+                  .ContainAll(
+                      "failrule",
+                      "fail reasons",
+                      "passrule",
+                      "pass reasons");
         }
 
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_starting_a_lesson()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("singleChallenge.dib")}");
 
-            await kernel.SubmitCodeAsync("1");
+            var result = await kernel.SubmitCodeAsync("1");
 
-            events.Should().ContainSingle<DisplayedValueProduced>(
-                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
-                    .Value.ContainsAll(
-                        "Good job"));
+            using var events = result.KernelEvents.ToSubscribedList();
+
+            events.Should()
+                  .ContainSingle<DisplayedValueProduced>()
+                  .Which
+                  .FormattedValues
+                  .Should()
+                  .ContainSingle(v => v.MimeType == HtmlFormatter.MimeType)
+                  .Which
+                  .Value
+                  .Should()
+                  .Contain("Good job");
         }
 
         [Fact]
@@ -165,35 +182,49 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_add_rule_when_progressing_the_student_to_different_challenge()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
-            await kernel.SubmitCodeAsync("1 + 1");
+            var result = await kernel.SubmitCodeAsync("1 + 1");
+            using var events = result.KernelEvents.ToSubscribedList();
 
-            events.Should().ContainSingle<DisplayedValueProduced>(
-                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
-                    .Value.ContainsAll(
-                        "dfsrule1",
-                        "dfsfailreasons",
-                        "dfsrule2",
-                        "dfspassreasons"));
+            events.Should()
+                  .ContainSingle<DisplayedValueProduced>()
+                  .Which
+                  .FormattedValues
+                  .Should()
+                  .ContainSingle(v => v.MimeType == HtmlFormatter.MimeType)
+                  .Which
+                  .Value
+                  .Should()
+                  .ContainAll(
+                      "dfsrule1",
+                      "dfsfailreasons",
+                      "dfsrule2",
+                      "dfspassreasons");
         }
 
         [Fact]
         public async Task teacher_can_use_on_code_submitted_when_progressing_the_student_to_different_challenge()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
-            await kernel.SubmitCodeAsync("1 + 1");
+            var result = await kernel.SubmitCodeAsync("1 + 1");
+            using var events = result.KernelEvents.ToSubscribedList();
 
-            events.Should().ContainSingle<DisplayedValueProduced>(
-                e => e.FormattedValues.Single(v => v.MimeType == "text/html")
-                    .Value.ContainsAll(
-                        "Good job for DFS"));
+            events.Should()
+                  .ContainSingle<DisplayedValueProduced>()
+                  .Which
+                  .FormattedValues
+                  .Should()
+                  .ContainSingle(v => v.MimeType == HtmlFormatter.MimeType)
+                  .Which
+                  .Value
+                  .Should()
+                  .Contain(
+                      "Good job for DFS");
         }
 
         [Fact]

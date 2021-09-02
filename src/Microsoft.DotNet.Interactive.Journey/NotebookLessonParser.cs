@@ -100,7 +100,6 @@ namespace Microsoft.DotNet.Interactive.Journey
                 };
             }
 
-
             return kernelNames;
         }
 
