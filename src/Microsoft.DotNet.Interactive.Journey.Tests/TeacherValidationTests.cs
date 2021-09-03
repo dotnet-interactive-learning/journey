@@ -62,10 +62,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_add_rule_when_starting_a_lesson()
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
 
-            await kernel.SubmitCodeAsync("1");
+            var result = await kernel.SubmitCodeAsync("1");
+
+            using var events = result.KernelEvents.ToSubscribedList();
 
             events.Should().ContainSingle<DisplayedValueProduced>(
                 e => e.FormattedValues.Single(v => v.MimeType == "text/html")
@@ -78,10 +79,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_on_code_submitted_when_starting_a_lesson()
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
 
-            await kernel.SubmitCodeAsync("1");
+            var result = await kernel.SubmitCodeAsync("1");
+
+            using var events = result.KernelEvents.ToSubscribedList();
 
             events.Should().ContainSingle<DisplayedValueProduced>(
                 e => e.FormattedValues.Single(v => v.MimeType == "text/html")
@@ -93,11 +95,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_add_rule_when_progressing_the_student_to_different_challenge()
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
-            await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
+            var result = await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
+            using var events = result.KernelEvents.ToSubscribedList();
 
             events.Should().ContainSingle<DisplayedValueProduced>(
                 e => e.FormattedValues.Single(v => v.MimeType == "text/html")
@@ -110,12 +112,12 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_use_on_code_submitted_when_progressing_the_student_to_different_challenge()
         {
             var kernel = await CreateKernel(LessonMode.TeacherMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("teacherValidation.dib")}");
             await kernel.SubmitCodeAsync("CalculateTriangleArea = (double x, double y) => 0.5 * x * y;");
 
-            await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
+            var result = await kernel.SubmitCodeAsync("Math.Sqrt(pi)");
 
+            using var events = result.KernelEvents.ToSubscribedList();
             events.Should().ContainSingle<DisplayedValueProduced>(
                 e => e.FormattedValues.Single(v => v.MimeType == "text/html")
                     .Value.ContainsAll(
