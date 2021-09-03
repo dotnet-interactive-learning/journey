@@ -231,11 +231,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
         public async Task teacher_can_run_challenge_environment_setup_code_when_progressing_the_student_to_different_challenge()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
             await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
-            await kernel.SubmitCodeAsync("anotherChallengeSetupVar");
+            var result = await kernel.SubmitCodeAsync("anotherChallengeSetupVar");
+            using var events = result.KernelEvents.ToSubscribedList();
 
             events.Should().ContainSingle<ReturnValueProduced>().Which.Value.Should().Be(10);
         }
@@ -251,10 +251,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
                 capturedCommands.Add(command);
                 return Task.CompletedTask;
             });
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
 
-            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            var result = await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+
+            using var events = result.KernelEvents.ToSubscribedList();
 
             capturedCommands.GetRange(2, 2).Should().SatisfyRespectively(
                 e => e.Code.Should().Contain("// write your answer to DFS below"),
@@ -272,13 +273,14 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
                 capturedCommands.Add(command);
                 return Task.CompletedTask;
             });
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")}");
 
-            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            var result = await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            using var events = result.KernelEvents.ToSubscribedList();
 
             capturedCommands.Select(c => c.Code).Join("\r\n")
-                .Should().NotContainAny(NotebookLessonParser.AllDirectiveNames);
+                            .Should()
+                            .NotContainAny(NotebookLessonParser.AllDirectiveNames);
         }
 
         [Fact]
@@ -293,25 +295,28 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests
                 capturedCommands.Add(command);
                 return Task.CompletedTask;
             });
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("singleChallenge.dib")}");
 
-            await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
+            var result = await kernel.SubmitCodeAsync("Console.WriteLine(1 + 1);");
 
+            using var events = result.KernelEvents.ToSubscribedList();
             capturedCommands.Select(c => c.Code).Join("\r\n")
-                .Should().NotContainAny("// random scratchpad stuff");
+                            .Should()
+                            .NotContainAny("// random scratchpad stuff");
         }
 
         [Fact]
         public async Task teacher_can_declare_identifiers_and_let_it_become_replaced_by_the_students_answer()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
             await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("variableReplacing.dib")}");
 
-            await kernel.SubmitCodeAsync(@"
+            var result = await kernel.SubmitCodeAsync(@"
 CalcTrigArea = (double x, double y) => 0.5 * x * y;
 ");
+
+            using var events = result.KernelEvents.ToSubscribedList();
+
 
             events
                 .Should()
@@ -324,17 +329,17 @@ CalcTrigArea = (double x, double y) => 0.5 * x * y;
         public async Task for_start_lesson_command_from_url_and_from_file_options_cannot_be_used_together()
         {
             var kernel = await CreateKernel(LessonMode.StudentMode);
-            using var events = kernel.KernelEvents.ToSubscribedList();
+            
             var result = await kernel.SubmitCodeAsync($"#!start-lesson --from-file {GetNotebookPath("twoChallenges.dib")} --from-url http://bing.com");
             
             result.KernelEvents
-                .ToSubscribedList()
-                .Should()
-                .ContainSingle<CommandFailed>()
-                .Which
-                .Message
-                .Should()
-                .Be("The --from-url and --from-file options cannot be used together");
+                  .ToSubscribedList()
+                  .Should()
+                  .ContainSingle<CommandFailed>()
+                  .Which
+                  .Message
+                  .Should()
+                  .Be("The --from-url and --from-file options cannot be used together");
         }
     }
 }
