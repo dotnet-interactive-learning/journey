@@ -19,7 +19,7 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests.Utilities
             return new Challenge();
         }
 
-        protected async Task<CompositeKernel> CreateKernel(LessonMode mode, HttpClient httpClient = null)
+        protected async Task<CompositeKernel> CreateKernel(LessonMode mode, HttpClient? httpClient = null)
         {
             var vscodeKernel = new FakeKernel("vscode");
             vscodeKernel.RegisterCommandHandler<SendEditableCode>((_, _) => Task.CompletedTask);

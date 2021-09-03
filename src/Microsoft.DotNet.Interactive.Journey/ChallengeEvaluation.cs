@@ -12,6 +12,11 @@ namespace Microsoft.DotNet.Interactive.Journey
         private readonly string label;
 
         private readonly Dictionary<string, RuleEvaluation> ruleEvaluations = new();
+     
+        public ChallengeEvaluation(string label = null)
+        {
+            this.label = label;
+        }
 
         public IEnumerable<RuleEvaluation> RuleEvaluations => ruleEvaluations.Values;
 
@@ -19,10 +24,6 @@ namespace Microsoft.DotNet.Interactive.Journey
 
         public object Hint { get; private set; }
 
-        public ChallengeEvaluation(string label = null)
-        {
-            this.label = label;
-        }
 
         public void SetMessage(string message, object hint = null)
         {
@@ -30,7 +31,7 @@ namespace Microsoft.DotNet.Interactive.Journey
             Message = message;
         }
 
-        public PocketView FormatAsHtml()
+        private PocketView FormatAsHtml()
         {
             var elements = new List<PocketView>();
             var succeededRules = ruleEvaluations.Values.Count(r => r.Outcome == Outcome.Success);
@@ -61,7 +62,7 @@ namespace Microsoft.DotNet.Interactive.Journey
                 elements.Add(div[@class: "ruleContainer"](rule.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent()));
             }
 
-            PocketView report = details[@class: "challengeEvaluation", open:"true"](elements);
+            PocketView report = details[@class: "challengeEvaluation", open: "true"](elements);
 
             return report;
         }
@@ -70,6 +71,20 @@ namespace Microsoft.DotNet.Interactive.Journey
         {
             var ruleEvaluation = new RuleEvaluation(outcome, name, reason, hint);
             ruleEvaluations[name] = ruleEvaluation;
+        }
+
+        private class ChallengeEvaluationFormatterSource : ITypeFormatterSource
+        {
+            public IEnumerable<ITypeFormatter> CreateTypeFormatters()
+            {
+                return new ITypeFormatter[] {
+                new HtmlFormatter<ChallengeEvaluation>((evaluation, context) =>
+                {
+                    var view = evaluation.FormatAsHtml();
+                    view.WriteTo(context);
+                })
+            };
+            }
         }
     }
 }

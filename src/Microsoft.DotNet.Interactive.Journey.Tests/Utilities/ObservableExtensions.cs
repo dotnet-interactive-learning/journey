@@ -2,18 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Microsoft.DotNet.Interactive.Journey
+namespace Microsoft.DotNet.Interactive.Journey.Tests.Utilities
 {
     public static class ObservableExtensions
     {
-        public static SubscribedList<T> ToSubscribedList<T>(this IObservable<T> source)
-        {
-            return new SubscribedList<T>(source);
-        }
+        public static SubscribedList<T> ToSubscribedList<T>(this IObservable<T> source) => new(source);
 
         public class SubscribedList<T> : IReadOnlyList<T>, IDisposable
         {

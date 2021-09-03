@@ -12,11 +12,11 @@ namespace Microsoft.DotNet.Interactive.Journey.Tests.Utilities
         Kernel,
         IKernelCommandHandler<SubmitCode>
     {
-        public FakeKernel([CallerMemberName] string name = null) : base(name)
+        public FakeKernel([CallerMemberName] string? name = null) : base(name)
         {
         }
 
-        public KernelCommandInvocation Handle { get; set; }
+        public KernelCommandInvocation? Handle { get; set; }
 
         public Task HandleAsync(SubmitCode command, KernelInvocationContext context)
         {
