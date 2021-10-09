@@ -64,9 +64,9 @@ namespace Microsoft.DotNet.Interactive.Journey
             return CodeSubmission.Parse(content, "csharp", GetKernelNames(kernel));
         }
 
-        private static List<KernelName> GetKernelNames(CompositeKernel? kernel)
+        private static List<Microsoft.DotNet.Interactive.Documents.KernelName> GetKernelNames(CompositeKernel? kernel)
         {
-            List<KernelName> kernelNames = new();
+            List<Microsoft.DotNet.Interactive.Documents.KernelName> kernelNames = new();
 
             if (kernel is { })
             {
@@ -81,7 +81,7 @@ namespace Microsoft.DotNet.Interactive.Journey
                         kernelAliases.Add(alias[2..]);
                     }
 
-                    kernelNames.Add(new KernelName(kernelChooser.Name[2..], kernelAliases));
+                    kernelNames.Add(new Microsoft.DotNet.Interactive.Documents.KernelName(kernelChooser.Name[2..], kernelAliases));
                 }
 
                 if (kernelNames.All(n => n.Name != "markdown"))
@@ -91,7 +91,7 @@ namespace Microsoft.DotNet.Interactive.Journey
             }
             else
             {
-                kernelNames = new List<KernelName>
+                kernelNames = new List<Microsoft.DotNet.Interactive.Documents.KernelName>
                 {
                     new("csharp", new[] { "cs", "C#", "c#" }),
                     new("fsharp", new[] { "fs", "F#", "f#" }),
@@ -111,7 +111,7 @@ namespace Microsoft.DotNet.Interactive.Journey
 
             int indexOfFirstLessonDirective = 0;
 
-            while (indexOfFirstLessonDirective < document.Elements.Length
+            while (indexOfFirstLessonDirective < document.Elements.Count
                 && !TryParseLessonDirectiveCell(document.Elements[indexOfFirstLessonDirective], out var _, out var _, out var _))
             {
                 rawSetup.Add(document.Elements[indexOfFirstLessonDirective]);
@@ -121,7 +121,7 @@ namespace Microsoft.DotNet.Interactive.Journey
             var setup = rawSetup.Select(c => new SubmitCode(c.Contents)).ToList();
 
             List<InteractiveDocumentElement> currentChallenge = new();
-            int cellCount = document.Elements.Length;
+            int cellCount = document.Elements.Count;
             for (int i = indexOfFirstLessonDirective; i < cellCount;)
             {
                 if (TryParseLessonDirectiveCell(document.Elements[i], out var remainingCell, out var _, out var challengeName) &&
