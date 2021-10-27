@@ -24,7 +24,7 @@ namespace Microsoft.DotNet.Interactive.Journey
 
         public Challenge ToChallenge()
         {
-            return new Challenge(Setup,Contents,EnvironmentSetup, Name);
+            return new Challenge(Setup, Contents, EnvironmentSetup, Name);
         }
     }
 }

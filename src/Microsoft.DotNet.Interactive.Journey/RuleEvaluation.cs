@@ -2,7 +2,6 @@ using static Microsoft.DotNet.Interactive.Formatting.PocketViewTags;
 using Microsoft.DotNet.Interactive.Formatting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Microsoft.DotNet.Interactive.Journey
 {
@@ -45,9 +44,9 @@ namespace Microsoft.DotNet.Interactive.Journey
         {
             var outcomeDivStyle = Outcome switch
             {
-                Outcome.Success => "background:#49B83461; border-width:thin; border-color:#49B83461",
-                Outcome.PartialSuccess => "background:#FF00008A; border-width:thin; border-color:#FF00008A",
-                Outcome.Failure => "background:#FF00008A; border-width:thin; border-color:#FF00008A",
+                Outcome.Success => "background:#49B83461; padding:.75em; border-color:#49B83461",
+                Outcome.PartialSuccess => "background:#FF00008A; padding:.75em; border-color:#FF00008A",
+                Outcome.Failure => "background:#FF00008A; padding:.75em; border-color:#FF00008A",
                 _ => throw new NotImplementedException()
             };
 
@@ -70,23 +69,23 @@ namespace Microsoft.DotNet.Interactive.Journey
             }
             else
             {
-                PocketView header = summary[style: outcomeDivStyle](($"[ {Name} ]: "), b(outcomeMessage));
+                PocketView header = summary[style: outcomeDivStyle]($"[ {Name} ]: ", b(outcomeMessage));
 
                 elements.Add(header);
             }
 
             if (!string.IsNullOrWhiteSpace(Reason))
             {
-                elements.Add(div(Reason)); 
+                elements.Add(div(Reason));
             }
 
             if (Hint is not null)
             {
-                var hintElement = div[@class: "hint"](b("Hint: "), Hint.ToDisplayString(HtmlFormatter.MimeType).ToHtmlContent());
+                var hintElement = div[@class: "hint"](b("Hint: "), Hint);
                 elements.Add(hintElement);
             }
 
-            PocketView report = details[@class: "ruleEvaluation"](elements);
+            PocketView report = details[@class: "ruleEvaluation", style: "padding:.5em"](elements);
 
             return report;
         }
@@ -96,12 +95,12 @@ namespace Microsoft.DotNet.Interactive.Journey
             public IEnumerable<ITypeFormatter> CreateTypeFormatters()
             {
                 return new ITypeFormatter[] {
-                new HtmlFormatter<RuleEvaluation>((evaluation, context) =>
-                {
-                    var view = evaluation.FormatAsHtml();
-                    view.WriteTo(context);
-                })
-            };
+                    new HtmlFormatter<RuleEvaluation>((evaluation, context) =>
+                    {
+                        var view = evaluation.FormatAsHtml();
+                        view.WriteTo(context);
+                    })
+                };
             }
         }
     }
